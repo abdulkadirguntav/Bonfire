@@ -15,3 +15,7 @@ local.properties
 # Operating System
 .DS_Store
 Thumbs.db
+
+Plaintext
+# Data and Password
+.env
