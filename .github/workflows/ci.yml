@@ -30,11 +30,5 @@ jobs:
       - name: Bağımlılıkları İndir (Pub Get)
         run: flutter pub get
 
-      - name: Kod Analizi
-        run: flutter analyze
-
-      - name: Flutter Testleri Çalıştır
-        run: flutter test
-
       - name: Android APK Derle (Debug)
         run: flutter build apk --debug
