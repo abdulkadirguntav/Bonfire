@@ -1,34 +1,42 @@
-name: Bonfire CI Pipeline
+name: Bonfire CI
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches:
+      - main
+      - dev
+      - feature/**
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev
 
 jobs:
-  build:
-    name: Android APK Derleme
+  flutter-test:
+    name: Flutter analyze and test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Kodu Klonla
-        uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-      - name: Java Kurulumu (Android İçin)
-        uses: actions/setup-java@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: '17'
 
-      - name: Flutter Kurulumu
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
-          channel: 'stable'
+          flutter-version: '3.24.5'
+          channel: stable
 
-      - name: Bağımlılıkları İndir (Pub Get)
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Android APK Derle (Debug)
-        run: flutter build apk --debug
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
