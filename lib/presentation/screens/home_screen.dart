@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
@@ -14,11 +16,12 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final tasks = ref.watch(tasksProvider);
-    final tasksForToday =
+    final todayTasks =
         tasks.where((task) => task.matchesDate(DateTime.now())).toList();
+    final hp =
+        user == null || user.maxHp == 0 ? 0.0 : user.currentHp / user.maxHp;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0D10),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -26,234 +29,184 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 18),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.local_fire_department_rounded,
-                    color: Color(0xFFB89B5B),
-                    size: 28,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Bonfire',
+              Row(children: [
+                const Icon(Icons.local_fire_department_rounded,
+                    color: GothicPalette.emberBright, size: 30),
+                const SizedBox(width: 9),
+                Text('BONFIRE',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ],
-              ),
+                        color: GothicPalette.goldBright,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 3)),
+              ]),
               const SizedBox(height: 18),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF14191D),
-                  border: Border.all(color: const Color(0xFF2A2F36)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'HP',
-                            style: TextStyle(
-                                color: Color(0xFFB2BAC7), fontSize: 12),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            user == null
-                                ? '0/0'
-                                : '${user.currentHp}/${user.maxHp}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Essence',
-                            style: TextStyle(
-                                color: Color(0xFFB2BAC7), fontSize: 12),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            user == null ? '0' : '${user.totalEssence}',
-                            style: const TextStyle(
-                              color: Color(0xFFB89B5B),
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              OrnateFrame(
+                glow: true,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          Expanded(
+                              child: _Stat(
+                                  label: 'VITALITY',
+                                  value: user == null
+                                      ? '0 / 0'
+                                      : '${user.currentHp} / ${user.maxHp}')),
+                          const SizedBox(width: 16),
+                          _Stat(
+                              label: 'ESSENCE',
+                              value:
+                                  user == null ? '0' : '${user.totalEssence}',
+                              gold: true),
+                        ]),
+                        const SizedBox(height: 14),
+                        DetailedHpBar(
+                            value: hp, label: 'HEALTH  ${(hp * 100).round()}%'),
+                      ]),
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Günlük görevler',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              const SizedBox(height: 22),
+              const SectionTitle('Today\'s vows'),
               const SizedBox(height: 12),
               Expanded(
-                child: ListView.separated(
-                  itemCount: tasksForToday.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final task = tasksForToday[index];
-                    return _TaskCard(task: task);
-                  },
-                ),
+                child: todayTasks.isEmpty
+                    ? const Center(
+                        child: Text('No vows have been sworn today.',
+                            style:
+                                TextStyle(color: GothicPalette.parchmentDim)))
+                    : ListView.separated(
+                        itemCount: todayTasks.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (_, index) =>
+                            _TaskCard(task: todayTasks[index]),
+                      ),
               ),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: const Color(0xFF12161A),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (_) => const TaskBottomSheet(),
-          );
-        },
-        backgroundColor: const Color(0xFFB89B5B),
-        child: const Icon(Icons.add, color: Colors.black),
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => const TaskBottomSheet(),
+        ),
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, this.gold = false});
+  final String label;
+  final String value;
+  final bool gold;
+
+  @override
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label,
+            style: const TextStyle(
+                color: GothicPalette.parchmentDim,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.6)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: TextStyle(
+                color: gold
+                    ? GothicPalette.goldBright
+                    : GothicPalette.parchmentLight,
+                fontSize: 24,
+                fontWeight: FontWeight.w800)),
+      ]);
+}
+
 class _TaskCard extends ConsumerWidget {
   const _TaskCard({required this.task});
-
   final Task task;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: task.isBoss ? const Color(0xFF1E1A15) : const Color(0xFF14191D),
-        border: Border.all(
-          color:
-              task.isBoss ? const Color(0xFFB89B5B) : const Color(0xFF2A2F36),
-          width: task.isBoss ? 1.5 : 1,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return OrnateFrame(
+      radius: 12,
+      borderWidth: task.isBoss ? 2.4 : 1.5,
+      outerGradient: task.isBoss
+          ? GothicPalette.goldFrameGradient
+          : GothicPalette.goldFrameGradientSoft,
+      glow: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Checkbox(
             value: task.isCompleted,
-            activeColor: const Color(0xFFB89B5B),
-            onChanged: (value) async {
-              if (user == null) return;
-
-              final next = value ?? false;
-              final delta = TaskEconomyService.calculateCompletionDelta(
-                user,
-                task,
-                isCompleted: next,
-              );
-
-              if (delta == 0) return;
-
-              await ref
-                  .read(tasksProvider.notifier)
-                  .toggleComplete(task.id, isCompleted: next);
-
-              final updatedUser = user.copyWith(
-                totalEssence: user.totalEssence + delta,
-              );
-
-              if (task.isBoss && next) {
-                await ref
-                    .read(userControllerProvider.notifier)
-                    .markFirstBossDefeated();
-              }
-
-              await ref
-                  .read(userControllerProvider.notifier)
-                  .saveUser(updatedUser);
-            },
+            onChanged: user == null
+                ? null
+                : (value) async {
+                    final currentUser = user;
+                    final next = value ?? false;
+                    final delta = TaskEconomyService.calculateCompletionDelta(
+                        currentUser, task,
+                        isCompleted: next);
+                    if (delta == 0) return;
+                    await ref
+                        .read(tasksProvider.notifier)
+                        .toggleComplete(task.id, isCompleted: next);
+                    if (task.isBoss && next) {
+                      await ref
+                          .read(userControllerProvider.notifier)
+                          .markFirstBossDefeated();
+                    }
+                    await ref.read(userControllerProvider.notifier).saveUser(
+                        currentUser.copyWith(
+                            totalEssence: currentUser.totalEssence + delta));
+                  },
           ),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
+              child: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(task.title,
                   style: TextStyle(
-                    color: task.isBoss ? const Color(0xFFFFDCA0) : Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (task.description.isNotEmpty)
-                  Padding(
+                      color: task.isBoss
+                          ? GothicPalette.goldBright
+                          : GothicPalette.parchmentLight,
+                      fontWeight: FontWeight.w700,
+                      decoration: task.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null)),
+              if (task.description.isNotEmpty)
+                Padding(
                     padding: const EdgeInsets.only(top: 4),
+                    child: Text(task.description,
+                        style: const TextStyle(
+                            color: GothicPalette.parchment, fontSize: 12))),
+              if (task.habitTime != null || task.isBoss)
+                Padding(
+                    padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      task.description,
-                      style: const TextStyle(
-                        color: Color(0xFFB2BAC7),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                if (task.habitTime != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Zaman: ${task.habitTime}',
-                      style: const TextStyle(
-                        color: Color(0xFF8F949B),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                if (task.isBoss)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Boss task',
-                      style: TextStyle(
-                        color: Color(0xFFB89B5B),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+                        task.isBoss
+                            ? '✦ BOSS VOW${task.habitTime == null ? '' : '  •  ${task.habitTime}'}'
+                            : 'TIME  ${task.habitTime}',
+                        style: const TextStyle(
+                            color: GothicPalette.emberBright,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1))),
+            ]),
+          )),
           IconButton(
-            onPressed: () async {
-              await ref.read(tasksProvider.notifier).removeTask(task.id);
-            },
-            icon: const Icon(Icons.delete_outline, color: Color(0xFFB2BAC7)),
-          ),
-        ],
+              onPressed: () =>
+                  ref.read(tasksProvider.notifier).removeTask(task.id),
+              icon: const Icon(Icons.delete_outline,
+                  color: GothicPalette.parchmentDim)),
+        ]),
       ),
     );
   }

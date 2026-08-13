@@ -63,11 +63,11 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                   color: Color(0xFFD7BE7D),
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'serif',
                 ),
               ),
               const SizedBox(height: 24),
-              if (soapstone == null && SoapstoneService.canCreateToday(items, today))
+              if (soapstone == null &&
+                  SoapstoneService.canCreateToday(items, today))
                 Column(
                   children: [
                     TextField(
@@ -76,14 +76,12 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
-                        fontFamily: 'serif',
                         height: 1.6,
                       ),
                       decoration: const InputDecoration(
                         hintText: 'Leave a message for the next wanderer...',
                         hintStyle: TextStyle(
                           color: Color(0xFF8E8E90),
-                          fontFamily: 'serif',
                         ),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(color: Color(0xFFB89B5B)),
@@ -103,7 +101,9 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                             date: today,
                           );
 
-                          await ref.read(soapstonesProvider.notifier).addSoapstone(soap);
+                          await ref
+                              .read(soapstonesProvider.notifier)
+                              .addSoapstone(soap);
                           _controller.clear();
                         },
                         style: FilledButton.styleFrom(
@@ -137,7 +137,6 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                       Text(
                         soapstone.message,
                         style: const TextStyle(
-                          fontFamily: 'serif',
                           color: Colors.white,
                           fontSize: 18,
                           height: 1.7,
@@ -155,7 +154,9 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                               isEdited: true,
                             );
 
-                            await ref.read(soapstonesProvider.notifier).updateSoapstone(updated);
+                            await ref
+                                .read(soapstonesProvider.notifier)
+                                .updateSoapstone(updated);
                           },
                           child: const Text('Edit message'),
                         )

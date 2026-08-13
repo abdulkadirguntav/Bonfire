@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/reflection.dart';
 import 'package:bonfire/domain/services/reflection_journal_service.dart';
 import 'package:bonfire/presentation/providers/reflection_provider.dart';
@@ -32,7 +34,8 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
         _controllers[question] = TextEditingController();
       }
     }
-    if (_customQuestions.isNotEmpty && !_controllers.containsKey(_customQuestions.first)) {
+    if (_customQuestions.isNotEmpty &&
+        !_controllers.containsKey(_customQuestions.first)) {
       _controllers[_customQuestions.first] = TextEditingController();
     }
   }
@@ -61,7 +64,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0B09),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -70,51 +72,52 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                const Icon(
-                  Icons.local_fire_department_rounded,
-                  color: Color(0xFFB89B5B),
-                  size: 42,
-                ),
-                const SizedBox(height: 16),
+                const Icon(Icons.auto_stories_rounded,
+                    color: GothicPalette.emberBright, size: 42),
+                const SizedBox(height: 12),
+                const SectionTitle('Reflection journal'),
+                const SizedBox(height: 14),
                 Text(
                   '${today.day}/${today.month}/${today.year}',
                   style: const TextStyle(
-                    color: Color(0xFFCFD3D9),
-                    fontSize: 14,
-                  ),
+                      color: GothicPalette.parchmentDim,
+                      fontSize: 13,
+                      letterSpacing: 1.2),
                 ),
                 const SizedBox(height: 28),
                 ...questions.map((question) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          question,
-                          style: const TextStyle(
-                            color: Color(0xFFEDE7DC),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                    child: IronInsetFrame(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            question,
+                            style: const TextStyle(
+                              color: GothicPalette.goldBright,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _controllers[question],
-                          maxLines: 4,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            height: 1.5,
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _controllers[question],
+                            maxLines: 4,
+                            style: const TextStyle(
+                              color: GothicPalette.parchmentLight,
+                              fontSize: 15,
+                              height: 1.5,
+                            ),
+                            decoration: const InputDecoration(
+                              hintText: '... ',
+                              hintStyle:
+                                  TextStyle(color: GothicPalette.parchmentDim),
+                            ),
                           ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            hintText: '... ',
-                            hintStyle: TextStyle(color: Color(0xFF7C7A76)),
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -126,7 +129,8 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                       onPressed: () async {
                         final answers = <String, String>{};
                         for (final question in questions) {
-                          answers[question] = _controllers[question]?.text.trim() ?? '';
+                          answers[question] =
+                              _controllers[question]?.text.trim() ?? '';
                         }
 
                         final dailyReflection = Reflection(
@@ -139,11 +143,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                             .read(reflectionsProvider.notifier)
                             .saveReflection(dailyReflection);
                       },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFB89B5B),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
                       child: const Text('Save reflection'),
                     ),
                   ),

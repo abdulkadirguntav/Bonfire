@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/data/repositories/ash_mark_repository.dart';
 import 'package:bonfire/data/repositories/reflection_repository.dart';
 import 'package:bonfire/data/repositories/soapstone_repository.dart';
@@ -29,8 +30,10 @@ Future<void> main() async {
         userRepositoryProvider.overrideWithValue(UserRepository(prefs)),
         taskRepositoryProvider.overrideWithValue(TaskRepository(prefs)),
         ashMarkRepositoryProvider.overrideWithValue(AshMarkRepository(prefs)),
-        reflectionRepositoryProvider.overrideWithValue(ReflectionRepository(prefs)),
-        soapstoneRepositoryProvider.overrideWithValue(SoapstoneRepository(prefs)),
+        reflectionRepositoryProvider
+            .overrideWithValue(ReflectionRepository(prefs)),
+        soapstoneRepositoryProvider
+            .overrideWithValue(SoapstoneRepository(prefs)),
       ],
       child: const BonfireApp(),
     ),
@@ -51,12 +54,14 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
   Widget build(BuildContext context) {
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
+    final theme = GothicTheme.build();
 
     if (user == null) {
-      return const MaterialApp(
+      return MaterialApp(
         title: 'Bonfire',
         debugShowCheckedModeBanner: false,
-        home: OnboardingScreen(),
+        theme: theme,
+        home: const OnboardingScreen(),
       );
     }
 
@@ -64,6 +69,7 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
       return MaterialApp(
         title: 'Bonfire',
         debugShowCheckedModeBanner: false,
+        theme: theme,
         home: DeathScreen(
           lostEssence: ashMark?.lostEssence ?? user.totalEssence,
           targetStreak: ashMark?.targetStreak ?? 0,
@@ -81,8 +87,8 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
 
     final destinations = <NavigationDestination>[
       const NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home_rounded),
+        icon: Icon(Icons.local_fire_department_outlined),
+        selectedIcon: Icon(Icons.local_fire_department_rounded),
         label: 'Home',
       ),
       const NavigationDestination(
@@ -106,15 +112,7 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
     return MaterialApp(
       title: 'Bonfire',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0B0D10),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFB89B5B),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: theme,
       home: Scaffold(
         body: IndexedStack(
           index: _selectedIndex,
@@ -122,7 +120,8 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+          onDestinationSelected: (index) =>
+              setState(() => _selectedIndex = index),
           destinations: destinations,
         ),
       ),

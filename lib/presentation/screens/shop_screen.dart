@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/widgets/ornate_widgets.dart';
+import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
@@ -11,134 +14,121 @@ class ShopScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final catalog = ShopService.defaultCatalog();
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0D10),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('The Kiln'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Essence',
-                    style: TextStyle(color: Color(0xFFB2BAC7), fontSize: 14),
-                  ),
-                  Text(
-                    user == null ? '0' : '${user.totalEssence}',
+      appBar: AppBar(title: const Text('THE KILN')),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          OrnateFrame(
+            radius: 10,
+            padding: const EdgeInsets.all(1.5),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+              child: Row(children: [
+                const Icon(Icons.auto_awesome,
+                    color: GothicPalette.emberBright),
+                const SizedBox(width: 9),
+                const Text('ESSENCE HELD',
+                    style: TextStyle(
+                        color: GothicPalette.parchment,
+                        fontSize: 12,
+                        letterSpacing: 1.5)),
+                const Spacer(),
+                Text('${user?.totalEssence ?? 0}',
                     style: const TextStyle(
-                      color: Color(0xFFB89B5B),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: GridView.builder(
-                  itemCount: catalog.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = catalog[index];
-                    return Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF14191D),
-                        border: Border.all(color: const Color(0xFF2A2F36)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.icon,
-                            style: const TextStyle(fontSize: 36),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            item.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            item.description,
-                            style: const TextStyle(
-                              color: Color(0xFFB2BAC7),
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Spacer(),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.bolt,
-                                color: Color(0xFFB89B5B),
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${item.price}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: user == null
-                                  ? null
-                                  : () async {
-                                      if (!ShopService.canAfford(user, item)) {
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Essence yetersiz.')),
-                                          );
-                                        }
-                                        return;
-                                      }
-
-                                      final purchased = ShopService.purchase(user, item);
-                                      await ref
-                                          .read(userControllerProvider.notifier)
-                                          .saveUser(purchased);
-                                    },
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFFB89B5B),
-                                foregroundColor: Colors.black,
-                              ),
-                              child: const Text('Buy'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                        color: GothicPalette.goldBright,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w800)),
+              ]),
+            ),
           ),
+          const SizedBox(height: 20),
+          const SectionTitle('Forge offerings'),
+          const SizedBox(height: 12),
+          Expanded(
+            child: LayoutBuilder(builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 600 ? 3 : 2;
+              return GridView.builder(
+                itemCount: catalog.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: columns == 2 ? .62 : .82,
+                ),
+                itemBuilder: (_, index) => _KilnItem(item: catalog[index]),
+              );
+            }),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _KilnItem extends ConsumerWidget {
+  const _KilnItem({required this.item});
+  final ShopItem item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userControllerProvider);
+    return OrnateFrame(
+      radius: 12,
+      glow: true,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(item.icon, style: const TextStyle(fontSize: 34)),
+            const SizedBox(height: 6),
+            Text(item.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: GothicPalette.goldBright,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800)),
+            const SizedBox(height: 5),
+            Text(item.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: GothicPalette.parchment, fontSize: 11, height: 1.3)),
+            const SizedBox(height: 10),
+            Row(children: [
+              const Icon(Icons.auto_awesome,
+                  color: GothicPalette.emberBright, size: 15),
+              const SizedBox(width: 4),
+              Text('${item.price}',
+                  style: const TextStyle(
+                      color: GothicPalette.parchmentLight,
+                      fontWeight: FontWeight.w700)),
+            ]),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: user == null
+                    ? null
+                    : () async {
+                        final currentUser = user;
+                        if (!ShopService.canAfford(currentUser, item)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Yeterli Essence yok.')));
+                          return;
+                        }
+                        await ref
+                            .read(userControllerProvider.notifier)
+                            .saveUser(ShopService.purchase(currentUser, item));
+                      },
+                child: const Text('FORGE'),
+              ),
+            ),
+          ],
         ),
       ),
     );

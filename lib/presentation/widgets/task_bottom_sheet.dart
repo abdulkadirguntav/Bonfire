@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 
@@ -40,7 +41,8 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
 
     if (time != null) {
       setState(() {
-        _habitTime = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+        _habitTime =
+            '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -121,38 +123,24 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: GothicPalette.goldBright,
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _titleController,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
+            style: const TextStyle(color: GothicPalette.parchmentLight),
+            decoration: const InputDecoration(
               hintText: 'Görev adı',
-              hintStyle: const TextStyle(color: Color(0xFF8F949B)),
-              filled: true,
-              fillColor: const Color(0xFF191D22),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _descriptionController,
             maxLines: 3,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
+            style: const TextStyle(color: GothicPalette.parchmentLight),
+            decoration: const InputDecoration(
               hintText: 'Açıklama',
-              hintStyle: const TextStyle(color: Color(0xFF8F949B)),
-              filled: true,
-              fillColor: const Color(0xFF191D22),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -160,7 +148,7 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             children: [
               const Text(
                 'Boss görevi',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: GothicPalette.parchmentLight),
               ),
               const Spacer(),
               Switch(
@@ -175,13 +163,13 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             children: [
               const Text(
                 'Alışkanlık zamanı',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: GothicPalette.parchmentLight),
               ),
               TextButton(
                 onPressed: _pickTime,
                 child: Text(
                   _habitTime ?? 'Seç',
-                  style: const TextStyle(color: Color(0xFFB89B5B)),
+                  style: const TextStyle(color: GothicPalette.goldBright),
                 ),
               ),
             ],
@@ -189,7 +177,9 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
           const SizedBox(height: 12),
           const Text(
             'Haftanın günleri',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: GothicPalette.parchmentLight,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -201,9 +191,10 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
               return ChoiceChip(
                 label: Text(day.label),
                 selected: selected,
-                selectedColor: const Color(0xFFB89B5B),
                 labelStyle: TextStyle(
-                  color: selected ? Colors.black : Colors.white,
+                  color: selected
+                      ? GothicPalette.obsidian
+                      : GothicPalette.parchmentLight,
                   fontWeight: FontWeight.w600,
                 ),
                 onSelected: (_) {
@@ -223,11 +214,6 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             width: double.infinity,
             child: FilledButton(
               onPressed: _submit,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFB89B5B),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
               child: const Text('Görevi ekle'),
             ),
           ),
