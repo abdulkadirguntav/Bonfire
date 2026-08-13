@@ -5,9 +5,10 @@ import 'package:bonfire/domain/models/user.dart';
 void main() {
   group('CharacterClass', () {
     test('should have at least three classes with correct stats', () { 
-      expect(CharacterClass.values.length, greaterThanOrEqualTo(3));
+      const values = CharacterClass.values;
+      expect(values.length, greaterThanOrEqualTo(3));
 
-      final warrior = CharacterClass.warrior;
+      const warrior = CharacterClass.warrior;
       expect(warrior.className, 'Warrior');
       expect(warrior.baseHp, 100);
       expect(warrior.essenceMultiplier, 1.0);

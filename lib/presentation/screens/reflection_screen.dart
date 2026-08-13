@@ -26,7 +26,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 
   void _ensureQuestions(String dateKey) {
-    final defaultQuestions = ReflectionJournalService.defaultQuestions;
+    const defaultQuestions = ReflectionJournalService.defaultQuestions;
     for (final question in defaultQuestions) {
       if (!_controllers.containsKey(question)) {
         _controllers[question] = TextEditingController();

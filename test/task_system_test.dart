@@ -7,7 +7,7 @@ import 'package:bonfire/domain/services/task_economy_service.dart';
 void main() {
   group('TaskEconomyService', () {
     test('rewards essence using the class multiplier', () {
-      final user = User(
+      const user = User(
         id: 'u1',
         selectedClass: CharacterClass.mage,
         currentHp: 120,
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('boss reward is tripled', () {
-      final user = User(
+      const user = User(
         id: 'u1',
         selectedClass: CharacterClass.mage,
         currentHp: 120,
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('penalties use class damage multiplier', () {
-      final user = User(
+      const user = User(
         id: 'u1',
         selectedClass: CharacterClass.prisoner,
         currentHp: 80,
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('toggling a task off removes the essence reward', () {
-      final user = User(
+      const user = User(
         id: 'u1',
         selectedClass: CharacterClass.mage,
         currentHp: 120,

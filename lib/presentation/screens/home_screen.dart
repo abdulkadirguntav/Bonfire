@@ -14,7 +14,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final tasks = ref.watch(tasksProvider);
-    final tasksForToday = tasks.where((task) => task.matchesDate(DateTime.now())).toList();
+    final tasksForToday =
+        tasks.where((task) => task.matchesDate(DateTime.now())).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0D10),
@@ -36,9 +37,9 @@ class HomeScreen extends ConsumerWidget {
                   Text(
                     'Bonfire',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
                 ],
               ),
@@ -58,11 +59,14 @@ class HomeScreen extends ConsumerWidget {
                         children: [
                           const Text(
                             'HP',
-                            style: TextStyle(color: Color(0xFFB2BAC7), fontSize: 12),
+                            style: TextStyle(
+                                color: Color(0xFFB2BAC7), fontSize: 12),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            user == null ? '0/0' : '${user.currentHp}/${user.maxHp}',
+                            user == null
+                                ? '0/0'
+                                : '${user.currentHp}/${user.maxHp}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -79,7 +83,8 @@ class HomeScreen extends ConsumerWidget {
                         children: [
                           const Text(
                             'Essence',
-                            style: TextStyle(color: Color(0xFFB2BAC7), fontSize: 12),
+                            style: TextStyle(
+                                color: Color(0xFFB2BAC7), fontSize: 12),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -109,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
               Expanded(
                 child: ListView.separated(
                   itemCount: tasksForToday.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final task = tasksForToday[index];
                     return _TaskCard(task: task);
@@ -153,7 +158,8 @@ class _TaskCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: task.isBoss ? const Color(0xFF1E1A15) : const Color(0xFF14191D),
         border: Border.all(
-          color: task.isBoss ? const Color(0xFFB89B5B) : const Color(0xFF2A2F36),
+          color:
+              task.isBoss ? const Color(0xFFB89B5B) : const Color(0xFF2A2F36),
           width: task.isBoss ? 1.5 : 1,
         ),
       ),
@@ -175,7 +181,9 @@ class _TaskCard extends ConsumerWidget {
 
               if (delta == 0) return;
 
-              await ref.read(tasksProvider.notifier).toggleComplete(task.id, isCompleted: next);
+              await ref
+                  .read(tasksProvider.notifier)
+                  .toggleComplete(task.id, isCompleted: next);
 
               final updatedUser = user.copyWith(
                 totalEssence: user.totalEssence + delta,
@@ -187,7 +195,9 @@ class _TaskCard extends ConsumerWidget {
                     .markFirstBossDefeated();
               }
 
-              await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
+              await ref
+                  .read(userControllerProvider.notifier)
+                  .saveUser(updatedUser);
             },
           ),
           Expanded(

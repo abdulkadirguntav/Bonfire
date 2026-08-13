@@ -7,7 +7,7 @@ import 'package:bonfire/domain/services/soapstone_service.dart';
 void main() {
   group('Soapstone unlock and daily rules', () {
     test('soapstone unlocks after first boss defeat', () {
-      final user = User(
+      const user = User(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
         currentHp: 100,
