@@ -83,15 +83,12 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                         hintStyle: TextStyle(
                           color: Color(0xFF8E8E90),
                         ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFB89B5B)),
-                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
                     SizedBox(
                       width: double.infinity,
-                      child: FilledButton(
+                      child: OutlinedButton(
                         onPressed: () async {
                           final message = _controller.text.trim();
                           if (message.isEmpty) return;
@@ -106,10 +103,6 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                               .addSoapstone(soap);
                           _controller.clear();
                         },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFB89B5B),
-                          foregroundColor: Colors.black,
-                        ),
                         child: const Text('Leave the stone'),
                       ),
                     ),
@@ -120,7 +113,8 @@ class _SoapstoneScreenState extends ConsumerState<SoapstoneScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFB89B5B)),
+                    border:
+                        Border.all(color: const Color(0xFF6E4A1C), width: 0.8),
                     color: const Color(0xFF17130F),
                   ),
                   child: Column(

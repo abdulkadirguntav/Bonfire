@@ -6,17 +6,17 @@ class OrnateFrame extends StatelessWidget {
   const OrnateFrame({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(2),
+    this.padding,
     this.radius = 14,
     this.innerRadius,
     this.outerGradient,
     this.panelGradient,
     this.glow = false,
-    this.borderWidth = 2,
+    this.borderWidth = 0.8,
   });
 
   final Widget child;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
   final double radius;
   final double? innerRadius;
   final LinearGradient? outerGradient;
@@ -34,7 +34,7 @@ class OrnateFrame extends StatelessWidget {
             ...GothicPalette.emberGlow,
             ...GothicPalette.goldGlow,
           ]
-        : GothicPalette.emberGlow;
+        : const <BoxShadow>[];
 
     return Container(
       decoration: BoxDecoration(
@@ -43,15 +43,15 @@ class OrnateFrame extends StatelessWidget {
         boxShadow: shadows,
       ),
       child: Padding(
-        padding: padding,
+        padding: padding ?? EdgeInsets.all(borderWidth),
         child: Container(
           decoration: BoxDecoration(
             gradient: panel,
             borderRadius: BorderRadius.circular(innerR),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x88000000),
-                blurRadius: 6,
+                color: Color(0x55000000),
+                blurRadius: 4,
                 offset: Offset(0, 2),
               ),
             ],
@@ -69,7 +69,7 @@ class IronInsetFrame extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(14),
     this.radius = 12,
-    this.borderWidth = 1.2,
+    this.borderWidth = 0.8,
     this.activeEmber = false,
   });
 
@@ -96,19 +96,19 @@ class IronInsetFrame extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: activeEmber
-              ? GothicPalette.ember.withValues(alpha: 0.8)
-              : GothicPalette.goldDeep.withValues(alpha: 0.7),
+              ? GothicPalette.ember.withValues(alpha: 0.5)
+              : GothicPalette.goldDeep.withValues(alpha: 0.45),
           width: borderWidth,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x66000000),
-            blurRadius: 8,
+            color: Color(0x44000000),
+            blurRadius: 4,
             offset: Offset(2, 3),
           ),
           BoxShadow(
-            color: Color(0x22FFD700),
-            blurRadius: 10,
+            color: Color(0x12FFD700),
+            blurRadius: 4,
             offset: Offset(0, 0),
           ),
         ],
@@ -149,7 +149,7 @@ class DetailedHpBar extends StatelessWidget {
                   ],
                 ),
                 borderRadius: BorderRadius.circular(height / 2 + 2),
-                border: Border.all(color: GothicPalette.goldDeep, width: 1),
+                border: Border.all(color: GothicPalette.goldDeep, width: 0.8),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x88000000),
@@ -208,7 +208,7 @@ class DetailedHpBar extends StatelessWidget {
                         top: 0,
                         bottom: 0,
                         child: Container(
-                          width: 1.5,
+                          width: 0.8,
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,

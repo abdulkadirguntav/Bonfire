@@ -32,11 +32,11 @@ class GothicPalette {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
+      Color(0xFF6E5A32),
+      Color(0xFF9D8650),
       Color(0xFFB89B5B),
-      Color(0xFFFFE89A),
-      Color(0xFFFFD700),
-      Color(0xFFB89B5B),
-      Color(0xFF6E4A1C),
+      Color(0xFF74603A),
+      Color(0xFF3F321D),
     ],
     stops: [0.0, 0.35, 0.5, 0.7, 1.0],
   );
@@ -45,11 +45,11 @@ class GothicPalette {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF8B6914),
-      Color(0xFFDAA520),
-      Color(0xFFFFD700),
-      Color(0xFFB89B5B),
-      Color(0xFF6E4A1C),
+      Color(0xFF493819),
+      Color(0xFF756035),
+      Color(0xFFA3884B),
+      Color(0xFF695631),
+      Color(0xFF3B2E1B),
     ],
     stops: [0.0, 0.3, 0.55, 0.8, 1.0],
   );
@@ -88,35 +88,26 @@ class GothicPalette {
 
   static const List<BoxShadow> emberGlow = [
     BoxShadow(
-      color: Color(0x55E25822),
-      blurRadius: 18,
-      offset: Offset(0, 0),
-      spreadRadius: 1,
-    ),
-    BoxShadow(
-      color: Color(0x33FF6A1A),
-      blurRadius: 28,
-      offset: Offset(0, 6),
+      color: Color(0x1AE25822),
+      blurRadius: 6,
+      offset: Offset(0, 3),
+      spreadRadius: 0,
     ),
   ];
 
   static const List<BoxShadow> goldGlow = [
     BoxShadow(
-      color: Color(0x44DAA520),
-      blurRadius: 14,
-      offset: Offset(0, 0),
-    ),
-    BoxShadow(
-      color: Color(0x22FFD700),
-      blurRadius: 26,
-      offset: Offset(0, 4),
+      color: Color(0x1ADAA520),
+      blurRadius: 4,
+      offset: Offset(0, 2),
+      spreadRadius: 0,
     ),
   ];
 
   static const List<BoxShadow> ironInset = [
     BoxShadow(
       color: Color(0x55000000),
-      blurRadius: 8,
+      blurRadius: 4,
       offset: Offset(2, 2),
     ),
     BoxShadow(
@@ -195,14 +186,15 @@ class GothicTheme {
           );
         }),
       ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: GothicPalette.ember,
-          foregroundColor: GothicPalette.obsidian,
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: GothicPalette.gold,
+          backgroundColor: GothicPalette.onyx,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(7),
           ),
+          side: const BorderSide(color: GothicPalette.bronze, width: 0.8),
           textStyle: GoogleFonts.cinzel(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -232,7 +224,7 @@ class GothicTheme {
         focusedErrorBorder: const GothicInputBorder(error: true, active: true),
       ),
       checkboxTheme: CheckboxThemeData(
-        side: const BorderSide(color: GothicPalette.gold, width: 1.5),
+        side: const BorderSide(color: GothicPalette.goldDeep, width: 0.8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(3),
         ),
@@ -281,7 +273,7 @@ class GothicTheme {
         actionTextColor: GothicPalette.goldBright,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
-          side: const BorderSide(color: GothicPalette.goldDeep, width: 1),
+          side: const BorderSide(color: GothicPalette.goldDeep, width: 0.8),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -294,7 +286,7 @@ class GothicTheme {
         backgroundColor: GothicPalette.onyx,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: GothicPalette.gold, width: 1.2),
+          side: const BorderSide(color: GothicPalette.goldDeep, width: 0.8),
         ),
         titleTextStyle: GoogleFonts.cinzel(
           color: GothicPalette.goldBright,
@@ -365,15 +357,15 @@ class GothicInputBorder extends InputBorder {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFFFFD700),
-                Color(0xFFFF6A1A),
-                Color(0xFFDAA520),
+                Color(0xFFB89B5B),
+                Color(0xFFD09A42),
                 Color(0xFF8B6914),
+                Color(0xFF4A3818),
               ],
             ).createShader(rect)
           : GothicPalette.goldFrameGradientSoft.createShader(rect)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = active ? 1.6 : 1.0;
+      ..strokeWidth = active ? 0.9 : 0.6;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(rect, borderRadius.topLeft),

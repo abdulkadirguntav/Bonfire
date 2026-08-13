@@ -35,7 +35,8 @@ class DeathScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.25),
-                  border: Border.all(color: const Color(0xFF8E2A2A)),
+                  border:
+                      Border.all(color: const Color(0xFF8E2A2A), width: 0.8),
                 ),
                 child: Column(
                   children: [

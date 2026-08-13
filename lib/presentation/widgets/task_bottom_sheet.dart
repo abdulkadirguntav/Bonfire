@@ -212,7 +212,7 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: OutlinedButton(
               onPressed: _submit,
               child: const Text('Görevi ekle'),
             ),

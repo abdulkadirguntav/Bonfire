@@ -21,7 +21,7 @@ class ShopScreen extends ConsumerWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           OrnateFrame(
             radius: 10,
-            padding: const EdgeInsets.all(1.5),
+            padding: const EdgeInsets.all(0.8),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
               child: Row(children: [
@@ -110,7 +110,7 @@ class _KilnItem extends ConsumerWidget {
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: OutlinedButton(
                 onPressed: user == null
                     ? null
                     : () async {

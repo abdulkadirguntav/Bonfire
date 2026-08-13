@@ -45,7 +45,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Expanded(
                 child: ListView.separated(
                   itemCount: CharacterClass.values.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final characterClass = CharacterClass.values[index];
                     final isSelected = _selectedClass == characterClass;
@@ -61,12 +62,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           color: isSelected
                               ? const Color(0xFFB89B5B)
                               : Colors.transparent,
-                          width: 1.5,
+                          width: 0.8,
                         ),
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: () => setState(() => _selectedClass = characterClass),
+                        onTap: () =>
+                            setState(() => _selectedClass = characterClass),
                         child: Padding(
                           padding: const EdgeInsets.all(18),
                           child: Column(
@@ -83,7 +85,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        characterClass.className.substring(0, 1),
+                                        characterClass.className
+                                            .substring(0, 1),
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
@@ -94,11 +97,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           characterClass.className,
-                                          style: theme.textTheme.titleLarge?.copyWith(
+                                          style: theme.textTheme.titleLarge
+                                              ?.copyWith(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -106,7 +111,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           'HP ${characterClass.baseHp} • Essence ${characterClass.essenceMultiplier}x • Damage ${characterClass.damageMultiplier}x',
-                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
                                             color: const Color(0xFFB2BAC7),
                                           ),
                                         ),
@@ -139,19 +145,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: OutlinedButton(
                   onPressed: () async {
                     await ref
                         .read(userControllerProvider.notifier)
                         .selectClass(_selectedClass);
                   },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFB89B5B),
-                    foregroundColor: Colors.black,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFDAA520),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
+                    side:
+                        const BorderSide(color: Color(0xFF6E4A1C), width: 0.8),
                   ),
                   child: const Text(
                     'Yolculuğa Başla',

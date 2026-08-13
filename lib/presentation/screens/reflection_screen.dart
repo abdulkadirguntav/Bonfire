@@ -125,7 +125,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                 if (user != null)
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton(
+                    child: OutlinedButton(
                       onPressed: () async {
                         final answers = <String, String>{};
                         for (final question in questions) {

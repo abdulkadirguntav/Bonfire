@@ -135,7 +135,7 @@ class _TaskCard extends ConsumerWidget {
     final user = ref.watch(userControllerProvider);
     return OrnateFrame(
       radius: 12,
-      borderWidth: task.isBoss ? 2.4 : 1.5,
+      borderWidth: task.isBoss ? 1.0 : 0.7,
       outerGradient: task.isBoss
           ? GothicPalette.goldFrameGradient
           : GothicPalette.goldFrameGradientSoft,
