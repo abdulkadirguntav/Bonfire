@@ -49,9 +49,31 @@ class TaskController extends Notifier<List<Task>> {
   }
 
   Future<void> removeTask(String taskId) async {
+    final user = ref.read(userControllerProvider);
+    Task? removedTask;
+    for (final item in state) {
+      if (item.id == taskId) {
+        removedTask = item;
+        break;
+      }
+    }
     final tasks = state.where((task) => task.id != taskId).toList();
     await _repository.saveTasks(tasks);
     state = tasks;
+
+    if (user != null && removedTask != null) {
+      final wasCompleted = removedTask!.isCompletedOn(DateTime.now());
+      if (wasCompleted) {
+        final maxStamina = StaminaService.dailyCapacity;
+        final updatedStamina = (user.currentStamina + removedTask!.category.staminaCost)
+            .clamp(0, maxStamina)
+            .toInt();
+        final updatedUser = user.copyWith(
+          currentStamina: updatedStamina,
+        );
+        await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
+      }
+    }
   }
 
   Future<void> toggleComplete(String taskId,
