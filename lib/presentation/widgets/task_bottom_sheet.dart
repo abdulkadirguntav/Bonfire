@@ -74,6 +74,7 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
       id: 'task_${DateTime.now().millisecondsSinceEpoch}',
       title: title,
       description: description,
+      category: _isBoss ? TaskCategory.physical : TaskCategory.routine,
       isBoss: _isBoss,
       rewardValue: _isBoss ? 20 : 10,
       habitTime: _habitTime,
@@ -82,7 +83,7 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
     );
 
     try {
-      await ref.read(tasksProvider.notifier).addTask(task);
+      await ref.read(tasksProvider.notifier).addTask(task, acceptedExhaustionWarning: false);
       if (mounted) {
         Navigator.of(context).pop();
       }
