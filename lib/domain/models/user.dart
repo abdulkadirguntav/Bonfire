@@ -8,8 +8,6 @@ class User {
     required this.maxHp,
     required this.totalEssence,
     required this.currentStreak,
-    this.currentStamina = 100,
-    this.staminaUpdatedAt,
     this.hasDefeatedFirstBoss = false,
   });
 
@@ -18,8 +16,6 @@ class User {
   final int currentHp;
   final int maxHp;
   final int totalEssence;
-  final int currentStamina;
-  final DateTime? staminaUpdatedAt;
   final int currentStreak;
   final bool hasDefeatedFirstBoss;
 
@@ -30,8 +26,6 @@ class User {
     int? maxHp,
     int? totalEssence,
     int? currentStreak,
-    int? currentStamina,
-    DateTime? staminaUpdatedAt,
     bool? hasDefeatedFirstBoss,
   }) {
     return User(
@@ -41,8 +35,6 @@ class User {
       maxHp: maxHp ?? this.maxHp,
       totalEssence: totalEssence ?? this.totalEssence,
       currentStreak: currentStreak ?? this.currentStreak,
-      currentStamina: currentStamina ?? this.currentStamina,
-      staminaUpdatedAt: staminaUpdatedAt ?? this.staminaUpdatedAt,
       hasDefeatedFirstBoss: hasDefeatedFirstBoss ?? this.hasDefeatedFirstBoss,
     );
   }
@@ -54,8 +46,6 @@ class User {
       'currentHp': currentHp,
       'maxHp': maxHp,
       'totalEssence': totalEssence,
-      'currentStamina': currentStamina,
-      'staminaUpdatedAt': staminaUpdatedAt?.toIso8601String(),
       'currentStreak': currentStreak,
       'hasDefeatedFirstBoss': hasDefeatedFirstBoss,
     };
@@ -68,9 +58,6 @@ class User {
       currentHp: json['currentHp'] as int? ?? 0,
       maxHp: json['maxHp'] as int? ?? 0,
       totalEssence: json['totalEssence'] as int? ?? 0,
-      currentStamina: json['currentStamina'] as int? ?? 100,
-      staminaUpdatedAt:
-          DateTime.tryParse(json['staminaUpdatedAt'] as String? ?? ''),
       currentStreak: json['currentStreak'] as int? ?? 0,
       hasDefeatedFirstBoss: json['hasDefeatedFirstBoss'] as bool? ?? false,
     );
