@@ -61,6 +61,7 @@ void main() {
       final task = Task(
         id: 'task-1',
         title: 'Study',
+        category: TaskCategory.mental,
         description: 'Read 20 pages',
         isBoss: false,
         isCompleted: true,
@@ -78,6 +79,7 @@ void main() {
       final task = Task(
         id: 'task-1',
         title: 'Boss Task',
+        category: TaskCategory.physical,
         description: 'Defeat a boss',
         isBoss: true,
         isCompleted: false,
@@ -95,6 +97,7 @@ void main() {
       final task = Task(
         id: 'task-2',
         title: 'Workout',
+        category: TaskCategory.physical,
         description: 'Gym routine',
         isBoss: false,
         isCompleted: false,

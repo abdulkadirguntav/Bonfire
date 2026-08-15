@@ -86,7 +86,7 @@ class TaskController extends Notifier<List<Task>> {
         : user.copyWith(
             currentStamina:
                 (user.currentStamina + task.category.staminaCost)
-                    .clamp(0, StaminaService.dailyCapacity)
+                    .clamp(0, StaminaService.maxStaminaFor(user))
                     .toInt(),
             totalEssence: (user.totalEssence - task.category.essenceReward)
                 .clamp(0, 1 << 31)

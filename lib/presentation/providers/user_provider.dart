@@ -34,6 +34,8 @@ class UserController extends Notifier<User?> {
       maxHp: characterClass.baseHp,
       totalEssence: 0,
       currentStreak: 0,
+      currentStamina: characterClass.maxStamina,
+      staminaUpdatedAt: DateTime.now(),
       hasDefeatedFirstBoss: false,
     );
 
