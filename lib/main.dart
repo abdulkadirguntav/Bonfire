@@ -16,13 +16,19 @@ import 'package:bonfire/presentation/providers/user_provider.dart';
 import 'package:bonfire/presentation/screens/death_screen.dart';
 import 'package:bonfire/presentation/screens/home_screen.dart';
 import 'package:bonfire/presentation/screens/onboarding_screen.dart';
-import 'package:bonfire/presentation/screens/reflection_screen.dart';
-import 'package:bonfire/presentation/screens/shop_screen.dart';
-import 'package:bonfire/presentation/screens/soapstone_screen.dart';
+
+import 'package:bonfire/home_widget/daily_quote_widget.dart';
+import 'package:bonfire/core/constants/daily_quotes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+
+  try {
+    await saveDailyQuoteToWidget(quoteForDate(DateTime.now()));
+  } catch (_) {
+    // Widget iletişimi başarısız olursa uygulama yine de açılır
+  }
 
   runApp(
     ProviderScope(
@@ -40,18 +46,11 @@ Future<void> main() async {
   );
 }
 
-class BonfireApp extends ConsumerStatefulWidget {
+class BonfireApp extends ConsumerWidget {
   const BonfireApp({super.key});
 
   @override
-  ConsumerState<BonfireApp> createState() => _BonfireAppState();
-}
-
-class _BonfireAppState extends ConsumerState<BonfireApp> {
-  int _selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
     final theme = GothicTheme.build();
@@ -77,54 +76,11 @@ class _BonfireAppState extends ConsumerState<BonfireApp> {
       );
     }
 
-    final unlockedSoapstone = user.hasDefeatedFirstBoss;
-    final screens = <Widget>[
-      const HomeScreen(),
-      const ReflectionScreen(),
-      const ShopScreen(),
-      if (unlockedSoapstone) const SoapstoneScreen(),
-    ];
-
-    final destinations = <NavigationDestination>[
-      const NavigationDestination(
-        icon: Icon(Icons.local_fire_department_outlined),
-        selectedIcon: Icon(Icons.local_fire_department_rounded),
-        label: 'Home',
-      ),
-      const NavigationDestination(
-        icon: Icon(Icons.auto_stories_outlined),
-        selectedIcon: Icon(Icons.auto_stories_rounded),
-        label: 'Reflection',
-      ),
-      const NavigationDestination(
-        icon: Icon(Icons.storefront_outlined),
-        selectedIcon: Icon(Icons.storefront_rounded),
-        label: 'The Kiln',
-      ),
-      if (unlockedSoapstone)
-        const NavigationDestination(
-          icon: Icon(Icons.waves_outlined),
-          selectedIcon: Icon(Icons.waves_rounded),
-          label: 'Soapstone',
-        ),
-    ];
-
     return MaterialApp(
       title: 'Bonfire',
       debugShowCheckedModeBanner: false,
       theme: theme,
-      home: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: screens,
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) =>
-              setState(() => _selectedIndex = index),
-          destinations: destinations,
-        ),
-      ),
+      home: const HomeScreen(),
     );
   }
 }

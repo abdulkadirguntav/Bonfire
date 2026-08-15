@@ -37,6 +37,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   google_fonts: ^6.2.1
   shared_preferences: ^2.2.0
+  home_widget: ^0.7.0
   state_notifier: ^1.0.0
 
 dev_dependencies:
