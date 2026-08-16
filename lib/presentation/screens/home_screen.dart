@@ -36,7 +36,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: const [
           _DashboardView(),
           ShopScreen(),
-          JourneyScreen(),
           ReflectionScreen(),
         ],
       ),
@@ -53,11 +52,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: Icon(Icons.storefront_outlined),
             selectedIcon: Icon(Icons.storefront_rounded),
             label: 'THE KILN',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.auto_stories_outlined),
-            selectedIcon: Icon(Icons.auto_stories_rounded),
-            label: 'CHRONICLE',
           ),
           NavigationDestination(
             icon: Icon(Icons.nightlight_round_outlined),
@@ -130,35 +124,58 @@ class _DashboardView extends ConsumerWidget {
                   ],
                 ),
                 const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: GothicPalette.ironBlack,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: GothicPalette.bronze,
-                      width: 0.8,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.whatshot_rounded,
-                        color: GothicPalette.emberBright,
-                        size: 14,
+                // Streak Button -> Navigates to Chronicle (The Journey, Takvim, Soapstones & Reflections)
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const JourneyScreen(),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'GÜN ${user?.currentStreak ?? 1}',
-                        style: GoogleFonts.cinzel(
-                          color: GothicPalette.parchmentLight,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: GothicPalette.ironBlack,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: GothicPalette.goldDeep,
+                        width: 0.9,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: GothicPalette.ember.withValues(alpha: 0.2),
+                          blurRadius: 6,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.whatshot_rounded,
+                          color: GothicPalette.emberBright,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'GÜN ${user?.currentStreak ?? 1}',
+                          style: GoogleFonts.cinzel(
+                            color: GothicPalette.goldBright,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.auto_stories_rounded,
+                          color: GothicPalette.parchmentDim,
+                          size: 12,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -251,7 +268,7 @@ class _DashboardView extends ConsumerWidget {
             else
               _BossBattleCard(boss: boss),
             const SizedBox(height: 10),
-            // Phase 4: Soapstone Rune Card
+            // Soapstone Rune Card (Available from Day 1)
             const SoapstoneRuneCard(),
             const SizedBox(height: 10),
             // Daily Philosophical Quote Card

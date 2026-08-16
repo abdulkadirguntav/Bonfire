@@ -8,7 +8,7 @@ class ReflectionRepository {
   ReflectionRepository(this._prefs);
 
   static const _storageKey = 'bonfire_reflections';
-  static const _questionsKey = 'bonfire_reflection_custom_questions';
+  static const _questionsKey = 'bonfire_reflection_active_questions';
 
   final SharedPreferences _prefs;
 
@@ -31,12 +31,16 @@ class ReflectionRepository {
     await _prefs.setString(_storageKey, raw);
   }
 
-  Future<List<String>> loadCustomQuestions() async {
+  Future<List<String>> loadActiveQuestions() async {
     final raw = _prefs.getStringList(_questionsKey);
-    return raw ?? const [];
+    if (raw == null) {
+      // First time initialization: default stoic questions
+      return List<String>.from(Reflection.defaultQuestions);
+    }
+    return raw;
   }
 
-  Future<void> saveCustomQuestions(List<String> questions) async {
+  Future<void> saveActiveQuestions(List<String> questions) async {
     await _prefs.setStringList(_questionsKey, questions);
   }
 }

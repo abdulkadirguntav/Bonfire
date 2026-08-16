@@ -4,21 +4,47 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
+import 'package:bonfire/domain/models/reflection.dart';
+import 'package:bonfire/domain/models/soapstone.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
+import 'package:bonfire/presentation/providers/reflection_provider.dart';
+import 'package:bonfire/presentation/providers/soapstone_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
 const List<int> bonfireMilestones = [3, 7, 14, 30, 60, 90];
 
-class JourneyScreen extends ConsumerWidget {
+class JourneyScreen extends ConsumerStatefulWidget {
   const JourneyScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<JourneyScreen> createState() => _JourneyScreenState();
+}
+
+class _JourneyScreenState extends ConsumerState<JourneyScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
     final tasks = ref.watch(tasksProvider);
+    final reflections = ref.watch(reflectionControllerProvider);
+    final soapstones = ref.watch(soapstoneControllerProvider);
 
     final currentStreak = user?.currentStreak ?? 1;
 
@@ -26,6 +52,8 @@ class JourneyScreen extends ConsumerWidget {
     final eligibleMilestone = bonfireMilestones.where((m) {
       return currentStreak >= m && !(user?.hasClaimedMilestone(m) ?? false);
     }).firstOrNull;
+
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
       backgroundColor: GothicPalette.obsidian,
@@ -35,9 +63,22 @@ class JourneyScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header with Back Button (if navigated from Streak badge or Reflection)
               Row(
                 children: [
+                  if (canPop) ...[
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: GothicPalette.goldBright,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   const Icon(
                     Icons.auto_stories_rounded,
                     color: GothicPalette.goldBright,
@@ -48,9 +89,9 @@ class JourneyScreen extends ConsumerWidget {
                     'THE CHRONICLE',
                     style: GoogleFonts.cinzel(
                       color: GothicPalette.goldBright,
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 2.5,
+                      letterSpacing: 2.2,
                     ),
                   ),
                   const Spacer(),
@@ -87,16 +128,16 @@ class JourneyScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Text(
-                'Yolculuk Haritası ve Bonfire Dönüm Noktaları',
+                'Yolculuk Haritası, Kadim Zemin Notları ve Muhasebe Arşivi',
                 style: TextStyle(
                   color: GothicPalette.parchmentDim,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontFamily: GoogleFonts.cinzel().fontFamily,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
               // Unclaimed Bonfire Shrine Event Banner
               if (eligibleMilestone != null) ...[
@@ -215,7 +256,7 @@ class JourneyScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
 
               // Ash Mark indicator banner
@@ -250,20 +291,55 @@ class JourneyScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
 
-              // Vertical Chronicle Timeline Path
+              // Tabs: [1] Dikey Yolculuk, [2] Soapstone Notları, [3] Muhasebe Cevapları
+              TabBar(
+                controller: _tabController,
+                indicatorColor: GothicPalette.goldBright,
+                labelColor: GothicPalette.goldBright,
+                unselectedLabelColor: GothicPalette.parchmentDim,
+                labelStyle: GoogleFonts.cinzel(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                ),
+                unselectedLabelStyle: GoogleFonts.cinzel(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+                tabs: const [
+                  Tab(text: 'YOLCULUK'),
+                  Tab(text: 'KADİM NOTLAR'),
+                  Tab(text: 'MUHASEBE'),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Tab Views
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                child: TabBarView(
+                  controller: _tabController,
                   children: [
-                    _ChroniclePath(
-                      currentStreak: currentStreak,
-                      claimedMilestones: user?.claimedMilestones ?? const {},
-                      targetAshMarkStreak: ashMark?.targetStreak,
-                      tasks: tasks,
+                    // Tab 1: Timeline Path
+                    ListView(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      children: [
+                        _ChroniclePath(
+                          currentStreak: currentStreak,
+                          claimedMilestones:
+                              user?.claimedMilestones ?? const {},
+                          targetAshMarkStreak: ashMark?.targetStreak,
+                          tasks: tasks,
+                          reflections: reflections,
+                          soapstones: soapstones,
+                        ),
+                      ],
                     ),
+                    // Tab 2: Soapstone Notes Archive
+                    _SoapstoneArchiveList(soapstones: soapstones),
+                    // Tab 3: Stoic Reflections Archive
+                    _ReflectionsArchiveList(reflections: reflections),
                   ],
                 ),
               ),
@@ -281,16 +357,19 @@ class _ChroniclePath extends StatelessWidget {
     required this.claimedMilestones,
     required this.targetAshMarkStreak,
     required this.tasks,
+    required this.reflections,
+    required this.soapstones,
   });
 
   final int currentStreak;
   final Set<int> claimedMilestones;
   final int? targetAshMarkStreak;
   final List<Task> tasks;
+  final List<Reflection> reflections;
+  final List<Soapstone> soapstones;
 
   @override
   Widget build(BuildContext context) {
-    // Generate timeline nodes up to max milestone (30 or 60 or currentStreak + 5)
     final maxNode = (currentStreak > 25 ? currentStreak + 7 : 30);
     final nodes = List.generate(maxNode, (index) => index + 1);
 
@@ -302,6 +381,15 @@ class _ChroniclePath extends StatelessWidget {
         final isAshMarkTarget = targetAshMarkStreak == dayNumber;
         final isClaimed = claimedMilestones.contains(dayNumber);
 
+        // Check if current day or past days have Soapstone or Reflection
+        final matchingSoapstone = isCurrentDay && soapstones.isNotEmpty
+            ? soapstones.firstOrNull
+            : null;
+
+        final matchingReflection = isCurrentDay && reflections.isNotEmpty
+            ? reflections.firstOrNull
+            : null;
+
         return _TimelineNode(
           dayNumber: dayNumber,
           isMilestone: isMilestone,
@@ -310,6 +398,8 @@ class _ChroniclePath extends StatelessWidget {
           isAshMarkTarget: isAshMarkTarget,
           isClaimed: isClaimed,
           isLast: dayNumber == maxNode,
+          soapstone: matchingSoapstone,
+          reflection: matchingReflection,
         );
       }).toList(),
     );
@@ -325,6 +415,8 @@ class _TimelineNode extends StatelessWidget {
     required this.isAshMarkTarget,
     required this.isClaimed,
     required this.isLast,
+    this.soapstone,
+    this.reflection,
   });
 
   final int dayNumber;
@@ -334,6 +426,8 @@ class _TimelineNode extends StatelessWidget {
   final bool isAshMarkTarget;
   final bool isClaimed;
   final bool isLast;
+  final Soapstone? soapstone;
+  final Reflection? reflection;
 
   @override
   Widget build(BuildContext context) {
@@ -433,93 +527,118 @@ class _TimelineNode extends StatelessWidget {
                     width: isCurrentDay || isMilestone ? 1.0 : 0.6,
                   ),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'GÜN $dayNumber',
-                                style: GoogleFonts.cinzel(
-                                  color: isCurrentDay
-                                      ? GothicPalette.goldBright
-                                      : GothicPalette.parchmentLight,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              if (isCurrentDay) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: GothicPalette.goldBright,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: const Text(
-                                    'BUGÜN',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              if (isMilestone) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: isClaimed
-                                        ? GothicPalette.goldDeep
-                                        : GothicPalette.ember,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    isClaimed
-                                        ? 'KÖRÜKLENDİ'
-                                        : 'BONFIRE NOKTASI',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
+                    Row(
+                      children: [
+                        Text(
+                          'GÜN $dayNumber',
+                          style: GoogleFonts.cinzel(
+                            color: isCurrentDay
+                                ? GothicPalette.goldBright
+                                : GothicPalette.parchmentLight,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            isAshMarkTarget
-                                ? '💀 Kül İzi: Bu güne ulaştığında kayıp Öz\'ü geri kazanacaksın.'
-                                : isMilestone
-                                    ? isClaimed
-                                        ? '🔥 Kalıcı stat artışı bu bonfire noktasında alındı.'
-                                        : isPast
-                                            ? '🔥 Bonfire keşfedildi.'
-                                            : '🕯️ Bonfire Tapınağı: Can fulleme & Kalıcı Stat Geliştirmesi.'
-                                    : isCurrentDay
-                                        ? 'Mevcut irade durağındasın. Yeminlerini tamamla.'
-                                        : isPast
-                                            ? 'Yolculukta geçilen aşama.'
-                                            : 'Gelecek irade durağı.',
-                            style: TextStyle(
-                              color: isAshMarkTarget
-                                  ? GothicPalette.bloodBright
-                                  : GothicPalette.parchmentDim,
-                              fontSize: 11,
+                        ),
+                        if (isCurrentDay) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: GothicPalette.goldBright,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'BUGÜN',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
                         ],
+                        if (isMilestone) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: isClaimed
+                                  ? GothicPalette.goldDeep
+                                  : GothicPalette.ember,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              isClaimed ? 'KÖRÜKLENDİ' : 'BONFIRE NOKTASI',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isAshMarkTarget
+                          ? '💀 Kül İzi: Bu güne ulaştığında kayıp Öz\'ü geri kazanacaksın.'
+                          : isMilestone
+                              ? isClaimed
+                                  ? '🔥 Kalıcı stat artışı bu bonfire noktasında alındı.'
+                                  : isPast
+                                      ? '🔥 Bonfire keşfedildi.'
+                                      : '🕯️ Bonfire Tapınağı: Can fulleme & Kalıcı Stat Geliştirmesi.'
+                              : isCurrentDay
+                                  ? 'Mevcut irade durağındasın. Yeminlerini tamamla.'
+                                  : isPast
+                                      ? 'Yolculukta geçilen aşama.'
+                                      : 'Gelecek irade durağı.',
+                      style: TextStyle(
+                        color: isAshMarkTarget
+                            ? GothicPalette.bloodBright
+                            : GothicPalette.parchmentDim,
+                        fontSize: 11,
                       ),
                     ),
+                    // Embedded Soapstone note if present
+                    if (soapstone != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: GothicPalette.ironBlack,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                              color: GothicPalette.goldDeep, width: 0.5),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.auto_awesome_rounded,
+                                size: 12, color: GothicPalette.goldBright),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Soapstone: "${soapstone!.message}"',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.cinzel(
+                                  color: GothicPalette.goldBright,
+                                  fontSize: 10,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -527,6 +646,200 @@ class _TimelineNode extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SoapstoneArchiveList extends StatelessWidget {
+  const _SoapstoneArchiveList({required this.soapstones});
+
+  final List<Soapstone> soapstones;
+
+  @override
+  Widget build(BuildContext context) {
+    if (soapstones.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome_outlined,
+                color: GothicPalette.parchmentDim, size: 36),
+            const SizedBox(height: 10),
+            Text(
+              'Henüz zemine kazınmış bir Soapstone notu yok.',
+              style: TextStyle(
+                color: GothicPalette.parchmentDim,
+                fontSize: 12,
+                fontFamily: GoogleFonts.cinzel().fontFamily,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.separated(
+      itemCount: soapstones.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final soap = soapstones[index];
+        final formattedDate = '${soap.date.day}.${soap.date.month}.${soap.date.year}';
+
+        return OrnateFrame(
+          radius: 8,
+          outerGradient: const LinearGradient(
+            colors: [
+              Color(0xFF3F321D),
+              Color(0xFF6E5A32),
+              Color(0xFF3F321D),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.auto_awesome_rounded,
+                        color: GothicPalette.goldBright, size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      formattedDate,
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.parchmentDim,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (soap.isEdited)
+                      const Text(
+                        '(Düzenlendi)',
+                        style: TextStyle(
+                          color: GothicPalette.parchmentDim,
+                          fontSize: 9,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '❝ ${soap.message} ❞',
+                  style: GoogleFonts.cinzel(
+                    color: GothicPalette.goldBright,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ReflectionsArchiveList extends StatelessWidget {
+  const _ReflectionsArchiveList({required this.reflections});
+
+  final List<Reflection> reflections;
+
+  @override
+  Widget build(BuildContext context) {
+    if (reflections.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.nightlight_round_outlined,
+                color: GothicPalette.parchmentDim, size: 36),
+            const SizedBox(height: 10),
+            Text(
+              'Henüz mühürlenmiş bir Muhasebe günlüğü yok.',
+              style: TextStyle(
+                color: GothicPalette.parchmentDim,
+                fontSize: 12,
+                fontFamily: GoogleFonts.cinzel().fontFamily,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.separated(
+      itemCount: reflections.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final refEntry = reflections[index];
+        final formattedDate =
+            '${refEntry.date.day}.${refEntry.date.month}.${refEntry.date.year}';
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: GothicPalette.onyx,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: GothicPalette.charcoal,
+              width: 0.8,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.local_fire_department_rounded,
+                      color: GothicPalette.emberBright, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    'MUHASEBE • $formattedDate',
+                    style: GoogleFonts.cinzel(
+                      color: GothicPalette.goldBright,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...refEntry.questionsAndAnswers.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.key,
+                        style: GoogleFonts.cinzel(
+                          color: GothicPalette.parchment,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        entry.value,
+                        style: const TextStyle(
+                          color: GothicPalette.parchmentLight,
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      },
     );
   }
 }

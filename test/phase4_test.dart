@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bonfire/domain/models/boss.dart';
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/reflection.dart';
 import 'package:bonfire/domain/models/soapstone.dart';
@@ -33,26 +32,34 @@ void main() {
       expect(user.essence, 50);
     });
 
-    test('Reflection questions include default questions + user custom questions', () {
-      final customQuestions = [
-        'Bugün hangi korkumla yüzleştim?',
-        'Yarın için bir söz ver:',
-      ];
+    test('Reflection questions can have any question removed or custom added', () {
+      final List<String> activeQuestions = List.from(Reflection.defaultQuestions);
+      expect(activeQuestions.length, 3);
 
-      final allQuestions = ReflectionService.getAllQuestions(customQuestions);
+      // Remove a default question
+      activeQuestions.remove('Ateş çatırdıyor... Bugün nasıldı?');
+      expect(activeQuestions.length, 2);
 
-      expect(allQuestions.contains('Ateş çatırdıyor... Bugün nasıldı?'), isTrue);
-      expect(allQuestions.contains('Bugün hangi korkumla yüzleştim?'), isTrue);
-      expect(allQuestions.contains('Yarın için bir söz ver:'), isTrue);
-      expect(allQuestions.length, Reflection.defaultQuestions.length + 2);
+      // Add a custom question
+      activeQuestions.add('Bugün irademi ne sınadı?');
+      expect(activeQuestions.length, 3);
+      expect(activeQuestions.contains('Bugün irademi ne sınadı?'), isTrue);
+
+      // Clear all questions if user wants completely fresh questions
+      activeQuestions.clear();
+      expect(activeQuestions.isEmpty, isTrue);
+
+      activeQuestions.add('Tek sorum: Bugün dünden daha iyi miydin?');
+      expect(activeQuestions.length, 1);
     });
   });
 
   group('2. Soapstone (Not Bırakma) Sistemi ve Kuralları', () {
-    test('posting Soapstone allows only 1 message per calendar day', () {
+    test('Soapstone is open from Day 1 and allows 1 post per day', () {
       final today = DateTime(2026, 8, 16);
       final List<Soapstone> emptyList = [];
 
+      // Available immediately on Day 1
       expect(SoapstoneService.canPostToday(emptyList, now: today), isTrue);
 
       final listWithOne = SoapstoneService.postMessage(
@@ -129,22 +136,6 @@ void main() {
       expect(listDay2.length, 2);
       expect(SoapstoneService.getTodaySoapstone(listDay2, now: day2)?.message,
           'Gün 2 mesajı');
-    });
-  });
-
-  group('3. Soapstone Kilit Açma Mantığı (Boss Fazı)', () {
-    test('Soapstone remains locked during Phase 1 Boss and unlocks at Phase >= 2', () {
-      const bossPhase1 = Boss(
-        id: 'b1',
-        title: 'Sigara',
-        currentHp: 30,
-        maxHp: 30,
-        phase: 1,
-      );
-      final bossPhase2 = bossPhase1.copyWith(phase: 2, currentHp: 90, maxHp: 90);
-
-      expect(bossPhase1.phase >= 2, isFalse); // Locked
-      expect(bossPhase2.phase >= 2, isTrue);  // Unlocked!
     });
   });
 }

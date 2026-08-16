@@ -8,11 +8,11 @@ final reflectionRepositoryProvider = Provider<ReflectionRepository>((ref) {
   throw UnimplementedError('A repository instance must be provided');
 });
 
-final customQuestionsProvider =
-    NotifierProvider<CustomQuestionsController, List<String>>(
-        CustomQuestionsController.new);
+final activeQuestionsProvider =
+    NotifierProvider<ActiveQuestionsController, List<String>>(
+        ActiveQuestionsController.new);
 
-class CustomQuestionsController extends Notifier<List<String>> {
+class ActiveQuestionsController extends Notifier<List<String>> {
   ReflectionRepository get _repository => ref.read(reflectionRepositoryProvider);
 
   @override
@@ -22,21 +22,27 @@ class CustomQuestionsController extends Notifier<List<String>> {
   }
 
   Future<void> _load() async {
-    state = await _repository.loadCustomQuestions();
+    state = await _repository.loadActiveQuestions();
   }
 
   Future<void> addQuestion(String question) async {
     final text = question.trim();
     if (text.isEmpty || state.contains(text)) return;
     final updated = [...state, text];
-    await _repository.saveCustomQuestions(updated);
+    await _repository.saveActiveQuestions(updated);
     state = updated;
   }
 
   Future<void> removeQuestion(String question) async {
     final updated = state.where((q) => q != question).toList();
-    await _repository.saveCustomQuestions(updated);
+    await _repository.saveActiveQuestions(updated);
     state = updated;
+  }
+
+  Future<void> resetToDefaults() async {
+    final defaults = List<String>.from(Reflection.defaultQuestions);
+    await _repository.saveActiveQuestions(defaults);
+    state = defaults;
   }
 }
 
@@ -66,7 +72,7 @@ class ReflectionController extends Notifier<List<Reflection>> {
       answers: answers,
     );
 
-    // Replace if an entry for today already existed or prepend
+    // Replace if an entry for today already exists, otherwise prepend
     final filtered = state.where((r) => !r.isSameDay(date)).toList();
     final updated = [newEntry, ...filtered];
     await _repository.saveReflections(updated);

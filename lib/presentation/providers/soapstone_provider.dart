@@ -3,16 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bonfire/data/repositories/soapstone_repository.dart';
 import 'package:bonfire/domain/models/soapstone.dart';
 import 'package:bonfire/domain/services/soapstone_service.dart';
-import 'package:bonfire/presentation/providers/boss_provider.dart';
 
 final soapstoneRepositoryProvider = Provider<SoapstoneRepository>((ref) {
   throw UnimplementedError('A repository instance must be provided');
 });
 
-/// Unlocks only when a Boss phase has been defeated/mutated (phase >= 2).
+/// Soapstone is now accessible from Day 1.
 final isSoapstoneUnlockedProvider = Provider<bool>((ref) {
-  final boss = ref.watch(bossControllerProvider);
-  return boss != null && boss.phase >= 2;
+  return true;
 });
 
 final soapstoneControllerProvider =
