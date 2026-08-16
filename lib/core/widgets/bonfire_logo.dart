@@ -10,70 +10,95 @@ class BonfireLogo extends StatelessWidget {
     this.showText = true,
     this.letterSpacing = 3.0,
     this.fontSize = 18,
+    this.vertical = false,
   });
 
   final double size;
   final bool showText;
   final double letterSpacing;
   final double fontSize;
+  final bool vertical;
 
   @override
   Widget build(BuildContext context) {
+    final emblem = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppPalette.primaryGold.withValues(alpha: 0.35),
+            blurRadius: 10,
+            spreadRadius: 0.5,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size / 2),
+        child: Image.asset(
+          'assets/images/bonfire_logo.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Icon(
+            Icons.local_fire_department_rounded,
+            color: AppPalette.primaryGold,
+            size: size,
+          ),
+        ),
+      ),
+    );
+
+    if (!showText) {
+      return emblem;
+    }
+
+    final textColumn = Column(
+      crossAxisAlignment:
+          vertical ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'BONFIRE',
+          style: GoogleFonts.cinzel(
+            color: AppPalette.primaryGold,
+            fontSize: fontSize,
+            fontWeight: FontWeight.w900,
+            letterSpacing: letterSpacing,
+          ),
+        ),
+        Text(
+          'KÜL VE İRADE',
+          style: GoogleFonts.inter(
+            color: AppPalette.textDim,
+            fontSize: (fontSize * 0.42).clamp(7.0, 11.0),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.0,
+          ),
+        ),
+      ],
+    );
+
+    if (vertical) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          emblem,
+          const SizedBox(height: 10),
+          textColumn,
+        ],
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: size + 8,
-              height: size + 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppPalette.primaryGold.withValues(alpha: 0.25),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.local_fire_department_rounded,
-              color: AppPalette.primaryGold,
-              size: size,
-            ),
-          ],
-        ),
-        if (showText) ...[
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'BONFIRE',
-                style: GoogleFonts.cinzel(
-                  color: AppPalette.primaryGold,
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: letterSpacing,
-                ),
-              ),
-              Text(
-                'KÜL VE İRADE',
-                style: GoogleFonts.inter(
-                  color: AppPalette.textDim,
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 2.0,
-                ),
-              ),
-            ],
-          ),
-        ],
+        emblem,
+        const SizedBox(width: 10),
+        textColumn,
       ],
     );
   }

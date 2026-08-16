@@ -29,9 +29,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             children: [
               const SizedBox(height: 8),
               const Center(
-                child: BonfireLogo(size: 32, fontSize: 24),
+                child: BonfireLogo(
+                  size: 64,
+                  fontSize: 22,
+                  vertical: true,
+                ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Text(
                 'Sınıfını Seç (Choose Your Path)',
                 style: GoogleFonts.cinzel(
