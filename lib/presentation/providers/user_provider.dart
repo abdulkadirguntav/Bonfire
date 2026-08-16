@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bonfire/data/repositories/user_repository.dart';
+import 'package:bonfire/domain/models/attributes.dart';
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/models/user.dart';
+import 'package:bonfire/domain/services/attribute_service.dart';
 import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
@@ -45,8 +47,34 @@ class UserController extends Notifier<User?> {
   }
 
   Future<void> saveUser(User user) async {
-    await _repository.saveUser(user);
-    state = user;
+    final highest = user.currentStreak > user.highestStreak
+        ? user.currentStreak
+        : user.highestStreak;
+    final updated = user.copyWith(highestStreak: highest);
+    await _repository.saveUser(updated);
+    state = updated;
+  }
+
+  // Phase 5 Attribute Level Up
+  Future<void> levelUp(AttributeType type) async {
+    final user = state;
+    if (user == null) return;
+    final upgraded = AttributeService.levelUp(user, type);
+    await saveUser(upgraded);
+  }
+
+  // Phase 5 Lifetime Statistics Incrementors
+  Future<void> incrementEnemiesDefeated() async {
+    final user = state;
+    if (user == null) return;
+    await saveUser(user.copyWith(enemiesDefeated: user.enemiesDefeated + 1));
+  }
+
+  Future<void> incrementBossPhasesDefeated() async {
+    final user = state;
+    if (user == null) return;
+    await saveUser(
+        user.copyWith(bossPhasesDefeated: user.bossPhasesDefeated + 1));
   }
 
   // Phase 3 Shop & Item Actions
@@ -104,7 +132,8 @@ class UserController extends Notifier<User?> {
       await ref.read(ashMarkControllerProvider.notifier).setAshMark(ashMark);
     }
 
-    await saveUser(DeathService.applyDeath(user, now: diedAt));
+    final revived = DeathService.applyDeath(user, now: diedAt);
+    await saveUser(revived.copyWith(deathCount: user.deathCount + 1));
   }
 
   Future<void> reclaimAshMarkIfEligible() async {
@@ -116,7 +145,9 @@ class UserController extends Notifier<User?> {
       return;
     }
 
-    await saveUser(DeathService.reclaim(user, ashMark));
+    final reclaimed = DeathService.reclaim(user, ashMark);
+    await saveUser(
+        reclaimed.copyWith(ashMarksReclaimed: user.ashMarksReclaimed + 1));
     await ref.read(ashMarkControllerProvider.notifier).clearAshMark();
   }
 

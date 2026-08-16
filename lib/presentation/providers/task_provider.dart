@@ -108,6 +108,7 @@ class TaskController extends Notifier<List<Task>> {
         now: targetDate,
       ).copyWith(
         essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
+        enemiesDefeated: (user.enemiesDefeated - 1).clamp(0, 1 << 31).toInt(),
       );
       await ref.read(userControllerProvider.notifier).saveUser(refundedUser);
     }
@@ -156,13 +157,18 @@ class TaskController extends Notifier<List<Task>> {
             user,
             task.category,
             now: completionDate,
-          ).copyWith(essence: user.essence + reward)
+          ).copyWith(
+            essence: user.essence + reward,
+            enemiesDefeated: user.enemiesDefeated + 1,
+          )
         : StaminaService.refundCompletion(
             user,
             task.category,
             now: completionDate,
           ).copyWith(
             essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
+            enemiesDefeated:
+                (user.enemiesDefeated - 1).clamp(0, 1 << 31).toInt(),
           );
 
     await ref.read(userControllerProvider.notifier).saveUser(updatedUser);

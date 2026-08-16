@@ -11,6 +11,7 @@ import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
 import 'package:bonfire/presentation/providers/boss_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
+import 'package:bonfire/presentation/screens/ashen_record_screen.dart';
 import 'package:bonfire/presentation/screens/journey_screen.dart';
 import 'package:bonfire/presentation/screens/reflection_screen.dart';
 import 'package:bonfire/presentation/screens/shop_screen.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _DashboardView(),
           ShopScreen(),
           ReflectionScreen(),
+          AshenRecordScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -57,6 +59,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: Icon(Icons.nightlight_round_outlined),
             selectedIcon: Icon(Icons.nightlight_round),
             label: 'MUHASEBE',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_outlined),
+            selectedIcon: Icon(Icons.account_balance_rounded),
+            label: 'KAYIT',
           ),
         ],
       ),

@@ -54,7 +54,11 @@ class BossController extends Notifier<Boss?> {
       );
 
       await setBoss(result.boss);
-      await ref.read(userControllerProvider.notifier).saveUser(result.user);
+      final userToSave = result.didPhaseMutate
+          ? result.user.copyWith(
+              bossPhasesDefeated: result.user.bossPhasesDefeated + 1)
+          : result.user;
+      await ref.read(userControllerProvider.notifier).saveUser(userToSave);
       return result;
     } on BossAlreadyInteractedException {
       return null;
