@@ -1,5 +1,6 @@
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/models/user.dart';
+import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 
 class DayResolution {
@@ -14,7 +15,7 @@ class DayResolution {
   final bool hadDueTasks;
 }
 
-/// Pure Phase 2 daily rules; persistence and UI stay outside this service.
+/// Pure daily rules for Bonfire habit resolutions and streak progression.
 class DayResolutionService {
   const DayResolutionService._();
 
@@ -52,5 +53,34 @@ class DayResolutionService {
         resolved.year == date.year &&
         resolved.month == date.month &&
         resolved.day == date.day;
+  }
+
+  /// Automatically catches up all past un-resolved days up to yesterday.
+  static User resolvePastDays({
+    required User user,
+    required List<Task> tasks,
+    required DateTime today,
+  }) {
+    var currentUser = user;
+    final lastResolved = currentUser.lastDailyResolutionAt ??
+        currentUser.staminaUpdatedAt ??
+        today.subtract(const Duration(days: 1));
+
+    final lastDate =
+        DateTime(lastResolved.year, lastResolved.month, lastResolved.day);
+    final todayDate = DateTime(today.year, today.month, today.day);
+
+    var checkDate = lastDate;
+    while (checkDate.isBefore(todayDate)) {
+      if (!wasResolvedFor(currentUser, checkDate)) {
+        final resolution = resolve(currentUser, tasks, date: checkDate);
+        currentUser = resolution.user;
+        if (DeathService.shouldDie(currentUser)) {
+          currentUser = DeathService.applyDeath(currentUser, now: checkDate);
+        }
+      }
+      checkDate = checkDate.add(const Duration(days: 1));
+    }
+    return currentUser;
   }
 }

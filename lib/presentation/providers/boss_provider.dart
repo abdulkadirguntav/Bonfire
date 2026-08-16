@@ -32,9 +32,12 @@ class BossController extends Notifier<Boss?> {
 
   Future<void> createBoss({
     required String title,
-    int initialHp = Boss.defaultInitialHp,
+    int? initialHp,
   }) async {
-    final boss = BossService.createBoss(title: title, initialHp: initialHp);
+    final boss = BossService.createBoss(
+      title: title,
+      initialHp: initialHp ?? Boss.maxHpForPhase(1),
+    );
     await setBoss(boss);
   }
 
@@ -43,15 +46,19 @@ class BossController extends Notifier<Boss?> {
     final user = ref.read(userControllerProvider);
     if (currentBoss == null || user == null) return null;
 
-    final result = BossService.resist(
-      boss: currentBoss,
-      user: user,
-      now: now,
-    );
+    try {
+      final result = BossService.resist(
+        boss: currentBoss,
+        user: user,
+        now: now,
+      );
 
-    await setBoss(result.boss);
-    await ref.read(userControllerProvider.notifier).saveUser(result.user);
-    return result;
+      await setBoss(result.boss);
+      await ref.read(userControllerProvider.notifier).saveUser(result.user);
+      return result;
+    } on BossAlreadyInteractedException {
+      return null;
+    }
   }
 
   Future<BossInteractionResult?> fail({DateTime? now}) async {
@@ -59,18 +66,22 @@ class BossController extends Notifier<Boss?> {
     final user = ref.read(userControllerProvider);
     if (currentBoss == null || user == null) return null;
 
-    final result = BossService.fail(
-      boss: currentBoss,
-      user: user,
-      now: now,
-    );
+    try {
+      final result = BossService.fail(
+        boss: currentBoss,
+        user: user,
+        now: now,
+      );
 
-    await setBoss(result.boss);
-    await ref.read(userControllerProvider.notifier).saveUser(result.user);
-    await ref
-        .read(userControllerProvider.notifier)
-        .resolveDeathIfNeeded(now: now);
-    return result;
+      await setBoss(result.boss);
+      await ref.read(userControllerProvider.notifier).saveUser(result.user);
+      await ref
+          .read(userControllerProvider.notifier)
+          .resolveDeathIfNeeded(now: now);
+      return result;
+    } on BossAlreadyInteractedException {
+      return null;
+    }
   }
 
   Future<void> abandonBoss() async {

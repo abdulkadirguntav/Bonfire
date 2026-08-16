@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/day_resolution_service.dart';
+import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
@@ -33,6 +34,32 @@ class TaskController extends Notifier<List<Task>> {
 
   Future<void> _loadTasks() async {
     state = await _repository.loadTasks();
+    await checkAndResolvePastDays();
+  }
+
+  /// Automatically catches up on all past un-resolved days on load.
+  Future<void> checkAndResolvePastDays({DateTime? now}) async {
+    final user = ref.read(userControllerProvider);
+    if (user == null) return;
+    final today = now ?? DateTime.now();
+
+    final updatedUser = DayResolutionService.resolvePastDays(
+      user: user,
+      tasks: state,
+      today: today,
+    );
+
+    if (updatedUser != user) {
+      await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
+      if (DeathService.shouldDie(updatedUser)) {
+        await ref
+            .read(userControllerProvider.notifier)
+            .resolveDeathIfNeeded(now: today);
+      }
+      await ref
+          .read(userControllerProvider.notifier)
+          .reclaimAshMarkIfEligible();
+    }
   }
 
   /// A task accepted at zero stamina carries the 1.5x missed-task penalty.

@@ -8,6 +8,37 @@ import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
+const Map<TaskCategory, List<String>> _categorySuggestions = {
+  TaskCategory.physical: [
+    'Ağırlık Antrenmanı',
+    '5 km Koşu',
+    '100 Şınav & Mekik',
+    'Esneme & Mobilite',
+    'Tempolu Yürüyüş',
+  ],
+  TaskCategory.mental: [
+    'Ders Çalışmak (Pomodoro)',
+    '30 Sayfa Kitap Oku',
+    'Kodlama / Proje Pratiği',
+    'Yabancı Dil Pratiği',
+    'Makale / Analiz Oku',
+  ],
+  TaskCategory.mindful: [
+    '15 Dk Meditasyon',
+    'Günlük Tutma (Journaling)',
+    'Derin Nefes Egzersizi',
+    'Doğada Sessiz Yürüyüş',
+    'Dijital Detoks (1 Saat)',
+  ],
+  TaskCategory.routine: [
+    '2.5 Litre Su İç',
+    'Erken Uyan (07:00)',
+    'Yatağı Topla',
+    'Vitaminlerini Al',
+    'Ekranı 23:00\'te Kapat',
+  ],
+};
+
 class TaskBottomSheet extends ConsumerStatefulWidget {
   const TaskBottomSheet({super.key});
 
@@ -131,6 +162,9 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
       (label: 'Paz', value: DateTime.sunday),
     ];
 
+    final currentSuggestions =
+        _categorySuggestions[_selectedCategory] ?? const [];
+
     return Container(
       decoration: const BoxDecoration(
         color: GothicPalette.onyx,
@@ -169,23 +203,6 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
               ],
             ),
             const SizedBox(height: 14),
-            TextField(
-              controller: _titleController,
-              style: const TextStyle(color: GothicPalette.parchmentLight),
-              decoration: const InputDecoration(
-                hintText: 'Yemin Adı (Örn: 30 dk Kitap Oku)',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 2,
-              style: const TextStyle(color: GothicPalette.parchmentLight),
-              decoration: const InputDecoration(
-                hintText: 'Açıklama (İsteğe bağlı)',
-              ),
-            ),
-            const SizedBox(height: 16),
             const Text(
               'Kategori Seçimi',
               style: TextStyle(
@@ -202,12 +219,14 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
                 final selected = _selectedCategory == category;
                 return ChoiceChip(
                   label: Text(
-                    '${category.label} (-${category.staminaCost} Stamina / +${category.essenceReward} Essence)',
+                    '${category.label} (-${category.staminaCost} / +${category.essenceReward})',
                   ),
                   selected: selected,
+                  selectedColor: GothicPalette.goldBright,
+                  backgroundColor: GothicPalette.ironBlack,
                   labelStyle: TextStyle(
                     color: selected
-                        ? GothicPalette.obsidian
+                        ? Colors.black
                         : GothicPalette.parchmentLight,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
@@ -218,7 +237,64 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            // Example habit suggestions for the selected category
+            Text(
+              '${_selectedCategory.label} İçin Örnek Yeminler:',
+              style: const TextStyle(
+                color: GothicPalette.goldBright,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: currentSuggestions.map((suggestion) {
+                return ActionChip(
+                  avatar: const Icon(
+                    Icons.touch_app_rounded,
+                    size: 13,
+                    color: GothicPalette.emberBright,
+                  ),
+                  label: Text(suggestion),
+                  backgroundColor: const Color(0xFF1B2228),
+                  side: const BorderSide(
+                    color: GothicPalette.charcoal,
+                    width: 0.8,
+                  ),
+                  labelStyle: const TextStyle(
+                    color: GothicPalette.parchmentLight,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _titleController.text = suggestion;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _titleController,
+              style: const TextStyle(color: GothicPalette.parchmentLight),
+              decoration: const InputDecoration(
+                hintText: 'Yemin Adı (Örn: 30 Dk Kitap Oku)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _descriptionController,
+              maxLines: 2,
+              style: const TextStyle(color: GothicPalette.parchmentLight),
+              decoration: const InputDecoration(
+                hintText: 'Açıklama (İsteğe bağlı)',
+              ),
+            ),
+            const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -237,7 +313,7 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             const Text(
               'Haftanın Günleri',
               style: TextStyle(
@@ -255,9 +331,11 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
                 return ChoiceChip(
                   label: Text(day.label),
                   selected: selected,
+                  selectedColor: GothicPalette.goldBright,
+                  backgroundColor: GothicPalette.ironBlack,
                   labelStyle: TextStyle(
                     color: selected
-                        ? GothicPalette.obsidian
+                        ? Colors.black
                         : GothicPalette.parchmentLight,
                     fontWeight: FontWeight.w600,
                   ),

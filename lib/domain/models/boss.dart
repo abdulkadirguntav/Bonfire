@@ -17,10 +17,36 @@ class Boss {
   final DateTime? lastInteractionDate;
 
   static const int defaultInitialHp = 30;
-  static const int phase2Hp = 90;
-  static const int dailyResistEssence = 25;
-  static const int phaseRewardEssence = 200;
+  static const int dailyResistEssence = 0; // Direndim gives 0 daily essence as per requirements
   static const int dailyFailDamage = 40;
+
+  static int maxHpForPhase(int phase) {
+    switch (phase) {
+      case 1:
+        return 30;
+      case 2:
+        return 90;
+      case 3:
+        return 180;
+      case 4:
+      default:
+        return 365;
+    }
+  }
+
+  static int rewardForPhaseCompletion(int completedPhase) {
+    switch (completedPhase) {
+      case 1:
+        return 300;
+      case 2:
+        return 1000;
+      case 3:
+        return 2500;
+      case 4:
+      default:
+        return 5000;
+    }
+  }
 
   bool isDefeated() => currentHp <= 0;
 
@@ -59,12 +85,14 @@ class Boss {
       };
 
   factory Boss.fromJson(Map<String, dynamic> json) {
+    final phase = json['phase'] as int? ?? 1;
+    final maxHp = json['maxHp'] as int? ?? maxHpForPhase(phase);
     return Boss(
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      currentHp: json['currentHp'] as int? ?? defaultInitialHp,
-      maxHp: json['maxHp'] as int? ?? defaultInitialHp,
-      phase: json['phase'] as int? ?? 1,
+      currentHp: json['currentHp'] as int? ?? maxHp,
+      maxHp: maxHp,
+      phase: phase,
       lastInteractionDate:
           DateTime.tryParse(json['lastInteractionDate'] as String? ?? ''),
     );

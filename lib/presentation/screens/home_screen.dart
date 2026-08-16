@@ -310,8 +310,8 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes). İlk aşama 30 gün sürecektir.',
-              style: TextStyle(color: GothicPalette.parchment, fontSize: 12),
+              'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes).\n\n• Faz 1: 30 Gün\n• Faz 2: 90 Gün\n• Faz 3: 180 Gün\n• Faz 4: 365 Gün\n\nGünde 1 kez iradeni test et. Direndikçe canı azalır, her faz bittiğinde devasa Öz kazanırsın!',
+              style: TextStyle(color: GothicPalette.parchment, fontSize: 12, height: 1.4),
             ),
             const SizedBox(height: 14),
             TextField(
@@ -334,7 +334,7 @@ class HomeScreen extends ConsumerWidget {
               if (text.isEmpty) return;
               await ref
                   .read(bossControllerProvider.notifier)
-                  .createBoss(title: text, initialHp: 30);
+                  .createBoss(title: text);
               if (ctx.mounted) Navigator.of(ctx).pop();
             },
             style: OutlinedButton.styleFrom(
@@ -402,6 +402,7 @@ class _BossBattleCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final double hpRatio = boss.maxHp > 0 ? boss.currentHp / boss.maxHp : 0.0;
+    final bool hasInteractedToday = boss.wasInteractedOn(DateTime.now());
 
     return OrnateFrame(
       radius: 12,
@@ -492,75 +493,102 @@ class _BossBattleCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final result = await ref
-                          .read(bossControllerProvider.notifier)
-                          .resist();
-                      if (result != null && context.mounted) {
-                        if (result.didPhaseMutate) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: GothicPalette.goldDeep,
-                              content: Text(
-                                '🏆 BOSS MUTASYONA UĞRADI! Faz ${result.boss.phase}\'e geçti ve +${result.essenceGained} devasa Öz kazandın!',
+            if (hasInteractedToday)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: GothicPalette.ironBlack,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: GothicPalette.charcoal, width: 0.8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.check_circle_outline_rounded,
+                        color: GothicPalette.goldBright, size: 16),
+                    SizedBox(width: 6),
+                    Text(
+                      'Bugünün İrade Vuruşu Tamamlandı (Yarın Yenilenecek)',
+                      style: TextStyle(
+                        color: GothicPalette.parchmentLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final result = await ref
+                            .read(bossControllerProvider.notifier)
+                            .resist();
+                        if (result != null && context.mounted) {
+                          if (result.didPhaseMutate) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: GothicPalette.goldDeep,
+                                content: Text(
+                                  '🏆 BOSS FAZ ${result.boss.phase}\'E GEÇTİ (${result.boss.maxHp} Gün)! +${result.essenceGained} devasa Öz kazandın!',
+                                ),
                               ),
-                            ),
-                          );
-                        } else {
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  '🛡️ İradeni korudun! Boss -1 Gün kaybetti.',
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: GothicPalette.goldBright,
+                        side: const BorderSide(color: GothicPalette.brass, width: 0.8),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      icon: const Icon(Icons.shield_rounded, size: 15),
+                      label: const Text('DİRENDİM',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final result = await ref
+                            .read(bossControllerProvider.notifier)
+                            .fail();
+                        if (result != null && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
+                              backgroundColor: GothicPalette.blood,
                               content: Text(
-                                '🛡️ İradeni korudun! Boss -1 HP kaybetti ve +${result.essenceGained} Öz kazandın.',
+                                '💀 İraden kırıldı! -${result.damageTaken} HP hasar aldın ve Boss kendini iyileştirdi (+1 Gün).',
                               ),
                             ),
                           );
                         }
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: GothicPalette.goldBright,
-                      side: const BorderSide(color: GothicPalette.brass, width: 0.8),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: GothicPalette.bloodBright,
+                        side: const BorderSide(color: GothicPalette.blood, width: 0.8),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      icon: const Icon(Icons.heart_broken_rounded, size: 15),
+                      label: const Text('YENİLDİM',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
                     ),
-                    icon: const Icon(Icons.shield_rounded, size: 15),
-                    label: const Text('DİRENDİM',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final result = await ref
-                          .read(bossControllerProvider.notifier)
-                          .fail();
-                      if (result != null && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: GothicPalette.blood,
-                            content: Text(
-                              '💀 İraden kırıldı! -${result.damageTaken} HP hasar aldın ve Boss kendini iyileştirdi (+1 HP).',
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: GothicPalette.bloodBright,
-                      side: const BorderSide(color: GothicPalette.blood, width: 0.8),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                    icon: const Icon(Icons.heart_broken_rounded, size: 15),
-                    label: const Text('YENİLDİM',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),
