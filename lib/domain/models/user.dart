@@ -10,6 +10,7 @@ class User {
     required this.currentStreak,
     this.currentStamina = 100,
     this.staminaUpdatedAt,
+    this.lastDailyResolutionAt,
     this.hasDefeatedFirstBoss = false,
   });
 
@@ -20,6 +21,7 @@ class User {
   final int totalEssence;
   final int currentStamina;
   final DateTime? staminaUpdatedAt;
+  final DateTime? lastDailyResolutionAt;
   final int currentStreak;
   final bool hasDefeatedFirstBoss;
 
@@ -32,6 +34,7 @@ class User {
     int? currentStreak,
     int? currentStamina,
     DateTime? staminaUpdatedAt,
+    DateTime? lastDailyResolutionAt,
     bool? hasDefeatedFirstBoss,
   }) {
     return User(
@@ -43,6 +46,8 @@ class User {
       currentStreak: currentStreak ?? this.currentStreak,
       currentStamina: currentStamina ?? this.currentStamina,
       staminaUpdatedAt: staminaUpdatedAt ?? this.staminaUpdatedAt,
+      lastDailyResolutionAt:
+          lastDailyResolutionAt ?? this.lastDailyResolutionAt,
       hasDefeatedFirstBoss: hasDefeatedFirstBoss ?? this.hasDefeatedFirstBoss,
     );
   }
@@ -56,6 +61,7 @@ class User {
       'totalEssence': totalEssence,
       'currentStamina': currentStamina,
       'staminaUpdatedAt': staminaUpdatedAt?.toIso8601String(),
+      'lastDailyResolutionAt': lastDailyResolutionAt?.toIso8601String(),
       'currentStreak': currentStreak,
       'hasDefeatedFirstBoss': hasDefeatedFirstBoss,
     };
@@ -64,12 +70,16 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String? ?? '',
-      selectedClass: CharacterClass.fromString(json['selectedClass'] as String?),
+      selectedClass:
+          CharacterClass.fromString(json['selectedClass'] as String?),
       currentHp: json['currentHp'] as int? ?? 0,
       maxHp: json['maxHp'] as int? ?? 0,
       totalEssence: json['totalEssence'] as int? ?? 0,
       currentStamina: json['currentStamina'] as int? ?? 100,
-      staminaUpdatedAt: DateTime.tryParse(json['staminaUpdatedAt'] as String? ?? ''),
+      staminaUpdatedAt:
+          DateTime.tryParse(json['staminaUpdatedAt'] as String? ?? ''),
+      lastDailyResolutionAt:
+          DateTime.tryParse(json['lastDailyResolutionAt'] as String? ?? ''),
       currentStreak: json['currentStreak'] as int? ?? 0,
       hasDefeatedFirstBoss: json['hasDefeatedFirstBoss'] as bool? ?? false,
     );
