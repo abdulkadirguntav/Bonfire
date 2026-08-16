@@ -1,1 +1,0 @@
- /home/abdulkadirg/Belgeler/Bonfire/.dart_tool/flutter_build/23a70fb5fa94edcdf213b7ff454e5aa2/native_assets.json: 
