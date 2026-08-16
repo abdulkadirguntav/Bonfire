@@ -29,4 +29,8 @@ class SoapstoneRepository {
     final raw = jsonEncode(soapstones.map((s) => s.toJson()).toList());
     await _prefs.setString(_storageKey, raw);
   }
+
+  Future<void> clearSoapstones() async {
+    await _prefs.remove(_storageKey);
+  }
 }

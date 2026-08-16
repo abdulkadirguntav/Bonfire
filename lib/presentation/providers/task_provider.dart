@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:bonfire/core/services/notification_service.dart';
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/day_resolution_service.dart';
@@ -84,6 +85,23 @@ class TaskController extends Notifier<List<Task>> {
     ];
     await _repository.saveTasks(tasks);
     state = tasks;
+
+    // Schedule local daily reminder if habitTime is specified
+    if (task.habitTime != null && task.habitTime!.contains(':')) {
+      final parts = task.habitTime!.split(':');
+      if (parts.length == 2) {
+        final hour = int.tryParse(parts[0]);
+        final minute = int.tryParse(parts[1]);
+        if (hour != null && minute != null) {
+          await NotificationService.instance.scheduleHabitNotification(
+            id: task.id.hashCode & 0x7FFFFFFF,
+            taskTitle: task.title,
+            hour: hour,
+            minute: minute,
+          );
+        }
+      }
+    }
   }
 
   /// Strict mathematical rule on task deletion:
@@ -99,6 +117,10 @@ class TaskController extends Notifier<List<Task>> {
     final remainingTasks = state.where((item) => item.id != taskId).toList();
     await _repository.saveTasks(remainingTasks);
     state = remainingTasks;
+
+    // Cancel scheduled notification
+    await NotificationService.instance
+        .cancelHabitNotification(task.id.hashCode & 0x7FFFFFFF);
 
     if (user != null && isCompleted) {
       final reward = TaskEconomyService.rewardFor(task.category, user: user);
@@ -143,58 +165,34 @@ class TaskController extends Notifier<List<Task>> {
       completedKeys.remove(completionKey);
     }
 
-    final tasks = state
-        .map((item) => item.id == taskId
-            ? item.copyWith(completedDateKeys: completedKeys)
-            : item)
-        .toList();
-    await _repository.saveTasks(tasks);
-    state = tasks;
+    final updatedTask = task.copyWith(completedDateKeys: completedKeys);
+    final updatedTasks =
+        state.map((item) => item.id == taskId ? updatedTask : item).toList();
+    await _repository.saveTasks(updatedTasks);
+    state = updatedTasks;
 
-    final reward = TaskEconomyService.rewardFor(task.category, user: user);
-    final updatedUser = isCompleted
-        ? StaminaService.spendForCompletion(
-            user,
-            task.category,
-            now: completionDate,
-          ).copyWith(
-            essence: user.essence + reward,
-            enemiesDefeated: user.enemiesDefeated + 1,
-          )
-        : StaminaService.refundCompletion(
-            user,
-            task.category,
-            now: completionDate,
-          ).copyWith(
-            essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
-            enemiesDefeated:
-                (user.enemiesDefeated - 1).clamp(0, 1 << 31).toInt(),
-          );
-
-    await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
+    if (isCompleted) {
+      final reward = TaskEconomyService.rewardFor(task.category, user: user);
+      final updatedUser = StaminaService.consumeForTask(
+        user,
+        task.category,
+        now: completionDate,
+      ).copyWith(
+        essence: user.essence + reward,
+        enemiesDefeated: user.enemiesDefeated + 1,
+      );
+      await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
+    } else {
+      final reward = TaskEconomyService.rewardFor(task.category, user: user);
+      final refundedUser = StaminaService.refundCompletion(
+        user,
+        task.category,
+        now: completionDate,
+      ).copyWith(
+        essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
+        enemiesDefeated: (user.enemiesDefeated - 1).clamp(0, 1 << 31).toInt(),
+      );
+      await ref.read(userControllerProvider.notifier).saveUser(refundedUser);
+    }
   }
-
-  /// Alias for toggleComplete
-  Future<void> toggleTask(
-    String taskId, {
-    required bool isCompleted,
-    DateTime? date,
-  }) =>
-      toggleComplete(taskId, isCompleted: isCompleted, date: date);
-
-  /// Call once at the end of [date].
-  Future<void> resolveDay(DateTime date) async {
-    final user = ref.read(userControllerProvider);
-    if (user == null || DayResolutionService.wasResolvedFor(user, date)) return;
-
-    final resolution = DayResolutionService.resolve(user, state, date: date);
-    await ref.read(userControllerProvider.notifier).saveUser(resolution.user);
-    await ref
-        .read(userControllerProvider.notifier)
-        .resolveDeathIfNeeded(now: date);
-    await ref.read(userControllerProvider.notifier).reclaimAshMarkIfEligible();
-  }
-
-  List<Task> tasksForToday() =>
-      state.where((task) => task.matchesDate(DateTime.now())).toList();
 }

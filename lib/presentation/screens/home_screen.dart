@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bonfire/core/theme/app_theme.dart';
+import 'package:bonfire/core/widgets/bonfire_logo.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
@@ -26,13 +27,41 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() => _currentIndex = index);
+  }
+
+  void _onDestinationSelected(int index) {
+    setState(() => _currentIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppPalette.scaffoldBackground,
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const BouncingScrollPhysics(),
         children: const [
           _DashboardView(),
           ShopScreen(),
@@ -51,7 +80,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: NavigationBar(
           selectedIndex: _currentIndex,
-          onDestinationSelected: (index) => setState(() => _currentIndex = index),
+          onDestinationSelected: _onDestinationSelected,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.local_fire_department_outlined),
@@ -108,30 +137,11 @@ class _DashboardView extends ConsumerWidget {
             // Top App Bar
             Row(
               children: [
-                const Icon(
-                  Icons.local_fire_department_rounded,
-                  color: AppPalette.primaryGold,
-                  size: 24,
-                ),
+                const BonfireLogo(size: 26, fontSize: 18),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'BONFIRE',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.cinzel(
-                          color: AppPalette.primaryGold,
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2.2,
-                        ),
-                      ),
-                      if (user != null)
-                        Text(
+                  child: user != null
+                      ? Text(
                           user.selectedClass.className.toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -141,9 +151,8 @@ class _DashboardView extends ConsumerWidget {
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.4,
                           ),
-                        ),
-                    ],
-                  ),
+                        )
+                      : const SizedBox.shrink(),
                 ),
                 const SizedBox(width: 8),
                 // Minimal Streak Badge -> Tap navigates to The Chronicle
@@ -717,128 +726,233 @@ class _AddTaskMinimalButton extends StatelessWidget {
   }
 }
 
-/// Frameless Minimal Task Row separated by 1px subtle divider
+/// Frameless Minimal Task Row with Swipe-to-Delete and Confirmation
 class _MinimalTaskRow extends ConsumerWidget {
   const _MinimalTaskRow({required this.task});
 
   final Task task;
+
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF140D0E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(
+            color: AppPalette.bloodCrimson,
+            width: 1.0,
+          ),
+        ),
+        title: Text(
+          'Yemini Sil?',
+          style: GoogleFonts.cinzel(
+            color: AppPalette.bloodBright,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          ),
+        ),
+        content: Text(
+          '\'${task.title}\' yemini silinecektir. Harcanan ${task.category.staminaCost} Stamina iade edilecektir.\n\nEmin misin?',
+          style: GoogleFonts.inter(
+            color: AppPalette.textBoneWhite,
+            fontSize: 12,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'İptal',
+              style: GoogleFonts.inter(color: AppPalette.textAshGray),
+            ),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppPalette.bloodBright,
+              side: const BorderSide(
+                color: AppPalette.bloodCrimson,
+                width: 1.0,
+              ),
+            ),
+            child: Text(
+              'YEMİNİ SİL',
+              style: GoogleFonts.cinzel(
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return confirmed ?? false;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final isCompleted = task.isCompletedOn(DateTime.now());
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Checkbox(
-            value: isCompleted,
-            onChanged: user == null
-                ? null
-                : (value) async {
-                    final next = value ?? false;
-                    await ref
-                        .read(tasksProvider.notifier)
-                        .toggleComplete(task.id, isCompleted: next);
-                  },
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        task.title,
-                        style: GoogleFonts.inter(
-                          color: isCompleted
-                              ? AppPalette.textAshGray
-                              : AppPalette.textBoneWhite,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13.5,
-                          decoration:
-                              isCompleted ? TextDecoration.lineThrough : null,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 1.5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF14161C),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                          color: AppPalette.borderSubtle,
-                          width: 0.6,
-                        ),
-                      ),
-                      child: Text(
-                        '${task.category.label} (-${task.category.staminaCost} / +${TaskEconomyService.rewardFor(task.category, user: user)})',
-                        style: GoogleFonts.inter(
-                          color: AppPalette.primaryGold,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (task.description.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      task.description,
-                      style: GoogleFonts.inter(
-                        color: AppPalette.textAshGray,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                if (task.habitTime != null || task.acceptedWhileExhausted)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Row(
-                      children: [
-                        if (task.habitTime != null) ...[
-                          Text(
-                            'Saat: ${task.habitTime}',
-                            style: GoogleFonts.inter(
-                              color: AppPalette.textAshGray,
-                              fontSize: 10,
-                            ),
+    return Dismissible(
+      key: ValueKey(task.id),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) => _confirmDelete(context),
+      onDismissed: (direction) async {
+        await ref.read(tasksProvider.notifier).deleteTask(task.id);
+      },
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: AppPalette.bloodCrimson.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'SİL',
+              style: GoogleFonts.cinzel(
+                color: AppPalette.bloodBright,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(
+              Icons.delete_forever_rounded,
+              color: AppPalette.bloodBright,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Checkbox(
+              value: isCompleted,
+              onChanged: user == null
+                  ? null
+                  : (value) async {
+                      final next = value ?? false;
+                      await ref
+                          .read(tasksProvider.notifier)
+                          .toggleComplete(task.id, isCompleted: next);
+                    },
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          task.title,
+                          style: GoogleFonts.inter(
+                            color: isCompleted
+                                ? AppPalette.textAshGray
+                                : AppPalette.textBoneWhite,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13.5,
+                            decoration:
+                                isCompleted ? TextDecoration.lineThrough : null,
                           ),
-                          const SizedBox(width: 8),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF14161C),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: AppPalette.borderSubtle,
+                            width: 0.6,
+                          ),
+                        ),
+                        child: Text(
+                          '${task.category.label} (-${task.category.staminaCost} / +${TaskEconomyService.rewardFor(task.category, user: user)})',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.primaryGold,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (task.description.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        task.description,
+                        style: GoogleFonts.inter(
+                          color: AppPalette.textAshGray,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (task.habitTime != null || task.acceptedWhileExhausted)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Row(
+                        children: [
+                          if (task.habitTime != null) ...[
+                            const Icon(
+                              Icons.alarm_on_rounded,
+                              size: 11,
+                              color: AppPalette.primaryGold,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'Saat: ${task.habitTime}',
+                              style: GoogleFonts.inter(
+                                color: AppPalette.textAshGray,
+                                fontSize: 10,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (task.acceptedWhileExhausted)
+                            Text(
+                              '⚠️ Tükenmiş (1.5x Hasar)',
+                              style: GoogleFonts.inter(
+                                color: AppPalette.bloodCrimson,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                         ],
-                        if (task.acceptedWhileExhausted)
-                          Text(
-                            '⚠️ Tükenmiş (1.5x Hasar)',
-                            style: GoogleFonts.inter(
-                              color: AppPalette.bloodCrimson,
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () =>
-                ref.read(tasksProvider.notifier).deleteTask(task.id),
-            icon: const Icon(
-              Icons.delete_outline,
-              color: AppPalette.textDim,
-              size: 17,
+            IconButton(
+              onPressed: () async {
+                final confirm = await _confirmDelete(context);
+                if (confirm) {
+                  await ref.read(tasksProvider.notifier).deleteTask(task.id);
+                }
+              },
+              icon: const Icon(
+                Icons.delete_outline,
+                color: AppPalette.textDim,
+                size: 17,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

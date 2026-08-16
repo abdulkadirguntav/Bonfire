@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/models/task.dart';
@@ -8,43 +9,48 @@ import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
 
 void main() {
-  group('1. The Kiln (Mağaza) Satın Alma & Envanter Kuralları', () {
-    test('buying items deducts essence and adds to inventory when market is open', () {
-      final user = User.create(
-        id: 'u1',
-        selectedClass: CharacterClass.warrior,
-      ).copyWith(
-        currentStreak: 5, // Market open day!
-        essence: 200,
-      );
-
-      final updatedUser = ShopService.buyItem(user, ItemType.estusFlask);
-      expect(updatedUser.essence, 80); // 200 - 120 = 80
-      expect(updatedUser.itemCount(ItemType.estusFlask.id), 1);
-    });
-
+  group('1. The Kiln (Mağaza) ve Eşya Satın Alma Kuralları', () {
     test('buying items throws MarketClosedException on non-market days', () {
+      final nonMarketDay = DateTime(2026, 8, 16); // Day 1 (1 % 5 != 0)
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
+        now: nonMarketDay,
       ).copyWith(
-        currentStreak: 2, // Closed
+        currentStreak: 1, // Not a multiple of 5
         essence: 500,
       );
 
+      expect(ShopService.isMarketOpen(user), isFalse);
       expect(
         () => ShopService.buyItem(user, ItemType.estusFlask),
         throwsA(isA<MarketClosedException>()),
       );
     });
 
-    test('buying items throws InsufficientEssenceException when essence is low on market day', () {
+    test('buying items succeeds on Market Days (streaks 5, 10, 15, 20...) and deducts Essence', () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
       ).copyWith(
-        currentStreak: 5,
-        essence: 20,
+        currentStreak: 5, // Market is OPEN!
+        essence: 200,
+      );
+
+      expect(ShopService.isMarketOpen(user), isTrue);
+
+      final updated = ShopService.buyItem(user, ItemType.estusFlask);
+      expect(updated.essence, 200 - ItemType.estusFlask.cost); // 200 - 30 = 170
+      expect(updated.itemCount(ItemType.estusFlask.id), 1);
+    });
+
+    test('buying items throws InsufficientEssenceException when player has not enough essence', () {
+      final user = User.create(
+        id: 'u1',
+        selectedClass: CharacterClass.warrior,
+      ).copyWith(
+        currentStreak: 10, // Market is open
+        essence: 10, // Not enough for Estus Flask (cost 30)
       );
 
       expect(
@@ -56,26 +62,26 @@ void main() {
     test('using Estus Flask heals 40 HP capped at maxHp and consumes 1 item', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.warrior, // maxHp = 150
+        selectedClass: CharacterClass.warrior, // maxHp = 100
       ).copyWith(
-        currentHp: 80,
+        currentHp: 50,
         inventory: {ItemType.estusFlask.id: 2},
       );
 
       final healedUser = ShopService.useItem(user, ItemType.estusFlask);
-      expect(healedUser.currentHp, 120); // 80 + 40 = 120
+      expect(healedUser.currentHp, 90); // 50 + 40 = 90
       expect(healedUser.itemCount(ItemType.estusFlask.id), 1);
 
-      // Overheal test (capped at maxHp 150)
+      // Overheal test (capped at maxHp 100)
       final fullHealed = ShopService.useItem(healedUser, ItemType.estusFlask);
-      expect(fullHealed.currentHp, 150); // 120 + 40 = 160 -> capped at 150
+      expect(fullHealed.currentHp, 100); // 90 + 40 = 130 -> capped at 100
       expect(fullHealed.itemCount(ItemType.estusFlask.id), 0);
     });
 
     test('using Ashen Estus refills stamina to maxStamina and consumes item', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // maxStamina = 150
+        selectedClass: CharacterClass.prisoner, // maxStamina = 150
       ).copyWith(
         currentStamina: 10,
         inventory: {ItemType.ashenEstus.id: 1},
@@ -92,15 +98,16 @@ void main() {
         selectedClass: CharacterClass.warrior,
       ).copyWith(
         inventory: {ItemType.purgingStone.id: 1},
+        activePurgingStones: 0,
       );
 
-      final protectedUser = ShopService.useItem(user, ItemType.purgingStone);
-      expect(protectedUser.activePurgingStones, 1);
-      expect(protectedUser.itemCount(ItemType.purgingStone.id), 0);
+      final updatedUser = ShopService.useItem(user, ItemType.purgingStone);
+      expect(updatedUser.activePurgingStones, 1);
+      expect(updatedUser.itemCount(ItemType.purgingStone.id), 0);
     });
 
     test('using Scroll of Stasis freezes current day and consumes item', () {
-      final today = DateTime(2026, 8, 16);
+      final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -108,35 +115,34 @@ void main() {
         inventory: {ItemType.scrollOfStasis.id: 1},
       );
 
-      final stasisUser = ShopService.useItem(user, ItemType.scrollOfStasis, now: today);
-      expect(stasisUser.isStasisActiveOn(today), isTrue);
-      expect(stasisUser.itemCount(ItemType.scrollOfStasis.id), 0);
+      final updatedUser = ShopService.useItem(user, ItemType.scrollOfStasis, now: date);
+      expect(updatedUser.isStasisActive(date), isTrue);
+      expect(updatedUser.itemCount(ItemType.scrollOfStasis.id), 0);
     });
   });
 
-  group('2. Ring of Sacrifice (Fedakarlık Yüzüğü) ve Ölüm Mekaniği', () {
-    test('dying with Ring of Sacrifice preserves Essence and creates NO AshMark', () {
+  group('2. Ring of Sacrifice Ölüm Koruma Mekaniği', () {
+    test('death with Ring of Sacrifice preserves Essence and creates NO AshMark', () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
       ).copyWith(
         currentHp: 0,
-        essence: 500,
+        essence: 350,
         currentStreak: 12,
         inventory: {ItemType.ringOfSacrifice.id: 1},
       );
 
       expect(DeathService.shouldDie(user), isTrue);
 
-      // Ring of Sacrifice prevents AshMark creation
+      // AshMark must NOT be created
       final ashMark = DeathService.createAshMark(user);
       expect(ashMark, isNull);
 
-      // Reviving with ring keeps essence and consumes ring
       final revivedUser = DeathService.applyDeath(user);
-      expect(revivedUser.essence, 500); // PRESERVED!
-      expect(revivedUser.currentStreak, 1); // Streak resets to 1
-      expect(revivedUser.currentHp, 150); // HP refilled
+      expect(revivedUser.essence, 350); // Essence PRESERVED!
+      expect(revivedUser.currentHp, 100);
+      expect(revivedUser.currentStreak, 1); // Streak still resets
       expect(revivedUser.itemCount(ItemType.ringOfSacrifice.id), 0); // Ring consumed
     });
   });
@@ -146,7 +152,7 @@ void main() {
       final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.warrior, // 150 HP, 0.8x damage
+        selectedClass: CharacterClass.warrior, // 100 HP, 1.0x damage
       ).copyWith(
         activePurgingStones: 1,
       );
@@ -166,7 +172,7 @@ void main() {
       );
 
       expect(resolution.purgedTaskCount, 1);
-      expect(resolution.user.currentHp, 150); // 0 damage taken because it was purged!
+      expect(resolution.user.currentHp, 100); // 0 damage taken because it was purged!
       expect(resolution.user.activePurgingStones, 0); // Reset for next day
     });
 
@@ -195,7 +201,7 @@ void main() {
       );
 
       expect(resolution.wasStasisApplied, isTrue);
-      expect(resolution.user.currentHp, 150); // No damage
+      expect(resolution.user.currentHp, 100); // No damage
       expect(resolution.user.currentStreak, 8); // Streak PRESERVED!
     });
   });
@@ -204,7 +210,7 @@ void main() {
     test('Kindling Bonfire full heals and grants permanent Max HP or Max Stamina', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.warrior, // baseHp 150, maxStam 100
+        selectedClass: CharacterClass.warrior, // baseHp 100, maxStam 100
       ).copyWith(
         currentStreak: 3,
         currentHp: 40,
@@ -218,9 +224,9 @@ void main() {
         claimedMilestones: {3},
       );
 
-      expect(userHpUpgrade.maxHp, 170);
-      expect(userHpUpgrade.currentHp, 170);
-      expect(userHpUpgrade.hasClaimedMilestone(3), isTrue);
+      expect(userHpUpgrade.maxHp, 120); // 100 + 20
+      expect(userHpUpgrade.currentHp, 120); // Fully healed
+      expect(userHpUpgrade.claimedMilestones.contains(3), isTrue);
 
       // Kindle Endurance (+15 Max Stamina)
       final userStamUpgrade = user.copyWith(
@@ -230,9 +236,9 @@ void main() {
         claimedMilestones: {3},
       );
 
-      expect(userStamUpgrade.maxStamina, 115);
+      expect(userStamUpgrade.maxStamina, 115); // 100 + 15
       expect(userStamUpgrade.currentStamina, 115);
-      expect(userStamUpgrade.currentHp, 150);
+      expect(userStamUpgrade.currentHp, 100); // Also full heals HP
     });
   });
 }

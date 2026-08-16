@@ -103,7 +103,7 @@ void main() {
     test('over-exertion penalty: missed task accepted while exhausted deals 1.5x damage', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // damageMultiplier: 1.0
+        selectedClass: CharacterClass.warrior, // damageMultiplier: 1.0
       );
 
       final normalTask = Task(
@@ -157,14 +157,14 @@ void main() {
 
       expect(resolution.missedTasks.isEmpty, isTrue);
       expect(resolution.user.currentStreak, 4); // 3 + 1
-      expect(resolution.user.currentHp, 150);
+      expect(resolution.user.currentHp, 100);
     });
 
     test('day resolution applies penalty and resets streak to day 1 on missed task', () {
       final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // 80 HP, damageMultiplier 1.0
+        selectedClass: CharacterClass.mage, // 150 HP, damageMultiplier 0.75
       ).copyWith(
         essence: 50,
         currentStreak: 5,
@@ -186,7 +186,7 @@ void main() {
       );
 
       expect(resolution.missedTasks.length, 1);
-      expect(resolution.user.currentHp, 50); // 80 - (20 * 1.5 = 30) = 50
+      expect(resolution.user.currentHp, 127); // 150 - (20 * 1.5 * 0.75 = 22.5 -> 23) = 127
       expect(resolution.user.currentStreak, 1); // Streak resets to 1. gün
     });
 
@@ -208,7 +208,7 @@ void main() {
       expect(ashMark.targetStreak, 9);
 
       final revivedUser = DeathService.applyDeath(user);
-      expect(revivedUser.currentHp, 150);
+      expect(revivedUser.currentHp, 100);
       expect(revivedUser.currentStamina, 100);
       expect(revivedUser.essence, 0);
       expect(revivedUser.currentStreak, 1); // 1. güne döner

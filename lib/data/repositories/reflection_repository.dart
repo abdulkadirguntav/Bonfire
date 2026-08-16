@@ -43,4 +43,9 @@ class ReflectionRepository {
   Future<void> saveActiveQuestions(List<String> questions) async {
     await _prefs.setStringList(_questionsKey, questions);
   }
+
+  Future<void> clearReflections() async {
+    await _prefs.remove(_storageKey);
+    await _prefs.remove(_questionsKey);
+  }
 }

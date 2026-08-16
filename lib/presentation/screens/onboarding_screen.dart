@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bonfire/core/theme/app_theme.dart';
+import 'package:bonfire/core/widgets/bonfire_logo.dart';
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
@@ -27,24 +28,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.local_fire_department_rounded,
-                    color: AppPalette.primaryGold,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'BONFIRE',
-                    style: GoogleFonts.cinzel(
-                      color: AppPalette.primaryGold,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2.5,
-                    ),
-                  ),
-                ],
+              const Center(
+                child: BonfireLogo(size: 32, fontSize: 24),
               ),
               const SizedBox(height: 14),
               Text(

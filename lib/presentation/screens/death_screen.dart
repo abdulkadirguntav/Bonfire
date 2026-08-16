@@ -122,7 +122,7 @@ class DeathScreen extends ConsumerWidget {
                       ),
                     ),
                     child: Text(
-                      'ATEŞİN BAŞINDA UYAN',
+                      'YENİDEN DOĞ',
                       style: GoogleFonts.cinzel(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,

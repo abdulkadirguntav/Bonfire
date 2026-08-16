@@ -64,22 +64,31 @@ class ReflectionController extends Notifier<List<Reflection>> {
   }
 
   Future<void> saveReflection({
-    required DateTime date,
     required Map<String, String> answers,
+    DateTime? date,
+    List<String>? questions,
   }) async {
-    final newEntry = ReflectionService.createReflection(
-      date: date,
+    final updated = ReflectionService.saveReflection(
+      state,
       answers: answers,
+      now: date,
+      questions: questions,
     );
-
-    // Replace if an entry for today already exists, otherwise prepend
-    final filtered = state.where((r) => !r.isSameDay(date)).toList();
-    final updated = [newEntry, ...filtered];
     await _repository.saveReflections(updated);
     state = updated;
   }
 
-  Reflection? getReflectionFor(DateTime date) {
-    return state.where((r) => r.isSameDay(date)).firstOrNull;
+  Reflection? getTodayReflection({DateTime? now}) =>
+      ReflectionService.getTodayReflection(state, now: now);
+
+  Reflection? getReflectionFor(DateTime date) =>
+      ReflectionService.getReflectionForDate(state, date);
+
+  bool hasReflectedToday({DateTime? now}) =>
+      ReflectionService.hasReflectedToday(state, now: now);
+
+  Future<void> clearAll() async {
+    await _repository.clearReflections();
+    state = const [];
   }
 }

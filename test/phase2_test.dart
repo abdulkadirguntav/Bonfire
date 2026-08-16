@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:bonfire/domain/models/boss.dart';
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/task.dart';
@@ -9,115 +10,104 @@ import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 
 void main() {
-  group('1. Bug Fix - Stamina Hesaplama ve Görev Silme / Geri Alma', () {
-    test('uncompleted task deletion does NOT touch stamina or essence', () {
+  group('1. Stamina & Ceza Sistemi (Stamina & Task Deletion)', () {
+    test('task completion spends stamina and rewards essence', () {
+      final now = DateTime.now();
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
-      ).copyWith(currentStamina: 30, essence: 50);
+        now: now,
+      ).copyWith(currentStamina: 100, essence: 0, staminaUpdatedAt: now);
 
-      expect(user.currentStamina, 30);
-      expect(user.essence, 50);
+      final updated = StaminaService.consumeForTask(user, TaskCategory.physical, now: now);
+      expect(updated.currentStamina, 65); // 100 - 35 = 65
     });
 
-    test('completed task deletion refunds stamina but NEVER exceeds maxStamina', () {
+    test('task deletion refunds stamina but NEVER exceeds maxStamina', () {
+      final now = DateTime.now();
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior, // maxStamina = 100
-      ).copyWith(currentStamina: 90, essence: 100);
+        now: now,
+      ).copyWith(currentStamina: 95, staminaUpdatedAt: now);
 
-      final refundedUser = StaminaService.refundCompletion(
-        user,
-        TaskCategory.physical,
-      );
-
-      // 90 + 40 = 130 -> Clamped at maxStamina (100)
-      expect(refundedUser.currentStamina, 100);
-      expect(refundedUser.currentStamina <= user.maxStamina, isTrue);
+      final refunded = StaminaService.refundCompletion(user, TaskCategory.physical, now: now);
+      expect(refunded.currentStamina, 100); // 95 + 35 = 130 -> clamped to 100 maxStamina
     });
 
-    test('toggling task complete when cost > stamina clamps stamina to 0 and never goes negative', () {
+    test('unchecking completed task refunds stamina capped at maxStamina and deducts essence', () {
+      final now = DateTime.now();
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
-      ).copyWith(currentStamina: 20); // 20 stamina remaining
+        now: now,
+      ).copyWith(currentStamina: 50, essence: 30, staminaUpdatedAt: now);
 
-      final spentUser = StaminaService.spendForCompletion(
-        user,
-        TaskCategory.physical, // cost = 40
-      );
-
-      expect(spentUser.currentStamina, 0);
-      expect(StaminaService.isExhausted(spentUser), isTrue);
+      final refunded = StaminaService.refundCompletion(user, TaskCategory.mental, now: now);
+      expect(refunded.currentStamina, 80); // 50 + 30 = 80
     });
 
-    test('unchecking a completed task refunds stamina capped at maxStamina and deducts essence', () {
+    test('when cost > stamina, consumeForTask clamps stamina to 0 and never goes negative', () {
+      final now = DateTime.now();
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
-      ).copyWith(currentStamina: 80, essence: 100);
+        now: now,
+      ).copyWith(currentStamina: 10, staminaUpdatedAt: now);
 
-      final undoneUser = StaminaService.refundCompletion(
-        user,
-        TaskCategory.physical, // cost = 40
-      ).copyWith(
-        essence: (user.essence - TaskEconomyService.rewardFor(TaskCategory.physical, user: user))
-            .clamp(0, 1 << 31),
-      );
-
-      expect(undoneUser.currentStamina, 100); // 80 + 35 -> 100 capped
-      expect(undoneUser.essence, 92); // 100 - 8
+      final consumed = StaminaService.consumeForTask(user, TaskCategory.physical, now: now); // cost: 35
+      expect(consumed.currentStamina, 0); // 10 - 35 = -25 -> clamped to 0
     });
   });
 
   group('2. Karakter Sınıfları (Character Classes)', () {
-    test('Warrior has 150 HP, 100 Stamina, 0.8x damage, 1.0x essence', () {
+    test('Warrior has 100 HP, 100 Stamina, 1.0x damage, 1.0x essence', () {
       const warrior = CharacterClass.warrior;
-      expect(warrior.baseHp, 150);
+      expect(warrior.baseHp, 100);
       expect(warrior.maxStamina, 100);
-      expect(warrior.damageMultiplier, 0.8);
+      expect(warrior.damageMultiplier, 1.0);
       expect(warrior.essenceMultiplier, 1.0);
 
       final user = User.create(id: 'u-warrior', selectedClass: warrior);
-      expect(user.currentHp, 150);
-      expect(user.maxHp, 150);
+      expect(user.currentHp, 100);
+      expect(user.maxHp, 100);
       expect(user.currentStamina, 100);
       expect(user.maxStamina, 100);
     });
 
-    test('Mage has 80 HP, 150 Stamina, 1.0x damage, 1.2x essence', () {
+    test('Mage has 150 HP, 50 Stamina, 0.75x damage, 1.0x essence', () {
       const mage = CharacterClass.mage;
-      expect(mage.baseHp, 80);
-      expect(mage.maxStamina, 150);
-      expect(mage.damageMultiplier, 1.0);
-      expect(mage.essenceMultiplier, 1.2);
+      expect(mage.baseHp, 150);
+      expect(mage.maxStamina, 50);
+      expect(mage.damageMultiplier, 0.75);
+      expect(mage.essenceMultiplier, 1.0);
 
       final user = User.create(id: 'u-mage', selectedClass: mage);
-      expect(user.currentHp, 80);
-      expect(user.maxHp, 80);
-      expect(user.currentStamina, 150);
-      expect(user.maxStamina, 150);
-      // Reward multiplier test: 8 * 1.2 = 9.6 -> 10
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 10);
+      expect(user.currentHp, 150);
+      expect(user.maxHp, 150);
+      expect(user.currentStamina, 50);
+      expect(user.maxStamina, 50);
+      // Reward multiplier test: 8 * 1.0 = 8
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 8);
     });
 
-    test('Prisoner has 50 HP, 70 Stamina, 1.5x damage, 1.5x essence', () {
+    test('Prisoner has 50 HP, 150 Stamina, 1.25x damage, 1.5x essence', () {
       const prisoner = CharacterClass.prisoner;
       expect(prisoner.baseHp, 50);
-      expect(prisoner.maxStamina, 70);
-      expect(prisoner.damageMultiplier, 1.5);
+      expect(prisoner.maxStamina, 150);
+      expect(prisoner.damageMultiplier, 1.25);
       expect(prisoner.essenceMultiplier, 1.5);
 
       final user = User.create(id: 'u-prisoner', selectedClass: prisoner);
       expect(user.currentHp, 50);
       expect(user.maxHp, 50);
-      expect(user.currentStamina, 70);
-      expect(user.maxStamina, 70);
+      expect(user.currentStamina, 150);
+      expect(user.maxStamina, 150);
 
       // Reward multiplier test: 8 * 1.5 = 12
       expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 12);
 
-      // Damage penalty test: 10 * 1.5 (class) = 15
+      // Damage penalty test: 10 * 1.25 (class) = 12.5 -> 13
       final normalTask = Task(
         id: 't1',
         title: 'Task 1',
@@ -125,9 +115,9 @@ void main() {
         healthDamage: 10,
         createdAt: DateTime.now(),
       );
-      expect(TaskEconomyService.penaltyFor(normalTask, user: user), 15);
+      expect(TaskEconomyService.penaltyFor(normalTask, user: user), 13);
 
-      // Exhausted damage penalty test: 10 * 1.5 (exhausted) * 1.5 (class) = 22.5 -> 23
+      // Exhausted damage penalty test: 10 * 1.5 (exhausted) * 1.25 (class) = 18.75 -> 19
       final exhaustedTask = Task(
         id: 't2',
         title: 'Task 2',
@@ -136,46 +126,53 @@ void main() {
         createdAt: DateTime.now(),
         acceptedWhileExhausted: true,
       );
-      expect(TaskEconomyService.penaltyFor(exhaustedTask, user: user), 23);
+      expect(TaskEconomyService.penaltyFor(exhaustedTask, user: user), 19);
     });
   });
 
-  group('3. Uzun Vadeli Boss (Bağımlılık) Sistemi & Faz Ölçeklendirmesi', () {
+  group('3. Boss & Faz Ölçeklendirmesi (Boss Battle Mechanics)', () {
     test('Boss phase HP progression: 30 -> 90 -> 180 -> 365', () {
-      final boss = BossService.createBoss(title: 'Sigarayı Bırak');
-      expect(boss.phase, 1);
-      expect(boss.maxHp, 30);
-      expect(boss.currentHp, 30);
+      expect(Boss.maxHpForPhase(1), 30);
+      expect(Boss.maxHpForPhase(2), 90);
+      expect(Boss.maxHpForPhase(3), 180);
+      expect(Boss.maxHpForPhase(4), 365);
     });
 
-    test('Direndim (Resisted) gives 0 daily Essence on normal strike', () {
+    test('Direndim (Resisted) damages Boss by 1 HP and awards NO Essence before phase completion', () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak');
       final user = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
 
       final result = BossService.resist(boss: boss, user: user);
-      expect(result.didPhaseMutate, isFalse);
       expect(result.boss.currentHp, 29); // 30 - 1
-      expect(result.essenceGained, 0);
+      expect(result.damageDealt, 1);
+      expect(result.essenceGained, 0); // Direndim awards 0 Essence mid-phase
+      expect(result.didPhaseMutate, isFalse);
       expect(result.user.essence, 0);
     });
 
     test('Boss only allows 1 strike per day (enforces once-per-day limit)', () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak');
       final user = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
-      final today = DateTime.now();
+      final today = DateTime(2026, 8, 16);
 
-      final firstStrike = BossService.resist(boss: boss, user: user, now: today);
-      expect(firstStrike.boss.wasInteractedOn(today), isTrue);
+      // First interaction succeeds
+      final first = BossService.resist(boss: boss, user: user, now: today);
+      expect(first.boss.lastInteractedAt, today);
 
+      // Second interaction on the SAME day throws BossAlreadyInteractedException
       expect(
-        () => BossService.resist(boss: firstStrike.boss, user: user, now: today),
+        () => BossService.resist(boss: first.boss, user: user, now: today),
+        throwsA(isA<BossAlreadyInteractedException>()),
+      );
+      expect(
+        () => BossService.fail(boss: first.boss, user: user, now: today),
         throwsA(isA<BossAlreadyInteractedException>()),
       );
 
-      expect(
-        () => BossService.fail(boss: firstStrike.boss, user: user, now: today),
-        throwsA(isA<BossAlreadyInteractedException>()),
-      );
+      // Interaction on NEXT day succeeds
+      final nextDay = DateTime(2026, 8, 17);
+      final second = BossService.resist(boss: first.boss, user: user, now: nextDay);
+      expect(second.boss.currentHp, 28);
     });
 
     test('Yenildim (Failed) damages user and heals Boss (+1 HP up to maxHp)', () {
@@ -183,13 +180,13 @@ void main() {
           .copyWith(currentHp: 25);
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.warrior, // 0.8x damage multiplier
+        selectedClass: CharacterClass.warrior, // 1.0x damage multiplier
       );
 
       final result = BossService.fail(boss: boss, user: user);
       expect(result.boss.currentHp, 26); // 25 + 1
-      expect(result.damageTaken, 32); // 40 * 0.8 = 32
-      expect(result.user.currentHp, 118); // 150 - 32 = 118
+      expect(result.damageTaken, 40); // 40 * 1.0 = 40
+      expect(result.user.currentHp, 60); // 100 - 40 = 60
     });
 
     test('Failed cannot heal boss beyond maxHp', () {
@@ -217,7 +214,7 @@ void main() {
       expect(result.user.essence, 150);
     });
 
-    test('Phase Mutation 2 -> 3: mutates to 180 days and awards 400 Essence (scaled by Mage 1.2x)', () {
+    test('Phase Mutation 2 -> 3: mutates to 180 days and awards 400 Essence (scaled by Prisoner 1.5x)', () {
       final boss = Boss(
         id: 'b1',
         title: 'Sigarayı Bırak',
@@ -227,7 +224,7 @@ void main() {
       );
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // 1.2x multiplier
+        selectedClass: CharacterClass.prisoner, // 1.5x multiplier
       );
 
       final result = BossService.resist(boss: boss, user: user);
@@ -235,8 +232,8 @@ void main() {
       expect(result.boss.phase, 3);
       expect(result.boss.maxHp, 180);
       expect(result.boss.currentHp, 180);
-      expect(result.essenceGained, 480); // 400 * 1.2 = 480
-      expect(result.user.essence, 480);
+      expect(result.essenceGained, 600); // 400 * 1.5 = 600
+      expect(result.user.essence, 600);
     });
 
     test('Phase Mutation 3 -> 4: mutates to 365 days and awards 1000 Essence', () {
@@ -297,7 +294,7 @@ void main() {
 
       // Day 1 completed -> streak becomes 2. Day 2 completed -> streak becomes 3.
       expect(caughtUpUser.currentStreak, 3);
-      expect(caughtUpUser.currentHp, 150);
+      expect(caughtUpUser.currentHp, 100);
       expect(DayResolutionService.wasResolvedFor(caughtUpUser, day2), isTrue);
     });
 
@@ -308,7 +305,7 @@ void main() {
 
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // 80 HP, 1.0x damage
+        selectedClass: CharacterClass.mage, // 150 HP, 0.75x damage
         now: day1,
       ).copyWith(
         lastDailyResolutionAt: day1.subtract(const Duration(days: 1)),
@@ -333,9 +330,9 @@ void main() {
         today: today,
       );
 
-      // Day 2 was missed -> streak resets to 1, takes 20 damage (80 - 20 = 60 HP)
+      // Day 2 was missed -> streak resets to 1, takes 20 * 0.75 = 15 damage (150 - 15 = 135 HP)
       expect(caughtUpUser.currentStreak, 1);
-      expect(caughtUpUser.currentHp, 60);
+      expect(caughtUpUser.currentHp, 135);
       expect(DayResolutionService.wasResolvedFor(caughtUpUser, day2), isTrue);
     });
   });

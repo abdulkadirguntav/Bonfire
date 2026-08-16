@@ -16,6 +16,7 @@ class BossInteractionResult {
     required this.didPhaseMutate,
     required this.essenceGained,
     required this.damageTaken,
+    this.damageDealt = 1,
   });
 
   final Boss boss;
@@ -23,6 +24,7 @@ class BossInteractionResult {
   final bool didPhaseMutate;
   final int essenceGained;
   final int damageTaken;
+  final int damageDealt;
 }
 
 class BossService {

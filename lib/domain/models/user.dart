@@ -104,6 +104,8 @@ class User {
   bool isStasisActiveOn(DateTime date) =>
       activeStasisDateKeys.contains(Task.dateKey(date));
 
+  bool isStasisActive(DateTime date) => isStasisActiveOn(date);
+
   bool hasClaimedMilestone(int streak) => claimedMilestones.contains(streak);
 
   factory User.create({

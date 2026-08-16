@@ -34,6 +34,13 @@ class StaminaService {
     );
   }
 
+  static User consumeForTask(
+    User user,
+    TaskCategory category, {
+    DateTime? now,
+  }) =>
+      spendForCompletion(user, category, now: now);
+
   /// Refunds stamina when a task completion is undone or a completed task is deleted.
   /// The resulting stamina never exceeds user.maxStamina.
   static User refundCompletion(

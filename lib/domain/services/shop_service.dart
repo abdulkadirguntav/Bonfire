@@ -29,6 +29,9 @@ class MarketClosedException implements Exception {
 class ShopService {
   const ShopService._();
 
+  static bool isMarketOpen(User user) =>
+      ShopItem.isMarketOpenOnStreak(user.currentStreak);
+
   /// Satın alma işlemi: Pazarın açık olup olmadığı kontrol edilir, Essence düşer, envantere eklenir.
   static User buyItem(
     User user,

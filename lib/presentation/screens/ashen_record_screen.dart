@@ -468,6 +468,127 @@ class AshenRecordScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // Section 3: Danger Zone / Reset Character
+                    const SectionTitle('Küllerin Sonu (Tehlikeli Bölge)'),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1B1112),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppPalette.bloodCrimson.withValues(alpha: 0.5),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Karakterini silip sıfırdan yeni bir sınıfla başlamak istiyorsan aşağıdaki mührü kullanabilirsin. Tüm ilerlemen ve verilerin silinir.',
+                            style: GoogleFonts.inter(
+                              color: AppPalette.textAshGray,
+                              fontSize: 11,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    backgroundColor: const Color(0xFF140D0E),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: const BorderSide(
+                                        color: AppPalette.bloodCrimson,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      'KÜLLERE DÖNÜŞ (KARAKTERİ SİL)',
+                                      style: GoogleFonts.cinzel(
+                                        color: AppPalette.bloodBright,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      '⚠️ Bu işlem GERİ ALINAMAZ!\n\nSeçtiğin sınıf, biriktirdiğin tüm Öz, tamamladığın yeminler, Boss ilerlemen ve kadim notların tamamen silinecektir.\n\nGerçekten tüm küllerini savurmak ve sıfırdan yeni bir karakter yaratmak istiyor musun?',
+                                      style: GoogleFonts.inter(
+                                        color: AppPalette.textBoneWhite,
+                                        fontSize: 12,
+                                        height: 1.45,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, false),
+                                        child: Text(
+                                          'VAZGEÇ',
+                                          style: GoogleFonts.inter(
+                                            color: AppPalette.textAshGray,
+                                          ),
+                                        ),
+                                      ),
+                                      OutlinedButton(
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppPalette.bloodBright,
+                                          side: const BorderSide(
+                                            color: AppPalette.bloodCrimson,
+                                            width: 1.0,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'TÜM VERİLERİ SİL',
+                                          style: GoogleFonts.cinzel(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 11.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirmed == true) {
+                                  await ref
+                                      .read(userControllerProvider.notifier)
+                                      .wipeAndResetAllProgress();
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppPalette.bloodBright,
+                                side: const BorderSide(
+                                  color: AppPalette.bloodCrimson,
+                                  width: 0.9,
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              icon: const Icon(Icons.delete_forever_rounded, size: 16),
+                              label: Text(
+                                'KARAKTERİ VE TÜM VERİLERİ SİL',
+                                style: GoogleFonts.cinzel(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

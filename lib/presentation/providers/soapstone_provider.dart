@@ -59,4 +59,9 @@ class SoapstoneController extends Notifier<List<Soapstone>> {
 
   bool canEditToday({DateTime? now}) =>
       SoapstoneService.canEditToday(state, now: now);
+
+  Future<void> clearAll() async {
+    await _repository.clearSoapstones();
+    state = const [];
+  }
 }

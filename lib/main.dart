@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bonfire/core/constants/daily_quotes.dart';
+import 'package:bonfire/core/services/notification_service.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/data/repositories/ash_mark_repository.dart';
 import 'package:bonfire/data/repositories/boss_repository.dart';
@@ -29,6 +30,12 @@ Future<void> main() async {
     await saveDailyQuoteToWidget(quoteForDate(DateTime.now()));
   } catch (_) {
     // If widget communication fails, the app still launches normally.
+  }
+
+  try {
+    await NotificationService.instance.init();
+  } catch (_) {
+    // Graceful notification fallback
   }
 
   runApp(

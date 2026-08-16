@@ -1,27 +1,27 @@
 enum CharacterClass {
-  warrior(
-    className: 'Warrior',
-    baseHp: 150,
-    maxStamina: 100,
-    damageMultiplier: 0.8,
-    essenceMultiplier: 1.0,
-    description: 'Yüksek can ve hasar direnci (0.8x) ile dayanıklı bir savaşçı.',
-  ),
   mage(
     className: 'Mage',
-    baseHp: 80,
-    maxStamina: 150,
+    baseHp: 150,
+    maxStamina: 50,
+    damageMultiplier: 0.75,
+    essenceMultiplier: 1.0,
+    description: 'Yeni başlayanlar ve alışkanlık bilinci arayanlar için. Yüksek can (150) ve düşük ceza hasarı (%75).',
+  ),
+  warrior(
+    className: 'Warrior',
+    baseHp: 100,
+    maxStamina: 100,
     damageMultiplier: 1.0,
-    essenceMultiplier: 1.2,
-    description: 'Yüksek stamina (150) ve ekstra Öz kazancı (1.2x) sağlayan disiplinli bir büyücü.',
+    essenceMultiplier: 1.0,
+    description: 'Dengeli deneyim arayanlar için. 100 Can, 100 Stamina ve standart risk oranı.',
   ),
   prisoner(
     className: 'Prisoner',
     baseHp: 50,
-    maxStamina: 70,
-    damageMultiplier: 1.5,
+    maxStamina: 150,
+    damageMultiplier: 1.25,
     essenceMultiplier: 1.5,
-    description: 'Düşük can ve stamina, ancak 1.5x hasar ve 1.5x devasa ödül potansiyeli.',
+    description: 'Sadece cesareti olanlar için. 50 Can, 150 Stamina, 1.25x ceza hasarı ve 1.5x devasa Öz ödülü.',
   );
 
   const CharacterClass({

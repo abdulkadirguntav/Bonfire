@@ -10,6 +10,10 @@ import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
+import 'package:bonfire/presentation/providers/boss_provider.dart';
+import 'package:bonfire/presentation/providers/reflection_provider.dart';
+import 'package:bonfire/presentation/providers/soapstone_provider.dart';
+import 'package:bonfire/presentation/providers/task_provider.dart';
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   throw UnimplementedError('A repository instance must be provided');
@@ -37,11 +41,9 @@ class UserController extends Notifier<User?> {
   }
 
   Future<void> selectClass(CharacterClass characterClass) async {
-    final now = DateTime.now();
     final user = User.create(
-      id: 'user_${now.millisecondsSinceEpoch}',
+      id: 'ashen_one',
       selectedClass: characterClass,
-      now: now,
     );
     await saveUser(user);
   }
@@ -153,6 +155,17 @@ class UserController extends Notifier<User?> {
 
   Future<void> clearUser() async {
     await _repository.clearUser();
+    state = null;
+  }
+
+  /// Completely wipes character, tasks, bosses, soapstones, reflections, and ash marks.
+  Future<void> wipeAndResetAllProgress() async {
+    await ref.read(ashMarkControllerProvider.notifier).clearAshMark();
+    await ref.read(bossControllerProvider.notifier).abandonBoss();
+    await ref.read(soapstoneControllerProvider.notifier).clearAll();
+    await ref.read(reflectionControllerProvider.notifier).clearAll();
+    await ref.read(taskRepositoryProvider).clearTasks();
+    await ref.read(userRepositoryProvider).clearUser();
     state = null;
   }
 }

@@ -13,7 +13,7 @@ void main() {
     test('Vitality increases maxHp by +15 per level', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.warrior, // baseHp = 150
+        selectedClass: CharacterClass.warrior, // baseHp = 100
       ).copyWith(
         currentStreak: 3, // Bonfire day!
         essence: 200,
@@ -21,8 +21,8 @@ void main() {
 
       final upgraded = AttributeService.levelUp(user, AttributeType.vitality);
       expect(upgraded.vitalityLevel, 1);
-      expect(upgraded.maxHp, 165); // 150 + 15
-      expect(upgraded.currentHp, 165);
+      expect(upgraded.maxHp, 115); // 100 + 15
+      expect(upgraded.currentHp, 115);
       expect(upgraded.essence, 100); // 200 - 100 = 100
     });
 
@@ -62,7 +62,7 @@ void main() {
     test('Adaptability reduces HP penalty damage by -4% per level', () {
       final user = User.create(
         id: 'u1',
-        selectedClass: CharacterClass.mage, // base damageMultiplier = 1.0
+        selectedClass: CharacterClass.mage, // base damageMultiplier = 0.75
       ).copyWith(
         currentStreak: 30, // Bonfire day!
         essence: 200,
@@ -70,9 +70,9 @@ void main() {
 
       final upgraded = AttributeService.levelUp(user, AttributeType.adaptability);
       expect(upgraded.adaptabilityLevel, 1);
-      expect(upgraded.totalDamageMultiplier, closeTo(0.96, 0.001));
+      expect(upgraded.totalDamageMultiplier, closeTo(0.71, 0.001)); // 0.75 - 0.04 = 0.71
 
-      // Missed physical task (30 damage) -> 30 * 0.96 = 28.8 -> 29 damage
+      // Missed physical task (30 damage) -> 30 * 0.71 = 21.3 -> 21 damage
       final task = Task(
         id: 't1',
         title: 'Exercise',
@@ -81,7 +81,7 @@ void main() {
         createdAt: DateTime.now(),
       );
       final penalty = TaskEconomyService.penaltyFor(task, user: upgraded);
-      expect(penalty, 29);
+      expect(penalty, 21);
     });
   });
 
