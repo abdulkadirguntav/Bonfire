@@ -203,7 +203,8 @@ void main() {
       expect(DeathService.shouldDie(user), isTrue);
 
       final ashMark = DeathService.createAshMark(user);
-      expect(ashMark.lostEssence, 150);
+      expect(ashMark, isNotNull);
+      expect(ashMark!.lostEssence, 150);
       expect(ashMark.targetStreak, 9);
 
       final revivedUser = DeathService.applyDeath(user);

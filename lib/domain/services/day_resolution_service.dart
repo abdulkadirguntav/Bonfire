@@ -8,14 +8,18 @@ class DayResolution {
     required this.user,
     required this.missedTasks,
     required this.hadDueTasks,
+    this.wasStasisApplied = false,
+    this.purgedTaskCount = 0,
   });
 
   final User user;
   final List<Task> missedTasks;
   final bool hadDueTasks;
+  final bool wasStasisApplied;
+  final int purgedTaskCount;
 }
 
-/// Pure daily rules for Bonfire habit resolutions and streak progression.
+/// Pure daily rules for Bonfire habit resolutions, Purging Stone, and Scroll of Stasis.
 class DayResolutionService {
   const DayResolutionService._();
 
@@ -27,14 +31,36 @@ class DayResolutionService {
     final dueTasks = tasks.where((task) => task.matchesDate(date)).toList();
     final missedTasks =
         dueTasks.where((task) => !task.isCompletedOn(date)).toList();
-    final damage = missedTasks.fold<int>(0, (total, task) {
+
+    // 1. Scroll of Stasis check: Freezes day (0 damage, streak untouched)
+    if (user.isStasisActiveOn(date)) {
+      return DayResolution(
+        missedTasks: missedTasks,
+        hadDueTasks: dueTasks.isNotEmpty,
+        wasStasisApplied: true,
+        purgedTaskCount: 0,
+        user: user.copyWith(
+          lastDailyResolutionAt: date,
+        ),
+      );
+    }
+
+    // 2. Purging Stone protection: blocks HP penalty damage for up to activePurgingStones tasks
+    final protectedCount =
+        user.activePurgingStones.clamp(0, missedTasks.length);
+    final unprotectedMissed = missedTasks.skip(protectedCount).toList();
+
+    final damage = unprotectedMissed.fold<int>(0, (total, task) {
       return total + TaskEconomyService.penaltyFor(task, user: user);
     });
+
     final allCompleted = dueTasks.isNotEmpty && missedTasks.isEmpty;
 
     return DayResolution(
       missedTasks: missedTasks,
       hadDueTasks: dueTasks.isNotEmpty,
+      wasStasisApplied: false,
+      purgedTaskCount: protectedCount,
       user: user.copyWith(
         currentHp: user.currentHp - damage,
         currentStreak: dueTasks.isEmpty
@@ -42,6 +68,7 @@ class DayResolutionService {
             : allCompleted
                 ? user.currentStreak + 1
                 : 1,
+        activePurgingStones: 0, // Reset active stones after day resolution
         lastDailyResolutionAt: date,
       ),
     );

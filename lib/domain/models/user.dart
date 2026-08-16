@@ -1,6 +1,8 @@
 import 'package:bonfire/domain/models/character_class.dart';
+import 'package:bonfire/domain/models/shop_item.dart';
+import 'package:bonfire/domain/models/task.dart';
 
-/// Persistent player state for Bonfire Phase 2.
+/// Persistent player state for Bonfire Phase 3.
 class User {
   const User({
     required this.id,
@@ -13,6 +15,12 @@ class User {
     required this.currentStamina,
     this.staminaUpdatedAt,
     this.lastDailyResolutionAt,
+    this.inventory = const {},
+    this.activePurgingStones = 0,
+    this.activeStasisDateKeys = const {},
+    this.claimedMilestones = const {},
+    this.equippedAuraId,
+    this.equippedTitleId,
   });
 
   final String id;
@@ -25,6 +33,26 @@ class User {
   final int currentStamina;
   final DateTime? staminaUpdatedAt;
   final DateTime? lastDailyResolutionAt;
+
+  // Phase 3 Inventory & Bonfire Mechanics
+  final Map<String, int> inventory;
+  final int activePurgingStones;
+  final Set<String> activeStasisDateKeys;
+  final Set<int> claimedMilestones;
+  final String? equippedAuraId;
+  final String? equippedTitleId;
+
+  static const int maxStaminaDefault = 100;
+
+  int itemCount(String itemId) => inventory[itemId] ?? 0;
+
+  bool get hasRingOfSacrifice =>
+      (inventory[ItemType.ringOfSacrifice.id] ?? 0) > 0;
+
+  bool isStasisActiveOn(DateTime date) =>
+      activeStasisDateKeys.contains(Task.dateKey(date));
+
+  bool hasClaimedMilestone(int streak) => claimedMilestones.contains(streak);
 
   factory User.create({
     required String id,
@@ -42,6 +70,10 @@ class User {
       maxStamina: selectedClass.maxStamina,
       currentStamina: selectedClass.maxStamina,
       staminaUpdatedAt: currentTime,
+      inventory: const {},
+      activePurgingStones: 0,
+      activeStasisDateKeys: const {},
+      claimedMilestones: const {},
     );
   }
 
@@ -56,6 +88,12 @@ class User {
     int? currentStamina,
     DateTime? staminaUpdatedAt,
     DateTime? lastDailyResolutionAt,
+    Map<String, int>? inventory,
+    int? activePurgingStones,
+    Set<String>? activeStasisDateKeys,
+    Set<int>? claimedMilestones,
+    String? equippedAuraId,
+    String? equippedTitleId,
   }) {
     return User(
       id: id ?? this.id,
@@ -69,6 +107,12 @@ class User {
       staminaUpdatedAt: staminaUpdatedAt ?? this.staminaUpdatedAt,
       lastDailyResolutionAt:
           lastDailyResolutionAt ?? this.lastDailyResolutionAt,
+      inventory: inventory ?? this.inventory,
+      activePurgingStones: activePurgingStones ?? this.activePurgingStones,
+      activeStasisDateKeys: activeStasisDateKeys ?? this.activeStasisDateKeys,
+      claimedMilestones: claimedMilestones ?? this.claimedMilestones,
+      equippedAuraId: equippedAuraId ?? this.equippedAuraId,
+      equippedTitleId: equippedTitleId ?? this.equippedTitleId,
     );
   }
 
@@ -83,6 +127,12 @@ class User {
         'currentStamina': currentStamina,
         'staminaUpdatedAt': staminaUpdatedAt?.toIso8601String(),
         'lastDailyResolutionAt': lastDailyResolutionAt?.toIso8601String(),
+        'inventory': inventory,
+        'activePurgingStones': activePurgingStones,
+        'activeStasisDateKeys': activeStasisDateKeys.toList(),
+        'claimedMilestones': claimedMilestones.toList(),
+        'equippedAuraId': equippedAuraId,
+        'equippedTitleId': equippedTitleId,
       };
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -90,6 +140,20 @@ class User {
         CharacterClass.fromString(json['selectedClass'] as String?);
     final maxHp = json['maxHp'] as int? ?? characterClass.baseHp;
     final maxStam = json['maxStamina'] as int? ?? characterClass.maxStamina;
+
+    final rawInv = json['inventory'];
+    final Map<String, int> inv = {};
+    if (rawInv is Map) {
+      rawInv.forEach((key, value) {
+        if (value is int) inv[key.toString()] = value;
+      });
+    }
+
+    final rawStasis = json['activeStasisDateKeys'] as List<dynamic>? ?? [];
+    final stasisSet = rawStasis.map((e) => e.toString()).toSet();
+
+    final rawMilestones = json['claimedMilestones'] as List<dynamic>? ?? [];
+    final milestoneSet = rawMilestones.whereType<int>().toSet();
 
     return User(
       id: json['id'] as String? ?? '',
@@ -104,6 +168,12 @@ class User {
           DateTime.tryParse(json['staminaUpdatedAt'] as String? ?? ''),
       lastDailyResolutionAt:
           DateTime.tryParse(json['lastDailyResolutionAt'] as String? ?? ''),
+      inventory: inv,
+      activePurgingStones: json['activePurgingStones'] as int? ?? 0,
+      activeStasisDateKeys: stasisSet,
+      claimedMilestones: milestoneSet,
+      equippedAuraId: json['equippedAuraId'] as String?,
+      equippedTitleId: json['equippedTitleId'] as String?,
     );
   }
 }

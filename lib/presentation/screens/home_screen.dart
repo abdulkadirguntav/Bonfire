@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bonfire/core/constants/daily_quotes.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
@@ -10,10 +11,59 @@ import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
 import 'package:bonfire/presentation/providers/boss_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
+import 'package:bonfire/presentation/screens/journey_screen.dart';
+import 'package:bonfire/presentation/screens/shop_screen.dart';
 import 'package:bonfire/presentation/widgets/task_bottom_sheet.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: GothicPalette.obsidian,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [
+          _DashboardView(),
+          ShopScreen(),
+          JourneyScreen(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.fireplace_outlined),
+            selectedIcon: Icon(Icons.fireplace_rounded),
+            label: 'BONFIRE',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront_rounded),
+            label: 'THE KILN',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_stories_outlined),
+            selectedIcon: Icon(Icons.auto_stories_rounded),
+            label: 'CHRONICLE',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardView extends ConsumerWidget {
+  const _DashboardView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,246 +83,242 @@ class HomeScreen extends ConsumerWidget {
 
     final todayQuote = quoteForDate(today);
 
-    return Scaffold(
-      backgroundColor: GothicPalette.obsidian,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.local_fire_department_rounded,
-                    color: GothicPalette.emberBright,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'BONFIRE',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: GothicPalette.goldBright,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2.5,
-                            ),
-                      ),
-                      if (user != null)
-                        Text(
-                          user.selectedClass.className.toUpperCase(),
-                          style: const TextStyle(
-                            color: GothicPalette.parchmentDim,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: GothicPalette.ironBlack,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: GothicPalette.bronze,
-                        width: 0.8,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.whatshot_rounded,
-                          color: GothicPalette.emberBright,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'GÜN ${user?.currentStreak ?? 1}',
-                          style: const TextStyle(
-                            color: GothicPalette.parchmentLight,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              // Status frame: HP, Stamina, Essence
-              OrnateFrame(
-                glow: true,
-                radius: 10,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            DetailedHpBar(
-                              value: hp,
-                              label:
-                                  'CAN (HP)  ${user?.currentHp ?? 0} / ${user?.maxHp ?? 0}',
-                              height: 12,
-                              fillGradient: GothicPalette.healthCore,
-                            ),
-                            const SizedBox(height: 10),
-                            DetailedHpBar(
-                              value: stamina,
-                              label:
-                                  'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
-                              height: 12,
-                              fillGradient: GothicPalette.staminaCore,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      _Stat(
-                        label: 'ÖZ (ESSENCE)',
-                        value: user == null ? '0' : '${user.essence}',
-                        gold: true,
-                      ),
-                    ],
-                  ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  color: GothicPalette.emberBright,
+                  size: 28,
                 ),
-              ),
-              // Ash mark reclaim banner
-              if (ashMark != null) ...[
-                const SizedBox(height: 10),
-                OrnateFrame(
-                  radius: 8,
-                  outerGradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF5A1E1E),
-                      Color(0xFF8E2A2A),
-                      Color(0xFF3A1212),
-                    ],
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.replay_rounded,
-                          color: GothicPalette.bloodBright,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'KÜL İZİ: ${ashMark.lostEssence} Kayıp Öz • Hedef: Gün ${ashMark.targetStreak}',
-                            style: const TextStyle(
-                              color: GothicPalette.parchmentLight,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'BONFIRE',
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.goldBright,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.5,
+                      ),
                     ),
+                    if (user != null)
+                      Text(
+                        user.selectedClass.className.toUpperCase(),
+                        style: const TextStyle(
+                          color: GothicPalette.parchmentDim,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                  ],
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: GothicPalette.ironBlack,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: GothicPalette.bronze,
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.whatshot_rounded,
+                        color: GothicPalette.emberBright,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'GÜN ${user?.currentStreak ?? 1}',
+                        style: GoogleFonts.cinzel(
+                          color: GothicPalette.parchmentLight,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-              const SizedBox(height: 10),
-              // Boss Battle Card
-              if (boss == null)
-                _AddBossButton(
-                  onPressed: () => _showAddBossDialog(context, ref),
-                )
-              else
-                _BossBattleCard(boss: boss),
-              const SizedBox(height: 10),
-              // Daily Philosophical Quote Card
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                decoration: BoxDecoration(
-                  color: GothicPalette.onyx,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: GothicPalette.charcoal,
-                    width: 0.8,
-                  ),
-                ),
+            ),
+            const SizedBox(height: 14),
+            // Status frame: HP, Stamina, Essence
+            OrnateFrame(
+              glow: true,
+              radius: 10,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '❝',
-                      style: TextStyle(
-                        color: GothicPalette.goldBright,
-                        fontSize: 15,
-                        height: 1,
+                    Expanded(
+                      child: Column(
+                        children: [
+                          DetailedHpBar(
+                            value: hp,
+                            label:
+                                'CAN (HP)  ${user?.currentHp ?? 0} / ${user?.maxHp ?? 0}',
+                            height: 12,
+                            fillGradient: GothicPalette.healthCore,
+                          ),
+                          const SizedBox(height: 10),
+                          DetailedHpBar(
+                            value: stamina,
+                            label:
+                                'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
+                            height: 12,
+                            fillGradient: GothicPalette.staminaCore,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        todayQuote,
-                        style: const TextStyle(
-                          color: GothicPalette.parchment,
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic,
-                          height: 1.3,
-                        ),
-                      ),
+                    const SizedBox(width: 16),
+                    _Stat(
+                      label: 'ÖZ (ESSENCE)',
+                      value: user == null ? '0' : '${user.essence}',
+                      gold: true,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              const SectionTitle('Bugünün Yeminleri (Vows)'),
-              const SizedBox(height: 8),
-              Expanded(
-                child: todayTasks.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Bugün için henüz bir yemin edilmedi.',
-                              style: TextStyle(
-                                color: GothicPalette.parchmentDim,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            _AddTaskRow(
-                              onPressed: () => _showTaskSheet(context),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        itemCount: todayTasks.length + 1,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (_, index) {
-                          if (index == todayTasks.length) {
-                            return _AddTaskRow(
-                              onPressed: () => _showTaskSheet(context),
-                            );
-                          }
-                          return _TaskCard(task: todayTasks[index]);
-                        },
+            ),
+            // Ash mark reclaim banner
+            if (ashMark != null) ...[
+              const SizedBox(height: 10),
+              OrnateFrame(
+                radius: 8,
+                outerGradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF5A1E1E),
+                    Color(0xFF8E2A2A),
+                    Color(0xFF3A1212),
+                  ],
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.replay_rounded,
+                        color: GothicPalette.bloodBright,
+                        size: 18,
                       ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'KÜL İZİ: ${ashMark.lostEssence} Kayıp Öz • Hedef: Gün ${ashMark.targetStreak}',
+                          style: const TextStyle(
+                            color: GothicPalette.parchmentLight,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
-          ),
+            const SizedBox(height: 10),
+            // Boss Battle Card
+            if (boss == null)
+              _AddBossButton(
+                onPressed: () => _showAddBossDialog(context, ref),
+              )
+            else
+              _BossBattleCard(boss: boss),
+            const SizedBox(height: 10),
+            // Daily Philosophical Quote Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: GothicPalette.onyx,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: GothicPalette.charcoal,
+                  width: 0.8,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '❝',
+                    style: TextStyle(
+                      color: GothicPalette.goldBright,
+                      fontSize: 15,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      todayQuote,
+                      style: const TextStyle(
+                        color: GothicPalette.parchment,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            const SectionTitle('Bugünün Yeminleri (Vows)'),
+            const SizedBox(height: 8),
+            Expanded(
+              child: todayTasks.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Bugün için henüz bir yemin edilmedi.',
+                            style: TextStyle(
+                              color: GothicPalette.parchmentDim,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _AddTaskRow(
+                            onPressed: () => _showTaskSheet(context),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      itemCount: todayTasks.length + 1,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (_, index) {
+                        if (index == todayTasks.length) {
+                          return _AddTaskRow(
+                            onPressed: () => _showTaskSheet(context),
+                          );
+                        }
+                        return _TaskCard(task: todayTasks[index]);
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );
@@ -297,9 +343,9 @@ class HomeScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: GothicPalette.bronze, width: 0.8),
         ),
-        title: const Text(
+        title: Text(
           'Uzun Vadeli Boss Ekle',
-          style: TextStyle(
+          style: GoogleFonts.cinzel(
             color: GothicPalette.goldBright,
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -311,7 +357,8 @@ class HomeScreen extends ConsumerWidget {
           children: [
             const Text(
               'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes).\n\n• Faz 1: 30 Gün\n• Faz 2: 90 Gün\n• Faz 3: 180 Gün\n• Faz 4: 365 Gün\n\nGünde 1 kez iradeni test et. Direndikçe canı azalır, her faz bittiğinde devasa Öz kazanırsın!',
-              style: TextStyle(color: GothicPalette.parchment, fontSize: 12, height: 1.4),
+              style: TextStyle(
+                  color: GothicPalette.parchment, fontSize: 12, height: 1.4),
             ),
             const SizedBox(height: 14),
             TextField(
@@ -326,7 +373,8 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('İptal', style: TextStyle(color: GothicPalette.parchmentDim)),
+            child: const Text('İptal',
+                style: TextStyle(color: GothicPalette.parchmentDim)),
           ),
           OutlinedButton(
             onPressed: () async {
@@ -371,13 +419,14 @@ class _AddBossButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
-            children: const [
-              Icon(Icons.shield_outlined, color: GothicPalette.goldBright, size: 20),
-              SizedBox(width: 10),
+            children: [
+              const Icon(Icons.shield_outlined,
+                  color: GothicPalette.goldBright, size: 20),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   '⚔️ BOSS EKLE (Uzun Vadeli Bağımlılık Savaşı)',
-                  style: TextStyle(
+                  style: GoogleFonts.cinzel(
                     color: GothicPalette.goldBright,
                     fontWeight: FontWeight.w800,
                     fontSize: 12,
@@ -385,7 +434,7 @@ class _AddBossButton extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(Icons.add, color: GothicPalette.goldBright, size: 18),
+              const Icon(Icons.add, color: GothicPalette.goldBright, size: 18),
             ],
           ),
         ),
@@ -428,7 +477,7 @@ class _BossBattleCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     'BOSS: ${boss.title.toUpperCase()}',
-                    style: const TextStyle(
+                    style: GoogleFonts.cinzel(
                       color: GothicPalette.goldBright,
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
@@ -437,7 +486,8 @@ class _BossBattleCard extends ConsumerWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: GothicPalette.bloodBright,
                     borderRadius: BorderRadius.circular(4),
@@ -454,14 +504,16 @@ class _BossBattleCard extends ConsumerWidget {
                 IconButton(
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.close, color: GothicPalette.parchmentDim, size: 16),
+                  icon: const Icon(Icons.close,
+                      color: GothicPalette.parchmentDim, size: 16),
                   onPressed: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
                         backgroundColor: GothicPalette.onyx,
-                        title: const Text('Boss Mücadelesini Bırak?',
-                            style: TextStyle(color: GothicPalette.goldBright)),
+                        title: Text('Boss Mücadelesini Bırak?',
+                            style: GoogleFonts.cinzel(
+                                color: GothicPalette.goldBright)),
                         content: const Text(
                             'Bu boss\'u terk etmek istediğine emin misin?',
                             style: TextStyle(color: GothicPalette.parchment)),
@@ -472,12 +524,15 @@ class _BossBattleCard extends ConsumerWidget {
                           TextButton(
                               onPressed: () => Navigator.pop(ctx, true),
                               child: const Text('Terk Et',
-                                  style: TextStyle(color: GothicPalette.bloodBright))),
+                                  style: TextStyle(
+                                      color: GothicPalette.bloodBright))),
                         ],
                       ),
                     );
                     if (confirm == true) {
-                      await ref.read(bossControllerProvider.notifier).abandonBoss();
+                      await ref
+                          .read(bossControllerProvider.notifier)
+                          .abandonBoss();
                     }
                   },
                 ),
@@ -496,11 +551,13 @@ class _BossBattleCard extends ConsumerWidget {
             if (hasInteractedToday)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                 decoration: BoxDecoration(
                   color: GothicPalette.ironBlack,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: GothicPalette.charcoal, width: 0.8),
+                  border:
+                      Border.all(color: GothicPalette.charcoal, width: 0.8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -551,12 +608,14 @@ class _BossBattleCard extends ConsumerWidget {
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: GothicPalette.goldBright,
-                        side: const BorderSide(color: GothicPalette.brass, width: 0.8),
+                        side: const BorderSide(
+                            color: GothicPalette.brass, width: 0.8),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       icon: const Icon(Icons.shield_rounded, size: 15),
                       label: const Text('DİRENDİM',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                          style: TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w800)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -579,12 +638,14 @@ class _BossBattleCard extends ConsumerWidget {
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: GothicPalette.bloodBright,
-                        side: const BorderSide(color: GothicPalette.blood, width: 0.8),
+                        side: const BorderSide(
+                            color: GothicPalette.blood, width: 0.8),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       icon: const Icon(Icons.heart_broken_rounded, size: 15),
                       label: const Text('YENİLDİM',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                          style: TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w800)),
                     ),
                   ),
                 ],
@@ -613,9 +674,9 @@ class _AddTaskRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),
         icon: const Icon(Icons.add_rounded, size: 18),
-        label: const Text(
+        label: Text(
           'YENİ YEMİN ET',
-          style: TextStyle(
+          style: GoogleFonts.cinzel(
             fontSize: 13,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
@@ -648,9 +709,9 @@ class _Stat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           value,
-          style: TextStyle(
+          style: GoogleFonts.cinzel(
             color: gold ? GothicPalette.goldBright : GothicPalette.parchmentLight,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -712,8 +773,9 @@ class _TaskCard extends ConsumerWidget {
                               color: GothicPalette.parchmentLight,
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
-                              decoration:
-                                  isCompleted ? TextDecoration.lineThrough : null,
+                              decoration: isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                         ),
