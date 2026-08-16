@@ -12,7 +12,9 @@ import 'package:bonfire/presentation/providers/boss_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 import 'package:bonfire/presentation/screens/journey_screen.dart';
+import 'package:bonfire/presentation/screens/reflection_screen.dart';
 import 'package:bonfire/presentation/screens/shop_screen.dart';
+import 'package:bonfire/presentation/widgets/soapstone_rune_card.dart';
 import 'package:bonfire/presentation/widgets/task_bottom_sheet.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -35,6 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _DashboardView(),
           ShopScreen(),
           JourneyScreen(),
+          ReflectionScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -55,6 +58,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: Icon(Icons.auto_stories_outlined),
             selectedIcon: Icon(Icons.auto_stories_rounded),
             label: 'CHRONICLE',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.nightlight_round_outlined),
+            selectedIcon: Icon(Icons.nightlight_round),
+            label: 'MUHASEBE',
           ),
         ],
       ),
@@ -242,6 +250,9 @@ class _DashboardView extends ConsumerWidget {
               )
             else
               _BossBattleCard(boss: boss),
+            const SizedBox(height: 10),
+            // Phase 4: Soapstone Rune Card
+            const SoapstoneRuneCard(),
             const SizedBox(height: 10),
             // Daily Philosophical Quote Card
             Container(
