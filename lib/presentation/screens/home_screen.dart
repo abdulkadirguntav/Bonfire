@@ -19,6 +19,10 @@ class HomeScreen extends ConsumerWidget {
         tasks.where((task) => task.matchesDate(DateTime.now())).toList();
     final hp =
         user == null || user.maxHp == 0 ? 0.0 : user.currentHp / user.maxHp;
+    final maxStamina = user?.selectedClass.maxStamina ?? 0;
+    final stamina = user == null || maxStamina == 0
+        ? 0.0
+        : user.currentStamina / maxStamina;
 
     return Scaffold(
       body: SafeArea(
@@ -63,6 +67,35 @@ class HomeScreen extends ConsumerWidget {
                         const SizedBox(height: 14),
                         DetailedHpBar(
                             value: hp, label: 'HEALTH  ${(hp * 100).round()}%'),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Text(
+                              'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
+                              style: const TextStyle(
+                                color: GothicPalette.parchment,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: stamina.clamp(0.0, 1.0),
+                                  minHeight: 8,
+                                  backgroundColor: GothicPalette.ironBlack,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                    GothicPalette.goldBright,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ]),
                 ),
               ),
@@ -169,7 +202,7 @@ class _TaskCard extends ConsumerWidget {
                           ? GothicPalette.goldBright
                           : GothicPalette.parchmentLight,
                       fontWeight: FontWeight.w700,
-                      decoration: task.isCompleted
+                      decoration: task.isCompletedOn(DateTime.now())
                           ? TextDecoration.lineThrough
                           : null)),
               if (task.description.isNotEmpty)

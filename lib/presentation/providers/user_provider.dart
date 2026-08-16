@@ -4,13 +4,15 @@ import 'package:bonfire/data/repositories/user_repository.dart';
 import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/user.dart';
 import 'package:bonfire/domain/services/death_service.dart';
+import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   throw UnimplementedError('A repository instance must be provided');
 });
 
-final userControllerProvider = NotifierProvider<UserController, User?>(UserController.new);
+final userControllerProvider =
+    NotifierProvider<UserController, User?>(UserController.new);
 
 class UserController extends Notifier<User?> {
   UserRepository get _repository => ref.read(userRepositoryProvider);
@@ -23,7 +25,17 @@ class UserController extends Notifier<User?> {
 
   Future<void> _loadUser() async {
     final user = await _repository.loadUser();
-    state = user;
+    if (user == null) {
+      state = null;
+      return;
+    }
+
+    final refreshedUser = StaminaService.refreshIfNeeded(user);
+    if (refreshedUser.currentStamina != user.currentStamina ||
+        refreshedUser.staminaUpdatedAt != user.staminaUpdatedAt) {
+      await _repository.saveUser(refreshedUser);
+    }
+    state = refreshedUser;
   }
 
   Future<void> selectClass(CharacterClass characterClass) async {
