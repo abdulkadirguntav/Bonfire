@@ -265,7 +265,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
               ],
 
               // Ash Mark indicator banner
-              if (ashMark != null) ...[
+              if (ashMark != null && ashMark.lostEssence > 0) ...[
                 Container(
                   width: double.infinity,
                   padding:

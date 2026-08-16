@@ -232,7 +232,7 @@ class _DashboardView extends ConsumerWidget {
               ),
             ),
             // Ash mark reclaim banner
-            if (ashMark != null) ...[
+            if (ashMark != null && ashMark.lostEssence > 0) ...[
               const SizedBox(height: 10),
               OrnateFrame(
                 radius: 8,
@@ -564,12 +564,15 @@ class _BossBattleCard extends ConsumerWidget {
                     Icon(Icons.check_circle_outline_rounded,
                         color: GothicPalette.goldBright, size: 16),
                     SizedBox(width: 6),
-                    Text(
-                      'Bugünün İrade Vuruşu Tamamlandı (Yarın Yenilenecek)',
-                      style: TextStyle(
-                        color: GothicPalette.parchmentLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Text(
+                        'Bugünün İrade Vuruşu Tamamlandı (Yarın Yenilenecek)',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: GothicPalette.parchmentLight,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],

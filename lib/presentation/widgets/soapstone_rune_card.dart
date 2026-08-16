@@ -170,17 +170,21 @@ class SoapstoneRuneCard extends ConsumerWidget {
                   size: 18,
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  'KADİM ZEMİN YAZISI (SOAPSTONE)',
-                  style: GoogleFonts.cinzel(
-                    color: GothicPalette.goldBright,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
+                Expanded(
+                  child: Text(
+                    'KADİM ZEMİN YAZISI (SOAPSTONE)',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.cinzel(
+                      color: GothicPalette.goldBright,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
-                const Spacer(),
-                if (todaySoapstone?.isEdited == true)
+                if (todaySoapstone?.isEdited == true) ...[
+                  const SizedBox(width: 6),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
@@ -199,6 +203,7 @@ class SoapstoneRuneCard extends ConsumerWidget {
                       ),
                     ),
                   ),
+                ],
               ],
             ),
             const SizedBox(height: 8),
