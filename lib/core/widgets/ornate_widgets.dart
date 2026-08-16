@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 
+/// Minimalist container with max 10px-12px radius, subtle 1px border and soft ambient glow
 class OrnateFrame extends StatelessWidget {
   const OrnateFrame({
     super.key,
     required this.child,
     this.padding,
-    this.radius = 14,
+    this.radius = 10,
     this.innerRadius,
     this.outerGradient,
     this.panelGradient,
     this.glow = false,
-    this.borderWidth = 0.8,
+    this.borderWidth = 1.0,
   });
 
   final Widget child;
@@ -26,50 +29,42 @@ class OrnateFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final outer = outerGradient ?? GothicPalette.goldFrameGradient;
-    final panel = panelGradient ?? GothicPalette.obsidianPanel;
-    final innerR = innerRadius ?? (radius - borderWidth);
-    final shadows = glow
-        ? [
-            ...GothicPalette.emberGlow,
-            ...GothicPalette.goldGlow,
-          ]
-        : const <BoxShadow>[];
-
     return Container(
       decoration: BoxDecoration(
-        gradient: outer,
+        color: AppPalette.surface,
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: shadows,
+        border: Border.all(
+          color: glow
+              ? AppPalette.primaryGold.withValues(alpha: 0.25)
+              : AppPalette.borderSubtle,
+          width: borderWidth,
+        ),
+        boxShadow: glow
+            ? [
+                BoxShadow(
+                  color: AppPalette.primaryGold.withValues(alpha: 0.05),
+                  blurRadius: 16,
+                  spreadRadius: 1,
+                ),
+              ]
+            : null,
       ),
       child: Padding(
-        padding: padding ?? EdgeInsets.all(borderWidth),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: panel,
-            borderRadius: BorderRadius.circular(innerR),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x55000000),
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: child,
-        ),
+        padding: padding ?? const EdgeInsets.all(12),
+        child: child,
       ),
     );
   }
 }
 
+/// Minimalist Inset Frame
 class IronInsetFrame extends StatelessWidget {
   const IronInsetFrame({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(14),
-    this.radius = 12,
-    this.borderWidth = 0.8,
+    this.padding = const EdgeInsets.all(12),
+    this.radius = 10,
+    this.borderWidth = 1.0,
     this.activeEmber = false,
   });
 
@@ -84,295 +79,181 @@ class IronInsetFrame extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2A2418),
-            Color(0xFF141414),
-            Color(0xFF1A1610),
-          ],
-        ),
+        color: AppPalette.surface,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(
           color: activeEmber
-              ? GothicPalette.ember.withValues(alpha: 0.5)
-              : GothicPalette.goldDeep.withValues(alpha: 0.45),
+              ? AppPalette.bloodCrimson.withValues(alpha: 0.4)
+              : AppPalette.borderSubtle,
           width: borderWidth,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x44000000),
-            blurRadius: 4,
-            offset: Offset(2, 3),
-          ),
-          BoxShadow(
-            color: Color(0x12FFD700),
-            blurRadius: 4,
-            offset: Offset(0, 0),
-          ),
-        ],
       ),
       child: child,
     );
   }
 }
 
+/// 2.5px Minimalist HP/Stamina Progress Line with modern typography
 class DetailedHpBar extends StatelessWidget {
   const DetailedHpBar({
     super.key,
     required this.value,
     required this.label,
-    this.height = 18,
-    this.fillGradient = GothicPalette.emberCore,
+    this.height = 2.5,
+    this.fillGradient,
+    this.activeColor,
   });
 
   final double value;
   final String label;
   final double height;
-  final LinearGradient fillGradient;
+  final Gradient? fillGradient;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
     final clamped = value.clamp(0.0, 1.0);
-    return SizedBox(
-      height: height + 6,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF3A2B10),
-                    Color(0xFF1A1208),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(height / 2 + 2),
-                border: Border.all(color: GothicPalette.goldDeep, width: 0.8),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x88000000),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(2.5),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(height / 2),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color(0xFF141414),
-                            Color(0xFF0A0A0A),
-                          ],
-                        ),
-                      ),
-                    ),
-                    FractionallySizedBox(
-                      widthFactor: clamped,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: fillGradient,
-                        ),
-                      ),
-                    ),
-                    FractionallySizedBox(
-                      widthFactor: clamped,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x55FFDCA0),
-                              Color(0x00FF6A1A),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (clamped > 0)
-                      Positioned(
-                        right: 4,
-                        top: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 0.8,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0x00FFD700),
-                                Color(0xFFFFD700),
-                                Color(0x00FFD700),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: GothicPalette.parchmentLight,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.9),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+    final color = activeColor ??
+        (label.contains('HP') || label.contains('CAN')
+            ? AppPalette.bloodCrimson
+            : label.contains('STAMINA')
+                ? AppPalette.staminaBlue
+                : AppPalette.primaryGold);
 
-class SectionTitle extends StatelessWidget {
-  const SectionTitle(this.label, {super.key, this.trailing});
-
-  final String label;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
+        // Label row: Clean bone white typography
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                color: AppPalette.textBoneWhite,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        // Minimal 2.5px Progress Line
         Container(
-          width: 18,
-          height: 1,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0x00000000), GothicPalette.goldBright],
-            ),
+          height: height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: const Color(0xFF222530),
+            borderRadius: BorderRadius.circular(1.5),
           ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            color: GothicPalette.goldBright,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 3,
-            shadows: [
-              Shadow(
-                color: GothicPalette.ember.withValues(alpha: 0.5),
-                blurRadius: 6,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  GothicPalette.goldBright,
-                  Color(0x00DAA520),
-                ],
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              widthFactor: clamped,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-        if (trailing != null) ...[
-          const SizedBox(width: 8),
-          trailing!,
-        ],
       ],
     );
   }
 }
 
-class OrnamentalDivider extends StatelessWidget {
-  const OrnamentalDivider({super.key, this.symbol = '✦', this.height = 24});
+/// Minimalist Section Title with subtle 1px divider
+class SectionTitle extends StatelessWidget {
+  const SectionTitle(this.title, {super.key, this.icon});
 
-  final String symbol;
-  final double height;
+  final String title;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0x00000000),
-                    GothicPalette.goldDeep,
-                  ],
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: AppPalette.primaryGold, size: 15),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                title.toUpperCase(),
+                style: GoogleFonts.cinzel(
+                  color: AppPalette.textBoneWhite,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
                 ),
               ),
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              symbol,
-              style: TextStyle(
-                color: GothicPalette.goldBright,
-                fontSize: 12,
-                shadows: [
-                  Shadow(
-                    color: GothicPalette.ember.withValues(alpha: 0.6),
-                    blurRadius: 6,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 1,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    GothicPalette.goldDeep,
-                    Color(0x00000000),
-                  ],
-                ),
-              ),
-            ),
+          const SizedBox(height: 6),
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: AppPalette.dividerLine,
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Minimalist Stat Value Component
+class MinimalStatBadge extends StatelessWidget {
+  const MinimalStatBadge({
+    super.key,
+    required this.label,
+    required this.value,
+    this.isGold = false,
+  });
+
+  final String label;
+  final String value;
+  final bool isGold;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.inter(
+            color: AppPalette.textAshGray,
+            fontSize: 9.5,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.cinzel(
+            color: isGold ? AppPalette.primaryGold : AppPalette.textBoneWhite,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 }
