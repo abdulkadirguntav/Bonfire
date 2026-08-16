@@ -14,7 +14,7 @@ class DayResolution {
   final bool hadDueTasks;
 }
 
-/// Pure Phase 1 daily rules; persistence and UI stay outside this service.
+/// Pure Phase 2 daily rules; persistence and UI stay outside this service.
 class DayResolutionService {
   const DayResolutionService._();
 
@@ -27,7 +27,7 @@ class DayResolutionService {
     final missedTasks =
         dueTasks.where((task) => !task.isCompletedOn(date)).toList();
     final damage = missedTasks.fold<int>(0, (total, task) {
-      return total + TaskEconomyService.penaltyFor(task);
+      return total + TaskEconomyService.penaltyFor(task, user: user);
     });
     final allCompleted = dueTasks.isNotEmpty && missedTasks.isEmpty;
 

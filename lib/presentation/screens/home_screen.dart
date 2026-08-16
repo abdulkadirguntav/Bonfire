@@ -5,8 +5,9 @@ import 'package:bonfire/core/constants/daily_quotes.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/task.dart';
-import 'package:bonfire/domain/models/user.dart';
+import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
+import 'package:bonfire/presentation/providers/boss_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 import 'package:bonfire/presentation/widgets/task_bottom_sheet.dart';
@@ -18,13 +19,14 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
+    final boss = ref.watch(bossControllerProvider);
     final tasks = ref.watch(tasksProvider);
     final today = DateTime.now();
     final todayTasks = tasks.where((task) => task.matchesDate(today)).toList();
 
     final hp =
         user == null || user.maxHp == 0 ? 0.0 : user.currentHp / user.maxHp;
-    const maxStamina = User.maxStamina;
+    final maxStamina = user?.maxStamina ?? 100;
     final stamina = user == null || maxStamina == 0
         ? 0.0
         : user.currentStamina / maxStamina;
@@ -47,13 +49,28 @@ class HomeScreen extends ConsumerWidget {
                     size: 28,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'BONFIRE',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: GothicPalette.goldBright,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2.5,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'BONFIRE',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: GothicPalette.goldBright,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2.5,
+                            ),
+                      ),
+                      if (user != null)
+                        Text(
+                          user.selectedClass.className.toUpperCase(),
+                          style: const TextStyle(
+                            color: GothicPalette.parchmentDim,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
                         ),
+                    ],
                   ),
                   const Spacer(),
                   Container(
@@ -169,12 +186,20 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
+              // Boss Battle Card
+              if (boss == null)
+                _AddBossButton(
+                  onPressed: () => _showAddBossDialog(context, ref),
+                )
+              else
+                _BossBattleCard(boss: boss),
+              const SizedBox(height: 10),
               // Daily Philosophical Quote Card
               Container(
                 width: double.infinity,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
                   color: GothicPalette.onyx,
                   borderRadius: BorderRadius.circular(8),
@@ -190,7 +215,7 @@ class HomeScreen extends ConsumerWidget {
                       '❝',
                       style: TextStyle(
                         color: GothicPalette.goldBright,
-                        fontSize: 16,
+                        fontSize: 15,
                         height: 1,
                       ),
                     ),
@@ -209,7 +234,7 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               const SectionTitle('Bugünün Yeminleri (Vows)'),
               const SizedBox(height: 8),
               Expanded(
@@ -259,6 +284,286 @@ class HomeScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const TaskBottomSheet(),
+    );
+  }
+
+  static void _showAddBossDialog(BuildContext context, WidgetRef ref) {
+    final titleController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: GothicPalette.onyx,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: GothicPalette.bronze, width: 0.8),
+        ),
+        title: const Text(
+          'Uzun Vadeli Boss Ekle',
+          style: TextStyle(
+            color: GothicPalette.goldBright,
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes). İlk aşama 30 gün sürecektir.',
+              style: TextStyle(color: GothicPalette.parchment, fontSize: 12),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: titleController,
+              style: const TextStyle(color: GothicPalette.parchmentLight),
+              decoration: const InputDecoration(
+                hintText: 'Boss / Bağımlılık Adı',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('İptal', style: TextStyle(color: GothicPalette.parchmentDim)),
+          ),
+          OutlinedButton(
+            onPressed: () async {
+              final text = titleController.text.trim();
+              if (text.isEmpty) return;
+              await ref
+                  .read(bossControllerProvider.notifier)
+                  .createBoss(title: text, initialHp: 30);
+              if (ctx.mounted) Navigator.of(ctx).pop();
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: GothicPalette.goldBright,
+              side: const BorderSide(color: GothicPalette.brass),
+            ),
+            child: const Text('BOSS\'U MEYDANA OKU'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddBossButton extends StatelessWidget {
+  const _AddBossButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(10),
+      child: OrnateFrame(
+        radius: 10,
+        outerGradient: const LinearGradient(
+          colors: [
+            Color(0xFF3F321D),
+            Color(0xFF6E5A32),
+            Color(0xFF3F321D),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            children: const [
+              Icon(Icons.shield_outlined, color: GothicPalette.goldBright, size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '⚔️ BOSS EKLE (Uzun Vadeli Bağımlılık Savaşı)',
+                  style: TextStyle(
+                    color: GothicPalette.goldBright,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+              Icon(Icons.add, color: GothicPalette.goldBright, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BossBattleCard extends ConsumerWidget {
+  const _BossBattleCard({required this.boss});
+
+  final dynamic boss;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final double hpRatio = boss.maxHp > 0 ? boss.currentHp / boss.maxHp : 0.0;
+
+    return OrnateFrame(
+      radius: 12,
+      outerGradient: const LinearGradient(
+        colors: [
+          Color(0xFF4A1A1A),
+          Color(0xFF8A3030),
+          Color(0xFF6A2020),
+          Color(0xFF3A1212),
+        ],
+      ),
+      glow: true,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.dangerous_rounded,
+                    color: GothicPalette.bloodBright, size: 20),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'BOSS: ${boss.title.toUpperCase()}',
+                    style: const TextStyle(
+                      color: GothicPalette.goldBright,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: GothicPalette.bloodBright,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    boss.phase > 1 ? 'FAZ ${boss.phase} (MUTATED)' : 'FAZ 1',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.close, color: GothicPalette.parchmentDim, size: 16),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: GothicPalette.onyx,
+                        title: const Text('Boss Mücadelesini Bırak?',
+                            style: TextStyle(color: GothicPalette.goldBright)),
+                        content: const Text(
+                            'Bu boss\'u terk etmek istediğine emin misin?',
+                            style: TextStyle(color: GothicPalette.parchment)),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('İptal')),
+                          TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Terk Et',
+                                  style: TextStyle(color: GothicPalette.bloodBright))),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      await ref.read(bossControllerProvider.notifier).abandonBoss();
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            DetailedHpBar(
+              value: hpRatio,
+              label: 'BOSS HP  ${boss.currentHp} / ${boss.maxHp} GÜN',
+              height: 11,
+              fillGradient: const LinearGradient(
+                colors: [Color(0xFFE25822), Color(0xFF8E2A2A)],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final result = await ref
+                          .read(bossControllerProvider.notifier)
+                          .resist();
+                      if (result != null && context.mounted) {
+                        if (result.didPhaseMutate) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: GothicPalette.goldDeep,
+                              content: Text(
+                                '🏆 BOSS MUTASYONA UĞRADI! Faz ${result.boss.phase}\'e geçti ve +${result.essenceGained} devasa Öz kazandın!',
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '🛡️ İradeni korudun! Boss -1 HP kaybetti ve +${result.essenceGained} Öz kazandın.',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: GothicPalette.goldBright,
+                      side: const BorderSide(color: GothicPalette.brass, width: 0.8),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    icon: const Icon(Icons.shield_rounded, size: 15),
+                    label: const Text('DİRENDİM',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final result = await ref
+                          .read(bossControllerProvider.notifier)
+                          .fail();
+                      if (result != null && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: GothicPalette.blood,
+                            content: Text(
+                              '💀 İraden kırıldı! -${result.damageTaken} HP hasar aldın ve Boss kendini iyileştirdi (+1 HP).',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: GothicPalette.bloodBright,
+                      side: const BorderSide(color: GothicPalette.blood, width: 0.8),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    icon: const Icon(Icons.heart_broken_rounded, size: 15),
+                    label: const Text('YENİLDİM',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -396,7 +701,7 @@ class _TaskCard extends ConsumerWidget {
                             ),
                           ),
                           child: Text(
-                            '${task.category.label} (-${task.category.staminaCost} / +${task.category.essenceReward})',
+                            '${task.category.label} (-${task.category.staminaCost} / +${TaskEconomyService.rewardFor(task.category, user: user)})',
                             style: const TextStyle(
                               color: GothicPalette.goldBright,
                               fontSize: 9,
@@ -450,7 +755,7 @@ class _TaskCard extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () =>
-                  ref.read(tasksProvider.notifier).removeTask(task.id),
+                  ref.read(tasksProvider.notifier).deleteTask(task.id),
               icon: const Icon(
                 Icons.delete_outline,
                 color: GothicPalette.parchmentDim,

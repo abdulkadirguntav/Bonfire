@@ -59,13 +59,40 @@ class TaskController extends Notifier<List<Task>> {
     state = tasks;
   }
 
-  Future<void> removeTask(String taskId) async {
-    final tasks = state.where((task) => task.id != taskId).toList();
-    await _repository.saveTasks(tasks);
-    state = tasks;
+  /// Strict mathematical rule on task deletion:
+  /// - If task was NOT completed: Stamina is untouched.
+  /// - If task WAS completed: Stamina and Essence are refunded, capped at maxStamina.
+  Future<void> deleteTask(String taskId, {DateTime? date}) async {
+    final user = ref.read(userControllerProvider);
+    final targetDate = date ?? DateTime.now();
+    final task = state.where((item) => item.id == taskId).firstOrNull;
+    if (task == null) return;
+
+    final isCompleted = task.isCompletedOn(targetDate);
+    final remainingTasks = state.where((item) => item.id != taskId).toList();
+    await _repository.saveTasks(remainingTasks);
+    state = remainingTasks;
+
+    if (user != null && isCompleted) {
+      final reward = TaskEconomyService.rewardFor(task.category, user: user);
+      final refundedUser = StaminaService.refundCompletion(
+        user,
+        task.category,
+        now: targetDate,
+      ).copyWith(
+        essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
+      );
+      await ref.read(userControllerProvider.notifier).saveUser(refundedUser);
+    }
   }
 
-  /// Applies stamina cost and Essence only when the task becomes completed.
+  /// Alias for deleteTask for backwards compatibility.
+  Future<void> removeTask(String taskId, {DateTime? date}) =>
+      deleteTask(taskId, date: date);
+
+  /// Strict mathematical rule on toggle:
+  /// - When completed: Stamina is deducted (stays at 0 if cost exceeds stamina, never negative). Essence awarded.
+  /// - When unchecked: Stamina is refunded (capped at maxStamina). Essence deducted.
   Future<void> toggleComplete(
     String taskId, {
     required bool isCompleted,
@@ -76,7 +103,9 @@ class TaskController extends Notifier<List<Task>> {
 
     final completionDate = date ?? DateTime.now();
     final task = state.where((item) => item.id == taskId).firstOrNull;
-    if (task == null || task.isCompletedOn(completionDate) == isCompleted) return;
+    if (task == null || task.isCompletedOn(completionDate) == isCompleted) {
+      return;
+    }
 
     final completionKey = Task.dateKey(completionDate);
     final completedKeys = {...task.completedDateKeys};
@@ -94,25 +123,42 @@ class TaskController extends Notifier<List<Task>> {
     await _repository.saveTasks(tasks);
     state = tasks;
 
-    final reward = TaskEconomyService.rewardFor(task.category);
+    final reward = TaskEconomyService.rewardFor(task.category, user: user);
     final updatedUser = isCompleted
-        ? StaminaService.spendForCompletion(user, task.category, now: completionDate)
-            .copyWith(essence: user.essence + reward)
-        : StaminaService.refundCompletion(user, task.category).copyWith(
+        ? StaminaService.spendForCompletion(
+            user,
+            task.category,
+            now: completionDate,
+          ).copyWith(essence: user.essence + reward)
+        : StaminaService.refundCompletion(
+            user,
+            task.category,
+            now: completionDate,
+          ).copyWith(
             essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
           );
+
     await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
   }
 
-  /// Call once at the end of [date]. It is idempotent through
-  /// `lastDailyResolutionAt`, so it is safe to invoke at app start too.
+  /// Alias for toggleComplete
+  Future<void> toggleTask(
+    String taskId, {
+    required bool isCompleted,
+    DateTime? date,
+  }) =>
+      toggleComplete(taskId, isCompleted: isCompleted, date: date);
+
+  /// Call once at the end of [date].
   Future<void> resolveDay(DateTime date) async {
     final user = ref.read(userControllerProvider);
     if (user == null || DayResolutionService.wasResolvedFor(user, date)) return;
 
     final resolution = DayResolutionService.resolve(user, state, date: date);
     await ref.read(userControllerProvider.notifier).saveUser(resolution.user);
-    await ref.read(userControllerProvider.notifier).resolveDeathIfNeeded(now: date);
+    await ref
+        .read(userControllerProvider.notifier)
+        .resolveDeathIfNeeded(now: date);
     await ref.read(userControllerProvider.notifier).reclaimAshMarkIfEligible();
   }
 

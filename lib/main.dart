@@ -5,10 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bonfire/core/constants/daily_quotes.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/data/repositories/ash_mark_repository.dart';
+import 'package:bonfire/data/repositories/boss_repository.dart';
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/data/repositories/user_repository.dart';
 import 'package:bonfire/home_widget/daily_quote_widget.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
+import 'package:bonfire/presentation/providers/boss_provider.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 import 'package:bonfire/presentation/screens/death_screen.dart';
@@ -31,6 +33,7 @@ Future<void> main() async {
         userRepositoryProvider.overrideWithValue(UserRepository(prefs)),
         taskRepositoryProvider.overrideWithValue(TaskRepository(prefs)),
         ashMarkRepositoryProvider.overrideWithValue(AshMarkRepository(prefs)),
+        bossRepositoryProvider.overrideWithValue(BossRepository(prefs)),
       ],
       child: const BonfireApp(),
     ),

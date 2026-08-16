@@ -13,11 +13,13 @@ class DeathService {
         createdAt: createdAt ?? DateTime.now(),
       );
 
-  /// Resets the user after death: HP is restored to max, stamina is refilled,
+  /// Resets the user after death: HP is restored to baseHp, stamina is refilled to maxStamina,
   /// essence is zeroed, and streak resets to day 1.
   static User applyDeath(User user, {DateTime? now}) => user.copyWith(
-        currentHp: user.maxHp,
-        currentStamina: User.maxStamina,
+        currentHp: user.selectedClass.baseHp,
+        maxHp: user.selectedClass.baseHp,
+        currentStamina: user.selectedClass.maxStamina,
+        maxStamina: user.selectedClass.maxStamina,
         staminaUpdatedAt: now ?? DateTime.now(),
         essence: 0,
         currentStreak: 1,

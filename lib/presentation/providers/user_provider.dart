@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bonfire/data/repositories/user_repository.dart';
+import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/user.dart';
 import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
@@ -31,17 +32,14 @@ class UserController extends Notifier<User?> {
     state = refreshed;
   }
 
-  Future<void> beginJourney() async {
+  Future<void> selectClass(CharacterClass characterClass) async {
     final now = DateTime.now();
-    await saveUser(User(
+    final user = User.create(
       id: 'user_${now.millisecondsSinceEpoch}',
-      currentHp: User.defaultMaxHp,
-      maxHp: User.defaultMaxHp,
-      essence: 0,
-      currentStreak: 1,
-      currentStamina: User.maxStamina,
-      staminaUpdatedAt: now,
-    ));
+      selectedClass: characterClass,
+      now: now,
+    );
+    await saveUser(user);
   }
 
   Future<void> saveUser(User user) async {
