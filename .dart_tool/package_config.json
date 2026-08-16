@@ -81,9 +81,9 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/flutter_lints-4.0.0",
+      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.8"
     },
     {
       "name": "flutter_riverpod",
@@ -105,15 +105,15 @@
     },
     {
       "name": "google_fonts",
-      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/google_fonts-6.3.3",
+      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/google_fonts-8.2.1",
       "packageUri": "lib/",
-      "languageVersion": "3.9"
+      "languageVersion": "3.10"
     },
     {
       "name": "home_widget",
-      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/home_widget-0.7.0+1",
+      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/home_widget-0.9.3",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.10"
     },
     {
       "name": "hooks",
@@ -171,9 +171,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/lints-4.0.0",
+      "rootUri": "file:///home/abdulkadirg/.pub-cache/hosted/pub.dev/lints-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.8"
     },
     {
       "name": "logging",
