@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/theme/gothic_theme.dart';
-import 'package:bonfire/core/widgets/ornate_widgets.dart';
+import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
+import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
@@ -167,10 +168,10 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: GothicPalette.onyx,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: AppPalette.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
         border: Border(
-          top: BorderSide(color: GothicPalette.bronze, width: 1.0),
+          top: BorderSide(color: AppPalette.borderSubtle, width: 1.0),
         ),
       ),
       padding: EdgeInsets.only(
@@ -187,28 +188,30 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Yeni Yemin Et (Görev Ekle)',
-                  style: TextStyle(
-                    fontSize: 18,
+                Text(
+                  'YENİ YEMİN ET',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: GothicPalette.goldBright,
-                    letterSpacing: 1.2,
+                    color: AppPalette.primaryGold,
+                    letterSpacing: 1.5,
                   ),
                 ),
                 IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: GothicPalette.parchmentDim),
+                  icon: const Icon(Icons.close, color: AppPalette.textAshGray),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Kategori Seçimi',
-              style: TextStyle(
-                color: GothicPalette.parchmentLight,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
+              style: GoogleFonts.inter(
+                color: AppPalette.textBoneWhite,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
               ),
             ),
             const SizedBox(height: 8),
@@ -217,23 +220,29 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
               runSpacing: 8,
               children: TaskCategory.values.map((category) {
                 final selected = _selectedCategory == category;
-                return ChoiceChip(
-                  label: Text(
-                    '${category.label} (-${category.staminaCost} / +${category.essenceReward})',
+                final reward = TaskEconomyService.rewardFor(category, user: user);
+                return InkWell(
+                  onTap: () => setState(() => _selectedCategory = category),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: selected ? AppPalette.surfaceElevated : const Color(0xFF14161C),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: selected ? AppPalette.primaryGold : AppPalette.borderSubtle,
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Text(
+                      '${category.label} (-${category.staminaCost} / +$reward)',
+                      style: GoogleFonts.inter(
+                        color: selected ? AppPalette.primaryGold : AppPalette.textAshGray,
+                        fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                        fontSize: 11.5,
+                      ),
+                    ),
                   ),
-                  selected: selected,
-                  selectedColor: GothicPalette.goldBright,
-                  backgroundColor: GothicPalette.ironBlack,
-                  labelStyle: TextStyle(
-                    color: selected
-                        ? Colors.black
-                        : GothicPalette.parchmentLight,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                  onSelected: (_) {
-                    setState(() => _selectedCategory = category);
-                  },
                 );
               }).toList(),
             ),
@@ -241,9 +250,9 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             // Example habit suggestions for the selected category
             Text(
               '${_selectedCategory.label} İçin Örnek Yeminler:',
-              style: const TextStyle(
-                color: GothicPalette.goldBright,
-                fontWeight: FontWeight.w700,
+              style: GoogleFonts.inter(
+                color: AppPalette.textAshGray,
+                fontWeight: FontWeight.w600,
                 fontSize: 11,
               ),
             ),
@@ -252,44 +261,47 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
               spacing: 6,
               runSpacing: 6,
               children: currentSuggestions.map((suggestion) {
-                return ActionChip(
-                  avatar: const Icon(
-                    Icons.touch_app_rounded,
-                    size: 13,
-                    color: GothicPalette.emberBright,
-                  ),
-                  label: Text(suggestion),
-                  backgroundColor: const Color(0xFF1B2228),
-                  side: const BorderSide(
-                    color: GothicPalette.charcoal,
-                    width: 0.8,
-                  ),
-                  labelStyle: const TextStyle(
-                    color: GothicPalette.parchmentLight,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  onPressed: () {
+                return InkWell(
+                  onTap: () {
                     setState(() {
                       _titleController.text = suggestion;
                     });
                   },
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF14161C),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: AppPalette.borderSubtle,
+                        width: 0.6,
+                      ),
+                    ),
+                    child: Text(
+                      suggestion,
+                      style: GoogleFonts.inter(
+                        color: AppPalette.textBoneWhite,
+                        fontSize: 10.5,
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
             ),
             const SizedBox(height: 14),
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: GothicPalette.parchmentLight),
+              style: GoogleFonts.inter(color: AppPalette.textBoneWhite),
               decoration: const InputDecoration(
                 hintText: 'Yemin Adı (Örn: 30 Dk Kitap Oku)',
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextField(
               controller: _descriptionController,
               maxLines: 2,
-              style: const TextStyle(color: GothicPalette.parchmentLight),
+              style: GoogleFonts.inter(color: AppPalette.textBoneWhite),
               decoration: const InputDecoration(
                 hintText: 'Açıklama (İsteğe bağlı)',
               ),
@@ -298,143 +310,136 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Alışkanlık Zamanı (Saat)',
-                  style: TextStyle(color: GothicPalette.parchmentLight, fontSize: 13),
+                Text(
+                  'Hatırlatıcı Saat',
+                  style: GoogleFonts.inter(
+                    color: AppPalette.textBoneWhite,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                  ),
                 ),
-                TextButton.icon(
+                OutlinedButton.icon(
                   onPressed: _pickTime,
-                  icon: const Icon(Icons.access_time_rounded,
-                      size: 16, color: GothicPalette.goldBright),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppPalette.primaryGold,
+                    side: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  ),
+                  icon: const Icon(Icons.access_time_rounded, size: 14),
                   label: Text(
                     _habitTime ?? 'Saat Seç',
-                    style: const TextStyle(color: GothicPalette.goldBright),
+                    style: GoogleFonts.inter(fontSize: 11),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Haftanın Günleri',
-              style: TextStyle(
-                color: GothicPalette.parchmentLight,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
+            const SizedBox(height: 14),
+            Text(
+              'Tekrar Günleri',
+              style: GoogleFonts.inter(
+                color: AppPalette.textBoneWhite,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
               ),
             ),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              children: weekdays.map((day) {
-                final value = day.value;
-                final selected = _selectedDays.contains(value);
-                return ChoiceChip(
-                  label: Text(day.label),
-                  selected: selected,
-                  selectedColor: GothicPalette.goldBright,
-                  backgroundColor: GothicPalette.ironBlack,
-                  labelStyle: TextStyle(
-                    color: selected
-                        ? Colors.black
-                        : GothicPalette.parchmentLight,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  onSelected: (_) {
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: weekdays.map((item) {
+                final isSelected = _selectedDays.contains(item.value);
+                return InkWell(
+                  onTap: () {
                     setState(() {
-                      if (selected) {
-                        _selectedDays.remove(value);
+                      if (isSelected) {
+                        if (_selectedDays.length > 1) {
+                          _selectedDays.remove(item.value);
+                        }
                       } else {
-                        _selectedDays.add(value);
+                        _selectedDays.add(item.value);
                       }
                     });
                   },
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppPalette.surfaceElevated : const Color(0xFF14161C),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: isSelected ? AppPalette.primaryGold : AppPalette.borderSubtle,
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        item.label,
+                        style: GoogleFonts.inter(
+                          color: isSelected ? AppPalette.primaryGold : AppPalette.textAshGray,
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
             ),
             if (isExhausted) ...[
-              const SizedBox(height: 16),
-              OrnateFrame(
-                radius: 8,
-                outerGradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF6A1E1E),
-                    Color(0xFF9E2A2A),
-                    Color(0xFF3A1010),
-                  ],
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1F1517),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppPalette.bloodCrimson.withValues(alpha: 0.5),
+                    width: 0.8,
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: const [
-                          Icon(Icons.warning_amber_rounded,
-                              color: GothicPalette.emberBright, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'TÜKENMİŞLİK UYARISI',
-                            style: TextStyle(
-                              color: GothicPalette.bloodBright,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Stamina\'nız tükendi (0). Bu görevi eklerseniz ve gün sonunda yapmazsanız standart HP hasarı 1.5x (bir buçuk kat) olarak yansıtılacaktır.',
-                        style: TextStyle(
-                          color: GothicPalette.parchmentLight,
-                          fontSize: 12,
-                          height: 1.4,
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded,
+                        color: AppPalette.bloodBright, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Stamina tükendi. Bu görevi kaçırırsan 1.5x hasar alacaksın.',
+                        style: GoogleFonts.inter(
+                          color: AppPalette.bloodBright,
+                          fontSize: 11,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _acceptedExhaustionRisk,
-                            activeColor: GothicPalette.bloodBright,
-                            onChanged: (val) {
-                              setState(() => _acceptedExhaustionRisk = val ?? false);
-                            },
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Aşırı efor riskini kabul ediyorum',
-                              style: TextStyle(
-                                color: GothicPalette.goldBright,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
+                    ),
+                    Checkbox(
+                      value: _acceptedExhaustionRisk,
+                      onChanged: (value) => setState(
+                        () => _acceptedExhaustionRisk = value ?? false,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: _submit,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: GothicPalette.goldBright,
+                  foregroundColor: AppPalette.primaryGold,
+                  side: const BorderSide(color: AppPalette.primaryGold, width: 0.9),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: GothicPalette.brass, width: 1.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text(
-                  'YEMİNİ MÜHÜRLE (EKLE)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.5,
+                child: Text(
+                  'YEMİNİ MÜHÜRLE',
+                  style: GoogleFonts.cinzel(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.4,
                   ),
                 ),
               ),

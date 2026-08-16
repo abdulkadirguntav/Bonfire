@@ -10,6 +10,9 @@ class Reflection {
   final DateTime date;
   final Map<String, String> questionsAndAnswers;
 
+  /// Convenience getter for Q&A map
+  Map<String, String> get answers => questionsAndAnswers;
+
   static const List<String> defaultQuestions = [
     'Ateş çatırdıyor... Bugün nasıldı?',
     'Bugün seni en çok ne zorladı ve nasıl karşıladın?',

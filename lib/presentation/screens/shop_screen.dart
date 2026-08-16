@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/theme/gothic_theme.dart';
-import 'package:bonfire/core/widgets/ornate_widgets.dart';
+import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
@@ -31,15 +30,15 @@ class ShopScreen extends ConsumerWidget {
   Color _colorForItem(ItemType type) {
     switch (type) {
       case ItemType.estusFlask:
-        return GothicPalette.emberBright;
+        return const Color(0xFFD6743A);
       case ItemType.ashenEstus:
-        return const Color(0xFF00BFFF);
+        return AppPalette.staminaBlue;
       case ItemType.purgingStone:
-        return GothicPalette.goldBright;
+        return AppPalette.primaryGold;
       case ItemType.ringOfSacrifice:
-        return GothicPalette.bloodBright;
+        return AppPalette.bloodCrimson;
       case ItemType.scrollOfStasis:
-        return const Color(0xFF9370DB);
+        return const Color(0xFF8E71A5);
     }
   }
 
@@ -53,45 +52,59 @@ class ShopScreen extends ConsumerWidget {
     final catalog = ShopItem.defaultKilnCatalog;
 
     return Scaffold(
-      backgroundColor: GothicPalette.obsidian,
+      backgroundColor: AppPalette.scaffoldBackground,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with overflow-safe title
+              // Top Header
               Row(
                 children: [
                   const Icon(
                     Icons.fireplace_rounded,
-                    color: GothicPalette.emberBright,
-                    size: 26,
+                    color: AppPalette.primaryGold,
+                    size: 24,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'THE KILN',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.cinzel(
-                        color: GothicPalette.goldBright,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.5,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'THE KILN',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.cinzel(
+                            color: AppPalette.primaryGold,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2.2,
+                          ),
+                        ),
+                        Text(
+                          'KADİM EŞYALAR VE PAZAR',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.textAshGray,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: GothicPalette.ironBlack,
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppPalette.surface,
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: GothicPalette.bronze,
-                        width: 0.8,
+                        color: AppPalette.borderSubtle,
+                        width: 1.0,
                       ),
                     ),
                     child: Row(
@@ -99,31 +112,22 @@ class ShopScreen extends ConsumerWidget {
                       children: [
                         const Icon(
                           Icons.whatshot_rounded,
-                          color: GothicPalette.goldBright,
-                          size: 14,
+                          color: AppPalette.primaryGold,
+                          size: 13,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 5),
                         Text(
                           '${user?.essence ?? 0} ÖZ',
                           style: GoogleFonts.cinzel(
-                            color: GothicPalette.goldBright,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
+                            color: AppPalette.primaryGold,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Kadim Eşyalar ve Seyyar Tüccar Pazarı',
-                style: TextStyle(
-                  color: GothicPalette.parchmentDim,
-                  fontSize: 11,
-                  fontFamily: GoogleFonts.cinzel().fontFamily,
-                ),
               ),
               const SizedBox(height: 12),
 
@@ -134,25 +138,25 @@ class ShopScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2A2012),
+                    color: const Color(0xFF221E18),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: GothicPalette.goldBright,
+                      color: AppPalette.primaryGold.withValues(alpha: 0.4),
                       width: 0.9,
                     ),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.storefront_rounded,
-                          color: GothicPalette.goldBright, size: 18),
+                          color: AppPalette.primaryGold, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '🔥 PAZAR AÇIK (GÜN $currentStreak): Seyyar tüccar kamp kurdu. Eşya satın alabilirsin.',
-                          style: GoogleFonts.cinzel(
-                            color: GothicPalette.goldBright,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
+                          '🔥 PAZAR AÇIK (GÜN $currentStreak): Seyyar tüccar kamp kurdu.',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.primaryGold,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -165,32 +169,31 @@ class ShopScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: GothicPalette.ironBlack,
+                    color: AppPalette.surface,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: GothicPalette.charcoal,
-                      width: 0.7,
+                      color: AppPalette.borderSubtle,
+                      width: 0.8,
                     ),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.lock_outline_rounded,
-                          color: GothicPalette.parchmentDim, size: 16),
+                          color: AppPalette.textAshGray, size: 15),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Mühürlü: Market her 5 günde bir (Gün 5, 10, 15, 20, 25, 30...) açılır. Sonraki pazar: Gün $nextMarketDay ($daysLeft gün kaldı).',
-                          style: TextStyle(
-                            color: GothicPalette.parchmentDim,
-                            fontSize: 10.5,
-                            fontFamily: GoogleFonts.cinzel().fontFamily,
+                          'Mühürlü: Pazar her 5 günde bir açılır. Sonraki pazar: Gün $nextMarketDay ($daysLeft gün kaldı).',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.textAshGray,
+                            fontSize: 11,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // Active status indicators (Purging stones & Stasis)
               if (user != null &&
@@ -204,19 +207,20 @@ class ShopScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E2A1E),
+                            color: const Color(0xFF18231C),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: const Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50)
+                                  .withValues(alpha: 0.4),
                               width: 0.8,
                             ),
                           ),
                           child: Text(
-                            '🛡️ Arınma Koruması: ${user.activePurgingStones} Görev',
-                            style: const TextStyle(
-                              color: Color(0xFF81C784),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                            '🛡️ Arınma: ${user.activePurgingStones} Görev',
+                            style: GoogleFonts.inter(
+                              color: const Color(0xFF81C784),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -230,26 +234,27 @@ class ShopScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2A1E35),
+                            color: const Color(0xFF221A2B),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: const Color(0xFF9370DB),
+                              color: const Color(0xFF9370DB)
+                                  .withValues(alpha: 0.4),
                               width: 0.8,
                             ),
                           ),
-                          child: const Text(
-                            '⏳ Zaman Donduruldu (Stasis)',
-                            style: TextStyle(
-                              color: Color(0xFFBA68C8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                          child: Text(
+                            '⏳ Zaman Donduruldu',
+                            style: GoogleFonts.inter(
+                              color: const Color(0xFFBA68C8),
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
               ],
 
               // Catalog List
@@ -264,16 +269,15 @@ class ShopScreen extends ConsumerWidget {
                     final canAfford =
                         isMarketOpen && (user?.essence ?? 0) >= item.cost;
 
-                    return OrnateFrame(
-                      radius: 12,
-                      outerGradient: LinearGradient(
-                        colors: [
-                          itemColor.withValues(alpha: 0.25),
-                          GothicPalette.charcoal,
-                          GothicPalette.ironBlack,
-                        ],
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppPalette.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppPalette.borderSubtle,
+                          width: 0.9,
+                        ),
                       ),
-                      glow: true,
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(
@@ -283,26 +287,20 @@ class ShopScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: 36,
+                                  height: 36,
                                   decoration: BoxDecoration(
-                                    color: GothicPalette.ironBlack,
-                                    shape: BoxShape.circle,
+                                    color: const Color(0xFF14161C),
+                                    borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: itemColor,
-                                      width: 1.0,
+                                      color: itemColor.withValues(alpha: 0.4),
+                                      width: 0.8,
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: itemColor.withValues(alpha: 0.3),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
                                   ),
                                   child: Icon(
                                     _iconForName(item.iconName),
                                     color: itemColor,
-                                    size: 20,
+                                    size: 18,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -318,34 +316,33 @@ class ShopScreen extends ConsumerWidget {
                                           Text(
                                             item.name.toUpperCase(),
                                             style: GoogleFonts.cinzel(
-                                              color: GothicPalette.goldBright,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w900,
-                                              letterSpacing: 1.1,
+                                              color: AppPalette.textBoneWhite,
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 1.0,
                                             ),
                                           ),
                                           if (ownedCount > 0)
                                             Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 7,
+                                                      horizontal: 6,
                                                       vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: GothicPalette.ironBlack,
+                                                color: const Color(0xFF14161C),
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    BorderRadius.circular(4),
                                                 border: Border.all(
-                                                  color: GothicPalette.bronze,
+                                                  color: AppPalette.borderSubtle,
                                                   width: 0.6,
                                                 ),
                                               ),
                                               child: Text(
-                                                '$ownedCount Adet Var',
-                                                style: const TextStyle(
-                                                  color:
-                                                      GothicPalette.parchment,
+                                                '$ownedCount Adet',
+                                                style: GoogleFonts.inter(
+                                                  color: AppPalette.primaryGold,
                                                   fontSize: 9.5,
-                                                  fontWeight: FontWeight.w700,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                               ),
                                             ),
@@ -354,8 +351,8 @@ class ShopScreen extends ConsumerWidget {
                                       const SizedBox(height: 2),
                                       Text(
                                         item.nameTr,
-                                        style: const TextStyle(
-                                          color: GothicPalette.parchmentDim,
+                                        style: GoogleFonts.inter(
+                                          color: AppPalette.textAshGray,
                                           fontSize: 10.5,
                                           fontStyle: FontStyle.italic,
                                         ),
@@ -368,8 +365,8 @@ class ShopScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Text(
                               item.description,
-                              style: const TextStyle(
-                                color: GothicPalette.parchmentLight,
+                              style: GoogleFonts.inter(
+                                color: AppPalette.textAshGray,
                                 fontSize: 11.5,
                                 height: 1.35,
                               ),
@@ -381,10 +378,10 @@ class ShopScreen extends ConsumerWidget {
                                   '${item.cost} ÖZ',
                                   style: GoogleFonts.cinzel(
                                     color: canAfford
-                                        ? GothicPalette.goldBright
-                                        : GothicPalette.parchmentDim,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
+                                        ? AppPalette.primaryGold
+                                        : AppPalette.textAshGray,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                                 const Spacer(),
@@ -420,15 +417,19 @@ class ShopScreen extends ConsumerWidget {
                                     },
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: itemColor,
-                                      side: BorderSide(color: itemColor),
+                                      side: BorderSide(
+                                          color: itemColor, width: 0.8),
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 6),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'KULLAN',
-                                      style: TextStyle(
+                                      style: GoogleFonts.inter(
                                         fontSize: 10.5,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
@@ -447,8 +448,6 @@ class ShopScreen extends ConsumerWidget {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                  backgroundColor:
-                                                      GothicPalette.goldDeep,
                                                   content: Text(
                                                     '🛡️ ${item.name} satın alındı!',
                                                   ),
@@ -477,24 +476,26 @@ class ShopScreen extends ConsumerWidget {
                                           }
                                         },
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: GothicPalette.goldBright,
+                                    foregroundColor: AppPalette.primaryGold,
                                     disabledForegroundColor:
-                                        GothicPalette.parchmentDim,
+                                        AppPalette.textDim,
                                     side: BorderSide(
                                       color: canAfford
-                                          ? GothicPalette.goldBright
-                                          : GothicPalette.charcoal,
+                                          ? AppPalette.primaryGold
+                                          : AppPalette.borderSubtle,
+                                      width: 0.8,
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 6),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
                                   ),
                                   child: Text(
-                                    !isMarketOpen
-                                        ? 'KAPALI'
-                                        : 'SATIN AL',
-                                    style: const TextStyle(
+                                    !isMarketOpen ? 'KAPALI' : 'SATIN AL',
+                                    style: GoogleFonts.inter(
                                       fontSize: 10.5,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),

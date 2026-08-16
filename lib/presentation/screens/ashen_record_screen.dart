@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/attributes.dart';
 import 'package:bonfire/domain/services/attribute_service.dart';
@@ -19,7 +19,7 @@ class AshenRecordScreen extends ConsumerWidget {
       case AttributeType.endurance:
         return Icons.bolt_rounded;
       case AttributeType.strength:
-        return Icons.fitness_center_rounded;
+        return Icons.local_fire_department_rounded;
       case AttributeType.adaptability:
         return Icons.shield_rounded;
     }
@@ -32,9 +32,9 @@ class AshenRecordScreen extends ConsumerWidget {
       case AttributeType.endurance:
         return '+${level * 10} Max Stamina';
       case AttributeType.strength:
-        return '+%${level * 5} Öz Çarpanı';
+        return '+%${level * 5} Öz';
       case AttributeType.adaptability:
-        return '-%${level * 4} Ceza Hasarı';
+        return '-%${level * 4} Hasar';
     }
   }
 
@@ -45,45 +45,59 @@ class AshenRecordScreen extends ConsumerWidget {
     final essence = user?.essence ?? 0;
 
     return Scaffold(
-      backgroundColor: GothicPalette.obsidian,
+      backgroundColor: AppPalette.scaffoldBackground,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with overflow-safe Expanded title
+              // Top Header
               Row(
                 children: [
                   const Icon(
-                    Icons.account_balance_rounded,
-                    color: GothicPalette.goldBright,
+                    Icons.shield_rounded,
+                    color: AppPalette.primaryGold,
                     size: 24,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'THE ASHEN RECORD',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.cinzel(
-                        color: GothicPalette.goldBright,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.8,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'THE ASHEN RECORD',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.cinzel(
+                            color: AppPalette.primaryGold,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.8,
+                          ),
+                        ),
+                        Text(
+                          'NİTELİKLER VE GEÇMİŞİN KÜLLERİ',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.textAshGray,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: GothicPalette.ironBlack,
-                      borderRadius: BorderRadius.circular(20),
+                      color: AppPalette.surface,
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: GothicPalette.bronze,
-                        width: 0.8,
+                        color: AppPalette.borderSubtle,
+                        width: 1.0,
                       ),
                     ),
                     child: Row(
@@ -91,16 +105,16 @@ class AshenRecordScreen extends ConsumerWidget {
                       children: [
                         const Icon(
                           Icons.whatshot_rounded,
-                          color: GothicPalette.goldBright,
-                          size: 14,
+                          color: AppPalette.primaryGold,
+                          size: 13,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 5),
                         Text(
                           '$essence ÖZ',
                           style: GoogleFonts.cinzel(
-                            color: GothicPalette.goldBright,
+                            color: AppPalette.primaryGold,
                             fontSize: 11.5,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
@@ -108,47 +122,38 @@ class AshenRecordScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Karakter Kağıdı, Nitelikler ve Geçmişin Külleri',
-                style: TextStyle(
-                  color: GothicPalette.parchmentDim,
-                  fontSize: 11,
-                  fontFamily: GoogleFonts.cinzel().fontFamily,
-                ),
-              ),
               const SizedBox(height: 12),
 
-              // Character Profile Header Card (Removed confusing extra level badge)
+              // Character Profile Header Card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: GothicPalette.onyx,
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppPalette.surface,
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: GothicPalette.charcoal,
-                    width: 0.8,
+                    color: AppPalette.borderSubtle,
+                    width: 0.9,
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: GothicPalette.ironBlack,
+                        color: const Color(0xFF14161C),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: GothicPalette.bronze,
-                          width: 1.0,
+                          color: AppPalette.primaryGold.withValues(alpha: 0.3),
+                          width: 0.8,
                         ),
                       ),
                       child: const Center(
                         child: Icon(
                           Icons.person_rounded,
-                          color: GothicPalette.goldBright,
-                          size: 24,
+                          color: AppPalette.primaryGold,
+                          size: 22,
                         ),
                       ),
                     ),
@@ -161,10 +166,10 @@ class AshenRecordScreen extends ConsumerWidget {
                             user?.selectedClass.className.toUpperCase() ??
                                 'SAVAŞÇI',
                             style: GoogleFonts.cinzel(
-                              color: GothicPalette.goldBright,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5,
+                              color: AppPalette.primaryGold,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -172,8 +177,8 @@ class AshenRecordScreen extends ConsumerWidget {
                             user?.selectedClass.description ?? '',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: GothicPalette.parchmentDim,
+                            style: GoogleFonts.inter(
+                              color: AppPalette.textAshGray,
                               fontSize: 11,
                             ),
                           ),
@@ -192,25 +197,25 @@ class AshenRecordScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2A1E12),
+                    color: const Color(0xFF221E18),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: GothicPalette.emberBright,
+                      color: AppPalette.primaryGold.withValues(alpha: 0.4),
                       width: 0.9,
                     ),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.local_fire_department_rounded,
-                          color: GothicPalette.goldBright, size: 18),
+                          color: AppPalette.primaryGold, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           '🔥 BONFIRE GÜNÜNDESİN: Nitelik geliştirme (Level Up) mühürleri açıldı!',
-                          style: GoogleFonts.cinzel(
-                            color: GothicPalette.goldBright,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
+                          style: GoogleFonts.inter(
+                            color: AppPalette.primaryGold,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -221,27 +226,26 @@ class AshenRecordScreen extends ConsumerWidget {
                 Container(
                   width: double.infinity,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: GothicPalette.ironBlack,
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppPalette.surface,
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: GothicPalette.charcoal,
-                      width: 0.6,
+                      color: AppPalette.borderSubtle,
+                      width: 0.8,
                     ),
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.lock_outline_rounded,
-                          color: GothicPalette.parchmentDim, size: 15),
+                          color: AppPalette.textAshGray, size: 15),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Mühürlü: Stat geliştirme yalnızca Bonfire günlerinde (Gün 3, 7, 14, 30) yapılabilir.',
-                          style: TextStyle(
-                            color: GothicPalette.parchmentDim,
-                            fontSize: 10.5,
-                            fontFamily: GoogleFonts.cinzel().fontFamily,
+                          style: GoogleFonts.inter(
+                            color: AppPalette.textAshGray,
+                            fontSize: 11,
                           ),
                         ),
                       ),
@@ -256,7 +260,7 @@ class AshenRecordScreen extends ConsumerWidget {
                   children: [
                     // Section 1: Attributes & Level Up
                     const SectionTitle('Kadim Nitelikler (Attributes)'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     ...AttributeType.values.map((attribute) {
                       final currentLevel = user?.attributeLevel(attribute) ?? 0;
                       final cost = user == null
@@ -266,241 +270,204 @@ class AshenRecordScreen extends ConsumerWidget {
                       final bonusText =
                           _bonusTextFor(attribute, currentLevel);
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: OrnateFrame(
-                          radius: 8,
-                          borderWidth: 0.6,
-                          outerGradient: canAfford
-                              ? const LinearGradient(
-                                  colors: [
-                                    Color(0xFF3F321D),
-                                    Color(0xFF6E5A32),
-                                    Color(0xFF3F321D),
-                                  ],
-                                )
-                              : const LinearGradient(
-                                  colors: [
-                                    GothicPalette.charcoal,
-                                    GothicPalette.ironBlack,
-                                  ],
-                                ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 9),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  _iconForAttribute(attribute),
-                                  color: canAfford
-                                      ? GothicPalette.goldBright
-                                      : GothicPalette.parchmentDim,
-                                  size: 19,
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            attribute.nameTr.toUpperCase(),
-                                            style: GoogleFonts.cinzel(
-                                              color: GothicPalette.goldBright,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w800,
-                                            ),
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: AppPalette.surface,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: canAfford
+                                ? AppPalette.primaryGold.withValues(alpha: 0.3)
+                                : AppPalette.borderSubtle,
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _iconForAttribute(attribute),
+                                color: canAfford
+                                    ? AppPalette.primaryGold
+                                    : AppPalette.textAshGray,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          attribute.nameTr.toUpperCase(),
+                                          style: GoogleFonts.cinzel(
+                                            color: AppPalette.textBoneWhite,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
                                           ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5, vertical: 1),
-                                            decoration: BoxDecoration(
-                                              color: GothicPalette.ironBlack,
-                                              borderRadius:
-                                                  BorderRadius.circular(3),
-                                              border: Border.all(
-                                                color: GothicPalette.bronze,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'LV. $currentLevel',
-                                              style: GoogleFonts.cinzel(
-                                                color:
-                                                    GothicPalette.parchmentLight,
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        '${attribute.description} ($bonusText)',
-                                        style: const TextStyle(
-                                          color: GothicPalette.parchmentDim,
-                                          fontSize: 10,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Level Up Action
-                                OutlinedButton(
-                                  onPressed: !canAfford
-                                      ? null
-                                      : () async {
-                                          try {
-                                            await ref
-                                                .read(userControllerProvider
-                                                    .notifier)
-                                                .levelUp(attribute);
-                                            if (context.mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  backgroundColor:
-                                                      GothicPalette.goldDeep,
-                                                  content: Text(
-                                                    '🔥 ${attribute.nameTr} seviye atladı! ($bonusText)',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          } on InsufficientEssenceException {
-                                            if (context.mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      'Yetersiz Öz (Essence)!'),
-                                                ),
-                                              );
-                                            }
-                                          }
-                                        },
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: GothicPalette.goldBright,
-                                    disabledForegroundColor:
-                                        GothicPalette.parchmentDim,
-                                    side: BorderSide(
-                                      color: canAfford
-                                          ? GothicPalette.goldBright
-                                          : GothicPalette.charcoal,
-                                      width: 0.8,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 5),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.arrow_upward_rounded,
-                                              size: 12),
-                                          const SizedBox(width: 2),
-                                          Text(
-                                            'GELİŞTİR',
-                                            style: GoogleFonts.cinzel(
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF14161C),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                            border: Border.all(
+                                              color: AppPalette.borderSubtle,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'LV. $currentLevel',
+                                            style: GoogleFonts.inter(
+                                              color: AppPalette.primaryGold,
                                               fontSize: 9.5,
-                                              fontWeight: FontWeight.w900,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      Text(
-                                        '$cost Öz',
-                                        style: TextStyle(
-                                          color: canAfford
-                                              ? GothicPalette.goldBright
-                                              : GothicPalette.parchmentDim,
-                                          fontSize: 8.5,
-                                          fontWeight: FontWeight.w700,
                                         ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${attribute.description} ($bonusText)',
+                                      style: GoogleFonts.inter(
+                                        color: AppPalette.textAshGray,
+                                        fontSize: 10.5,
                                       ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              OutlinedButton(
+                                onPressed: !canAfford
+                                    ? null
+                                    : () async {
+                                        try {
+                                          await ref
+                                              .read(userControllerProvider
+                                                  .notifier)
+                                              .levelUp(attribute);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  '✨ ${attribute.nameTr} geliştirildi! ($bonusText)',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        } on NotAtBonfireDayException {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  '🔒 Sadece Bonfire günlerinde stat yükseltebilirsin!',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        } on InsufficientEssenceException {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Yetersiz Öz (Essence)!',
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppPalette.primaryGold,
+                                  disabledForegroundColor:
+                                      AppPalette.textDim,
+                                  side: BorderSide(
+                                    color: canAfford
+                                        ? AppPalette.primaryGold
+                                        : AppPalette.borderSubtle,
+                                    width: 0.8,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
-                              ],
-                            ),
+                                child: Text(
+                                  '+$cost ÖZ',
+                                  style: GoogleFonts.cinzel(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
                     }),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
 
-                    // Section 2: Lifetime Statistics (Geçmişin Külleri)
-                    const SectionTitle('Geçmişin Külleri (İstatistikler)'),
-                    const SizedBox(height: 8),
+                    // Section 2: General Statistics (Chronicle/History)
+                    const SectionTitle('Geçmiş ve İstatistikler (Chronicle)'),
+                    const SizedBox(height: 6),
                     Container(
                       decoration: BoxDecoration(
-                        color: GothicPalette.onyx,
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppPalette.surface,
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: GothicPalette.charcoal,
+                          color: AppPalette.borderSubtle,
                           width: 0.8,
                         ),
                       ),
                       child: Column(
                         children: [
                           _StatRow(
-                            icon: Icons.shield_rounded,
-                            label: 'Yenilen Düşmanlar',
-                            detail: 'Tamamlanan standart yeminler',
+                            icon: Icons.shield_outlined,
+                            label: 'Yenilen Düşmanlar (Görevler)',
                             value: '${user?.enemiesDefeated ?? 0}',
                           ),
-                          const Divider(
-                              height: 1,
-                              color: GothicPalette.charcoal,
-                              thickness: 0.6),
+                          const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
-                            icon: Icons.dangerous_rounded,
-                            label: 'Katledilen Boss\'lar',
-                            detail: 'Aşılan bağımlılık / irade fazları',
+                            icon: Icons.dangerous_outlined,
+                            label: 'Katledilen Boss Fazları',
                             value: '${user?.bossPhasesDefeated ?? 0}',
                           ),
-                          const Divider(
-                              height: 1,
-                              color: GothicPalette.charcoal,
-                              thickness: 0.6),
+                          const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
-                            icon: Icons.heart_broken_rounded,
+                            icon: Icons.heart_broken_outlined,
                             label: 'Ölüm Sayısı',
-                            detail: 'Canın sıfırlandığı anlar',
                             value: '${user?.deathCount ?? 0}',
                           ),
-                          const Divider(
-                              height: 1,
-                              color: GothicPalette.charcoal,
-                              thickness: 0.6),
+                          const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
-                            icon: Icons.replay_rounded,
+                            icon: Icons.replay_outlined,
                             label: 'Geri Alınan Kül İzleri',
-                            detail: 'Kurtarılan kayıp Öz (Ash Mark)',
                             value: '${user?.ashMarksReclaimed ?? 0}',
                           ),
-                          const Divider(
-                              height: 1,
-                              color: GothicPalette.charcoal,
-                              thickness: 0.6),
+                          const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
-                            icon: Icons.whatshot_rounded,
-                            label: 'En Yüksek İrade Serisi',
-                            detail: 'Ulaşılan en uzun gün serisi rekoru',
+                            icon: Icons.whatshot_outlined,
+                            label: 'En Yüksek Gün Serisi',
                             value: 'Gün ${user?.highestStreak ?? 1}',
-                            isGold: true,
+                            isHighlighted: true,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -516,61 +483,49 @@ class _StatRow extends StatelessWidget {
   const _StatRow({
     required this.icon,
     required this.label,
-    required this.detail,
     required this.value,
-    this.isGold = false,
+    this.isHighlighted = false,
   });
 
   final IconData icon;
   final String label;
-  final String detail;
   final String value;
-  final bool isGold;
+  final bool isHighlighted;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       child: Row(
         children: [
-          Icon(icon,
-              size: 17,
-              color: isGold
-                  ? GothicPalette.goldBright
-                  : GothicPalette.parchmentDim),
+          Icon(
+            icon,
+            size: 16,
+            color: isHighlighted
+                ? AppPalette.primaryGold
+                : AppPalette.textAshGray,
+          ),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.cinzel(
-                    color: isGold
-                        ? GothicPalette.goldBright
-                        : GothicPalette.parchmentLight,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  detail,
-                  style: const TextStyle(
-                    color: GothicPalette.parchmentDim,
-                    fontSize: 9.5,
-                  ),
-                ),
-              ],
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                color: isHighlighted
+                    ? AppPalette.textBoneWhite
+                    : AppPalette.textAshGray,
+                fontSize: 12,
+                fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
           Text(
             value,
             style: GoogleFonts.cinzel(
-              color: isGold
-                  ? GothicPalette.goldBright
-                  : GothicPalette.parchmentLight,
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
+              color: isHighlighted
+                  ? AppPalette.primaryGold
+                  : AppPalette.textBoneWhite,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/theme/gothic_theme.dart';
-import 'package:bonfire/core/widgets/ornate_widgets.dart';
+import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
 class DeathScreen extends ConsumerWidget {
@@ -18,7 +18,7 @@ class DeathScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFF120909),
+      backgroundColor: const Color(0xFF140D0E),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -27,82 +27,80 @@ class DeathScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
-                const Text(
+                Text(
                   'YOU DIED',
-                  style: TextStyle(
-                    color: GothicPalette.bloodBright,
-                    fontSize: 52,
+                  style: GoogleFonts.cinzel(
+                    color: AppPalette.bloodCrimson,
+                    fontSize: 44,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 4,
+                    letterSpacing: 4.5,
                   ),
                 ),
                 const SizedBox(height: 24),
-                OrnateFrame(
-                  radius: 12,
-                  outerGradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF5A1E1E),
-                      Color(0xFF8E2A2A),
-                      Color(0xFF3A1212),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Kaybedilen Öz (Essence):',
-                              style: TextStyle(
-                                color: GothicPalette.parchment,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              '$lostEssence',
-                              style: const TextStyle(
-                                color: GothicPalette.goldBright,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Hedef Gün Serisi:',
-                              style: TextStyle(
-                                color: GothicPalette.parchment,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              'Gün $targetStreak',
-                              style: const TextStyle(
-                                color: GothicPalette.parchmentLight,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppPalette.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppPalette.bloodCrimson.withValues(alpha: 0.5),
+                      width: 1.0,
                     ),
                   ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Kaybedilen Öz (Essence):',
+                            style: GoogleFonts.inter(
+                              color: AppPalette.textAshGray,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            '$lostEssence',
+                            style: GoogleFonts.cinzel(
+                              color: AppPalette.primaryGold,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Hedef Gün Serisi:',
+                            style: GoogleFonts.inter(
+                              color: AppPalette.textAshGray,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            'Gün $targetStreak',
+                            style: GoogleFonts.cinzel(
+                              color: AppPalette.textBoneWhite,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-                const Text(
+                const SizedBox(height: 20),
+                Text(
                   'Küllerinden yeniden doğ!\n1. günden başlayıp aynı gün serisine ulaştığında kaybettiğin tüm Öz\'ü geri kazanacaksın.\nAncak hedefe ulaşamadan tekrar ölürsen eski izin sonsuza dek silinir.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: GothicPalette.ashGray,
-                    fontSize: 13,
-                    height: 1.6,
+                  style: GoogleFonts.inter(
+                    color: AppPalette.textAshGray,
+                    fontSize: 12,
+                    height: 1.5,
                   ),
                 ),
                 const Spacer(),
@@ -115,27 +113,24 @@ class DeathScreen extends ConsumerWidget {
                           .resolveDeathIfNeeded();
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: GothicPalette.emberBright,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      foregroundColor: AppPalette.primaryGold,
                       side: const BorderSide(
-                        color: GothicPalette.bloodBright,
-                        width: 1.0,
-                      ),
+                          color: AppPalette.primaryGold, width: 0.9),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'KÜLLERDEN YENİDEN DOĞ',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2,
+                    child: Text(
+                      'ATEŞİN BAŞINDA UYAN',
+                      style: GoogleFonts.cinzel(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
               ],
             ),
           ),

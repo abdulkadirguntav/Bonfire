@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/theme/app_theme.dart';
+import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/presentation/providers/reflection_provider.dart';
 import 'package:bonfire/presentation/screens/journey_screen.dart';
 
@@ -13,31 +14,11 @@ class ReflectionScreen extends ConsumerStatefulWidget {
   ConsumerState<ReflectionScreen> createState() => _ReflectionScreenState();
 }
 
-class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
-    with SingleTickerProviderStateMixin {
+class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   final Map<String, TextEditingController> _controllers = {};
-  late AnimationController _fireAnimationController;
-  late Animation<double> _fireGlowAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _fireAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
-    _fireGlowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fireAnimationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-  }
 
   @override
   void dispose() {
-    _fireAnimationController.dispose();
     for (final controller in _controllers.values) {
       controller.dispose();
     }
@@ -68,10 +49,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: GothicPalette.onyx,
+          backgroundColor: AppPalette.surfaceElevated,
           content: Text(
             '🔥 Düşüncelerin mühürlendi ve takvime kaydedildi.',
-            style: GoogleFonts.cinzel(color: GothicPalette.goldBright),
+            style: GoogleFonts.inter(color: AppPalette.primaryGold),
           ),
         ),
       );
@@ -90,30 +71,48 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: GothicPalette.onyx,
+        backgroundColor: AppPalette.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: GothicPalette.bronze, width: 0.8),
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
         ),
         title: Text(
           'Özel Muhasebe Sorusu Ekle',
           style: GoogleFonts.cinzel(
-            color: GothicPalette.goldBright,
+            color: AppPalette.primaryGold,
+            fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
         ),
-        content: TextField(
-          controller: textController,
-          style: const TextStyle(color: GothicPalette.parchmentLight),
-          decoration: const InputDecoration(
-            hintText: 'Örn: Bugün irademi ne sınadı?',
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Kendine sormak istediğin stoacı bir soru ekle.',
+              style: GoogleFonts.inter(
+                color: AppPalette.textBoneWhite,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: textController,
+              maxLines: 2,
+              style: GoogleFonts.inter(
+                color: AppPalette.textBoneWhite,
+                fontSize: 13,
+              ),
+              decoration: const InputDecoration(
+                hintText: 'Örn: Bugün hangi engeli bir basamağa çevirdim?',
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('İptal',
-                style: TextStyle(color: GothicPalette.parchmentDim)),
+            child: Text('İptal',
+                style: GoogleFonts.inter(color: AppPalette.textAshGray)),
           ),
           OutlinedButton(
             onPressed: () async {
@@ -122,12 +121,12 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
                 await ref
                     .read(activeQuestionsProvider.notifier)
                     .addQuestion(text);
-                if (ctx.mounted) Navigator.pop(ctx);
               }
+              if (ctx.mounted) Navigator.pop(ctx);
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: GothicPalette.goldBright,
-              side: const BorderSide(color: GothicPalette.brass),
+              foregroundColor: AppPalette.primaryGold,
+              side: const BorderSide(color: AppPalette.primaryGold, width: 0.8),
             ),
             child: const Text('EKLE'),
           ),
@@ -138,252 +137,233 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
 
   @override
   Widget build(BuildContext context) {
-    final questions = ref.watch(activeQuestionsProvider);
+    final customQuestions = ref.watch(activeQuestionsProvider);
     final todayReflection = ref
         .watch(reflectionControllerProvider.notifier)
         .getReflectionFor(DateTime.now());
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: AppPalette.scaffoldBackground,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Row(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Header
+              Row(
                 children: [
                   const Icon(
-                    Icons.nightlight_round,
-                    color: GothicPalette.goldBright,
+                    Icons.auto_stories_rounded,
+                    color: AppPalette.primaryGold,
                     size: 24,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'STOIC REFLECTION',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.cinzel(
-                        color: GothicPalette.goldBright,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.2,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: _showAddQuestionDialog,
-                    icon: const Icon(Icons.add_circle_outline_rounded,
-                        color: GothicPalette.goldBright, size: 22),
-                    tooltip: 'Yeni Soru Ekle',
-                  ),
-                  if (questions.isEmpty)
-                    IconButton(
-                      onPressed: () => ref
-                          .read(activeQuestionsProvider.notifier)
-                          .resetToDefaults(),
-                      icon: const Icon(Icons.refresh_rounded,
-                          color: GothicPalette.parchmentDim, size: 20),
-                      tooltip: 'Varsayılan Soruları Yükle',
-                    ),
-                ],
-              ),
-            ),
-            // Glowing Bonfire Animation
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: AnimatedBuilder(
-                animation: _fireGlowAnimation,
-                builder: (context, child) {
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: GothicPalette.ember.withValues(
-                              alpha: _fireGlowAnimation.value * 0.45),
-                          blurRadius: 26 * _fireGlowAnimation.value,
-                          spreadRadius: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'STOIC REFLECTION',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.cinzel(
+                            color: AppPalette.primaryGold,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                        Text(
+                          'GÜN SONU İÇSEL MUHASEBE',
+                          style: GoogleFonts.inter(
+                            color: AppPalette.textAshGray,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: Icon(
-                        Icons.local_fire_department_rounded,
-                        color: Color.lerp(
-                          GothicPalette.ember,
-                          GothicPalette.goldBright,
-                          _fireGlowAnimation.value,
+                  ),
+                  IconButton(
+                    onPressed: _showAddQuestionDialog,
+                    icon: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: AppPalette.primaryGold,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Quote Header Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppPalette.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppPalette.borderSubtle,
+                    width: 0.9,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.nights_stay_rounded,
+                      color: AppPalette.primaryGold,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '❝ Gözlerini kapatmadan önce günün her anını sorgula: Ne yaptın? Neyi yapmadın? ❞\n— Seneca',
+                        style: GoogleFonts.cinzel(
+                          color: AppPalette.textBoneWhite,
+                          fontSize: 11,
+                          height: 1.35,
+                          fontStyle: FontStyle.italic,
                         ),
-                        size: 42,
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
-            Text(
-              'Ateş çatırdıyor... Zihnini boşluğa dök.',
-              style: TextStyle(
-                color: GothicPalette.parchmentDim,
-                fontSize: 12,
-                fontFamily: GoogleFonts.cinzel().fontFamily,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Questions & frameless text fields
-            Expanded(
-              child: questions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Tüm sorular kaldırıldı.',
-                            style: TextStyle(
-                              color: GothicPalette.parchmentDim,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          OutlinedButton.icon(
-                            onPressed: _showAddQuestionDialog,
-                            icon: const Icon(Icons.add, size: 16),
-                            label: const Text('KENDİ SORUNU EKLE'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: GothicPalette.goldBright,
-                              side: const BorderSide(
-                                  color: GothicPalette.goldDeep),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => ref
-                                .read(activeQuestionsProvider.notifier)
-                                .resetToDefaults(),
-                            child: const Text(
-                              'Varsayılan Soruları Geri Getir',
-                              style: TextStyle(
-                                color: GothicPalette.parchmentDim,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 8),
-                      itemCount: questions.length,
-                      separatorBuilder: (_, __) => const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 14),
-                        child: Divider(
-                          color: Color(0xFF1E1E1E),
-                          thickness: 0.6,
-                        ),
-                      ),
-                      itemBuilder: (context, index) {
-                        final question = questions[index];
-                        final initialAnswer =
-                            todayReflection?.questionsAndAnswers[question] ??
-                                '';
-                        final controller =
-                            _getControllerFor(question, initialAnswer);
+              const SizedBox(height: 10),
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              const SectionTitle('Günün Soruları'),
+              const SizedBox(height: 6),
+
+              // Questions List
+              Expanded(
+                child: customQuestions.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    question,
-                                    style: GoogleFonts.cinzel(
-                                      color: GothicPalette.goldBright,
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w700,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  icon: const Icon(Icons.close_rounded,
-                                      size: 17,
-                                      color: GothicPalette.parchmentDim),
-                                  tooltip: 'Bu Soruyu Kaldır',
-                                  onPressed: () => ref
-                                      .read(activeQuestionsProvider.notifier)
-                                      .removeQuestion(question),
-                                ),
-                              ],
+                            Text(
+                              'Tüm sorular kaldırıldı. Kendi sorularını ekleyebilirsin.',
+                              style: GoogleFonts.inter(
+                                color: AppPalette.textAshGray,
+                                fontSize: 12,
+                              ),
                             ),
-                            const SizedBox(height: 8),
-                            // Completely borderless, void-like TextField
-                            TextField(
-                              controller: controller,
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              style: const TextStyle(
-                                color: GothicPalette.parchmentLight,
-                                fontSize: 13.5,
-                                height: 1.5,
+                            const SizedBox(height: 10),
+                            OutlinedButton.icon(
+                              onPressed: _showAddQuestionDialog,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppPalette.primaryGold,
+                                side: const BorderSide(
+                                    color: AppPalette.primaryGold, width: 0.8),
                               ),
-                              cursorColor: GothicPalette.goldBright,
-                              decoration: InputDecoration(
-                                hintText: 'Düşüncelerini buraya yaz...',
-                                hintStyle: TextStyle(
-                                  color: GothicPalette.parchmentDim
-                                      .withValues(alpha: 0.5),
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 12.5,
-                                ),
-                                filled: false,
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                              ),
+                              icon: const Icon(Icons.add, size: 16),
+                              label: const Text('SORU EKLE'),
                             ),
                           ],
-                        );
-                      },
-                    ),
-            ),
-            // Bottom Action
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: SizedBox(
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: customQuestions.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final question = customQuestions[index];
+                          final initialAnswer =
+                              todayReflection?.answers[question] ?? '';
+                          final controller =
+                              _getControllerFor(question, initialAnswer);
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: AppPalette.surface,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppPalette.borderSubtle,
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          question,
+                                          style: GoogleFonts.inter(
+                                            color: AppPalette.textBoneWhite,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                        icon: const Icon(
+                                          Icons.close_rounded,
+                                          color: AppPalette.textDim,
+                                          size: 16,
+                                        ),
+                                        onPressed: () => ref
+                                            .read(activeQuestionsProvider
+                                                .notifier)
+                                            .removeQuestion(question),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: controller,
+                                    maxLines: 2,
+                                    style: GoogleFonts.inter(
+                                      color: AppPalette.textBoneWhite,
+                                      fontSize: 12.5,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Cevabını buraya yaz...',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              const SizedBox(height: 10),
+
+              // Action Button
+              SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => _saveAnswersAndOpenChronicle(questions),
+                child: OutlinedButton(
+                  onPressed: () =>
+                      _saveAnswersAndOpenChronicle(customQuestions),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: GothicPalette.goldBright,
+                    foregroundColor: AppPalette.primaryGold,
                     side: const BorderSide(
-                        color: GothicPalette.bronze, width: 0.8),
+                        color: AppPalette.primaryGold, width: 0.9),
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  icon: const Icon(Icons.fireplace_rounded,
-                      size: 18, color: GothicPalette.emberBright),
-                  label: Text(
+                  child: Text(
                     'MÜHÜRLE VE DİNLEN',
                     style: GoogleFonts.cinzel(
                       fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.4,
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
