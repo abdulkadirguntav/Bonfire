@@ -1,87 +1,75 @@
-import 'package:bonfire/domain/models/character_class.dart';
-
+/// Persistent player state for Bonfire Phase 1.
 class User {
   const User({
     required this.id,
-    required this.selectedClass,
     required this.currentHp,
     required this.maxHp,
-    required this.totalEssence,
+    required this.essence,
     required this.currentStreak,
-    this.currentStamina = 100,
+    this.currentStamina = maxStamina,
     this.staminaUpdatedAt,
     this.lastDailyResolutionAt,
-    this.hasDefeatedFirstBoss = false,
   });
 
+  static const int maxStamina = 100;
+  static const int defaultMaxHp = 100;
+
   final String id;
-  final CharacterClass selectedClass;
   final int currentHp;
   final int maxHp;
-  final int totalEssence;
+  final int essence;
+  final int currentStreak;
   final int currentStamina;
   final DateTime? staminaUpdatedAt;
   final DateTime? lastDailyResolutionAt;
-  final int currentStreak;
-  final bool hasDefeatedFirstBoss;
 
   User copyWith({
     String? id,
-    CharacterClass? selectedClass,
     int? currentHp,
     int? maxHp,
-    int? totalEssence,
+    int? essence,
     int? currentStreak,
     int? currentStamina,
     DateTime? staminaUpdatedAt,
     DateTime? lastDailyResolutionAt,
-    bool? hasDefeatedFirstBoss,
   }) {
     return User(
       id: id ?? this.id,
-      selectedClass: selectedClass ?? this.selectedClass,
       currentHp: currentHp ?? this.currentHp,
       maxHp: maxHp ?? this.maxHp,
-      totalEssence: totalEssence ?? this.totalEssence,
+      essence: essence ?? this.essence,
       currentStreak: currentStreak ?? this.currentStreak,
       currentStamina: currentStamina ?? this.currentStamina,
       staminaUpdatedAt: staminaUpdatedAt ?? this.staminaUpdatedAt,
       lastDailyResolutionAt:
           lastDailyResolutionAt ?? this.lastDailyResolutionAt,
-      hasDefeatedFirstBoss: hasDefeatedFirstBoss ?? this.hasDefeatedFirstBoss,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'selectedClass': selectedClass.name,
-      'currentHp': currentHp,
-      'maxHp': maxHp,
-      'totalEssence': totalEssence,
-      'currentStamina': currentStamina,
-      'staminaUpdatedAt': staminaUpdatedAt?.toIso8601String(),
-      'lastDailyResolutionAt': lastDailyResolutionAt?.toIso8601String(),
-      'currentStreak': currentStreak,
-      'hasDefeatedFirstBoss': hasDefeatedFirstBoss,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'currentHp': currentHp,
+        'maxHp': maxHp,
+        'essence': essence,
+        'currentStreak': currentStreak,
+        'currentStamina': currentStamina,
+        'staminaUpdatedAt': staminaUpdatedAt?.toIso8601String(),
+        'lastDailyResolutionAt': lastDailyResolutionAt?.toIso8601String(),
+      };
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String? ?? '',
-      selectedClass:
-          CharacterClass.fromString(json['selectedClass'] as String?),
-      currentHp: json['currentHp'] as int? ?? 0,
-      maxHp: json['maxHp'] as int? ?? 0,
-      totalEssence: json['totalEssence'] as int? ?? 0,
-      currentStamina: json['currentStamina'] as int? ?? 100,
+      currentHp: json['currentHp'] as int? ?? defaultMaxHp,
+      maxHp: json['maxHp'] as int? ?? defaultMaxHp,
+      // `totalEssence` keeps saves from pre-Phase 1 builds readable.
+      essence: json['essence'] as int? ?? json['totalEssence'] as int? ?? 0,
+      currentStreak: json['currentStreak'] as int? ?? 0,
+      currentStamina: json['currentStamina'] as int? ?? maxStamina,
       staminaUpdatedAt:
           DateTime.tryParse(json['staminaUpdatedAt'] as String? ?? ''),
       lastDailyResolutionAt:
           DateTime.tryParse(json['lastDailyResolutionAt'] as String? ?? ''),
-      currentStreak: json['currentStreak'] as int? ?? 0,
-      hasDefeatedFirstBoss: json['hasDefeatedFirstBoss'] as bool? ?? false,
     );
   }
 }

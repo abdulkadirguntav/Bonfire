@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bonfire/data/repositories/user_repository.dart';
-import 'package:bonfire/domain/models/character_class.dart';
 import 'package:bonfire/domain/models/user.dart';
 import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
@@ -25,43 +24,24 @@ class UserController extends Notifier<User?> {
 
   Future<void> _loadUser() async {
     final user = await _repository.loadUser();
-    if (user == null) {
-      state = null;
-      return;
-    }
-
-    final refreshedUser = StaminaService.refreshIfNeeded(user);
-    if (refreshedUser.currentStamina != user.currentStamina ||
-        refreshedUser.staminaUpdatedAt != user.staminaUpdatedAt) {
-      await _repository.saveUser(refreshedUser);
-    }
-    state = refreshedUser;
-  }
-
-  Future<void> selectClass(CharacterClass characterClass) async {
-    final user = User(
-      id: 'user_${DateTime.now().millisecondsSinceEpoch}',
-      selectedClass: characterClass,
-      currentHp: characterClass.baseHp,
-      maxHp: characterClass.baseHp,
-      totalEssence: 0,
-      currentStreak: 0,
-      currentStamina: characterClass.maxStamina,
-      staminaUpdatedAt: DateTime.now(),
-      hasDefeatedFirstBoss: false,
-    );
-
-    await _repository.saveUser(user);
-    state = user;
-  }
-
-  Future<void> markFirstBossDefeated() async {
-    final user = state;
     if (user == null) return;
 
-    final updated = user.copyWith(hasDefeatedFirstBoss: true);
-    await _repository.saveUser(updated);
-    state = updated;
+    final refreshed = StaminaService.refreshIfNeeded(user);
+    if (refreshed != user) await _repository.saveUser(refreshed);
+    state = refreshed;
+  }
+
+  Future<void> beginJourney() async {
+    final now = DateTime.now();
+    await saveUser(User(
+      id: 'user_${now.millisecondsSinceEpoch}',
+      currentHp: User.defaultMaxHp,
+      maxHp: User.defaultMaxHp,
+      essence: 0,
+      currentStreak: 0,
+      currentStamina: User.maxStamina,
+      staminaUpdatedAt: now,
+    ));
   }
 
   Future<void> saveUser(User user) async {
@@ -69,35 +49,28 @@ class UserController extends Notifier<User?> {
     state = user;
   }
 
-  Future<void> triggerDeath() async {
+  /// Replaces an earlier Ash Mark when the player dies before reclaiming it.
+  Future<void> resolveDeathIfNeeded({DateTime? now}) async {
     final user = state;
-    if (user == null || !DeathService.shouldDie(user)) {
-      return;
-    }
+    if (user == null || !DeathService.shouldDie(user)) return;
 
-    final ashMark = DeathService.createAshMark(user);
-    final revived = DeathService.applyDeath(user);
-
-    await _repository.saveUser(revived);
-    state = revived;
-
-    await ref.read(ashMarkControllerProvider.notifier).setAshMark(ashMark);
+    final diedAt = now ?? DateTime.now();
+    await ref
+        .read(ashMarkControllerProvider.notifier)
+        .setAshMark(DeathService.createAshMark(user, createdAt: diedAt));
+    await saveUser(DeathService.applyDeath(user, now: diedAt));
   }
 
-  Future<void> reclaimAshMark() async {
+  Future<void> reclaimAshMarkIfEligible() async {
     final user = state;
     final ashMark = ref.read(ashMarkControllerProvider);
-    if (user == null || ashMark == null) {
+    if (user == null ||
+        ashMark == null ||
+        !DeathService.canReclaim(user, ashMark)) {
       return;
     }
 
-    if (!DeathService.canReclaim(user, ashMark)) {
-      return;
-    }
-
-    final reclaimed = DeathService.reclaim(user, ashMark);
-    await _repository.saveUser(reclaimed);
-    state = reclaimed;
+    await saveUser(DeathService.reclaim(user, ashMark));
     await ref.read(ashMarkControllerProvider.notifier).clearAshMark();
   }
 

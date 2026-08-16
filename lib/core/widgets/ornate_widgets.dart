@@ -124,11 +124,13 @@ class DetailedHpBar extends StatelessWidget {
     required this.value,
     required this.label,
     this.height = 18,
+    this.fillGradient = GothicPalette.emberCore,
   });
 
   final double value;
   final String label;
   final double height;
+  final LinearGradient fillGradient;
 
   @override
   Widget build(BuildContext context) {
@@ -182,8 +184,8 @@ class DetailedHpBar extends StatelessWidget {
                     FractionallySizedBox(
                       widthFactor: clamped,
                       child: Container(
-                        decoration: const BoxDecoration(
-                          gradient: GothicPalette.emberCore,
+                        decoration: BoxDecoration(
+                          gradient: fillGradient,
                         ),
                       ),
                     ),

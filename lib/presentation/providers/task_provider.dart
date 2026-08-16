@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/domain/models/task.dart';
+import 'package:bonfire/domain/services/day_resolution_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
@@ -13,6 +14,14 @@ final taskRepositoryProvider = Provider<TaskRepository>((ref) {
 final tasksProvider =
     NotifierProvider<TaskController, List<Task>>(TaskController.new);
 
+class ExhaustionWarningRequired implements Exception {
+  const ExhaustionWarningRequired();
+
+  @override
+  String toString() =>
+      'Stamina tükendi. Bu görevi kabul etmek için aşırı efor riskini onaylamalısın.';
+}
+
 class TaskController extends Notifier<List<Task>> {
   TaskRepository get _repository => ref.read(taskRepositoryProvider);
 
@@ -23,114 +32,90 @@ class TaskController extends Notifier<List<Task>> {
   }
 
   Future<void> _loadTasks() async {
-    final tasks = await _repository.loadTasks();
-    state = tasks;
+    state = await _repository.loadTasks();
   }
 
-  Future<void> addTask(Task task,
-      {required bool acceptedExhaustionWarning}) async {
+  /// A task accepted at zero stamina carries the 1.5x missed-task penalty.
+  Future<void> addTask(
+    Task task, {
+    bool acceptedExhaustionWarning = false,
+    DateTime? now,
+  }) async {
     final user = ref.read(userControllerProvider);
     if (user == null) {
-      throw StateError('Görev eklemek için bir karakter seçmelisin.');
+      throw StateError('Görev eklemek için önce yolculuğa başlamalısın.');
     }
-    final exhausted = StaminaService.isExhausted(user);
+
+    final exhausted = StaminaService.isExhausted(user, now: now);
     if (exhausted && !acceptedExhaustionWarning) {
-      throw StateError(
-          'Stamina tükendi. Bu yemini eklemek için riski onaylamalısın.');
+      throw const ExhaustionWarningRequired();
     }
-    final tasks = [...state, task.copyWith(acceptedWhileExhausted: exhausted)];
+
+    final tasks = [
+      ...state,
+      task.copyWith(acceptedWhileExhausted: exhausted),
+    ];
     await _repository.saveTasks(tasks);
     state = tasks;
-    if (exhausted) {
-      final updatedUser = user.copyWith(
-        totalEssence: user.totalEssence + task.category.essenceReward,
-      );
-      await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
-    }
   }
 
   Future<void> removeTask(String taskId) async {
-    final user = ref.read(userControllerProvider);
-    Task? removedTask;
-    for (final item in state) {
-      if (item.id == taskId) {
-        removedTask = item;
-        break;
-      }
-    }
     final tasks = state.where((task) => task.id != taskId).toList();
     await _repository.saveTasks(tasks);
     state = tasks;
-
-    if (user != null && removedTask != null) {
-      final task = removedTask;
-      final wasCompleted = task.isCompletedOn(DateTime.now());
-      if (wasCompleted) {
-        final maxStamina = StaminaService.maxStaminaFor(user);
-        final reward = TaskEconomyService.resolveReward(
-          user,
-          isBoss: task.isBoss,
-          baseEssence: task.rewardValue,
-        );
-        final updatedStamina = (user.currentStamina + task.category.staminaCost)
-            .clamp(0, maxStamina)
-            .toInt();
-        final updatedUser = user.copyWith(
-          currentStamina: updatedStamina,
-          totalEssence: (user.totalEssence - reward).clamp(0, 1 << 31).toInt(),
-        );
-        await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
-      }
-    }
   }
 
-  Future<void> toggleComplete(String taskId,
-      {required bool isCompleted, DateTime? date}) async {
+  /// Applies stamina cost and Essence only when the task becomes completed.
+  Future<void> toggleComplete(
+    String taskId, {
+    required bool isCompleted,
+    DateTime? date,
+  }) async {
     final user = ref.read(userControllerProvider);
     if (user == null) return;
-    final now = date ?? DateTime.now();
-    Task? task;
-    for (final item in state) {
-      if (item.id == taskId) {
-        task = item;
-        break;
-      }
+
+    final completionDate = date ?? DateTime.now();
+    final task = state.where((item) => item.id == taskId).firstOrNull;
+    if (task == null || task.isCompletedOn(completionDate) == isCompleted) return;
+
+    final completionKey = Task.dateKey(completionDate);
+    final completedKeys = {...task.completedDateKeys};
+    if (isCompleted) {
+      completedKeys.add(completionKey);
+    } else {
+      completedKeys.remove(completionKey);
     }
-    final previouslyCompleted = task?.isCompletedOn(now) ?? false;
-    if (task == null || previouslyCompleted == isCompleted) return;
+
     final tasks = state
         .map((item) => item.id == taskId
-            ? item.copyWith(
-                completedOn: isCompleted ? now : null,
-                clearCompletedOn: !isCompleted,
-                isCompleted: isCompleted)
+            ? item.copyWith(completedDateKeys: completedKeys)
             : item)
         .toList();
-
     await _repository.saveTasks(tasks);
     state = tasks;
-    final reward = TaskEconomyService.resolveReward(
-      user,
-      isBoss: task.isBoss,
-      baseEssence: task.rewardValue,
-    );
+
+    final reward = TaskEconomyService.rewardFor(task.category);
     final updatedUser = isCompleted
-        ? StaminaService.spendForCompletion(user, task.category, now: now)
-            .copyWith(
-            totalEssence: user.totalEssence + reward,
-          )
-        : user.copyWith(
-            currentStamina: (user.currentStamina + task.category.staminaCost)
-                .clamp(0, StaminaService.maxStaminaFor(user))
-                .toInt(),
-            totalEssence:
-                (user.totalEssence - reward).clamp(0, 1 << 31).toInt(),
+        ? StaminaService.spendForCompletion(user, task.category, now: completionDate)
+            .copyWith(essence: user.essence + reward)
+        : StaminaService.refundCompletion(user, task.category).copyWith(
+            essence: (user.essence - reward).clamp(0, 1 << 31).toInt(),
           );
     await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
   }
 
-  List<Task> tasksForToday() {
-    final now = DateTime.now();
-    return state.where((task) => task.matchesDate(now)).toList();
+  /// Call once at the end of [date]. It is idempotent through
+  /// `lastDailyResolutionAt`, so it is safe to invoke at app start too.
+  Future<void> resolveDay(DateTime date) async {
+    final user = ref.read(userControllerProvider);
+    if (user == null || DayResolutionService.wasResolvedFor(user, date)) return;
+
+    final resolution = DayResolutionService.resolve(user, state, date: date);
+    await ref.read(userControllerProvider.notifier).saveUser(resolution.user);
+    await ref.read(userControllerProvider.notifier).resolveDeathIfNeeded(now: date);
+    await ref.read(userControllerProvider.notifier).reclaimAshMarkIfEligible();
   }
+
+  List<Task> tasksForToday() =>
+      state.where((task) => task.matchesDate(DateTime.now())).toList();
 }

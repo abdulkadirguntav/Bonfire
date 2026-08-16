@@ -66,6 +66,26 @@ class GothicPalette {
     stops: [0.0, 0.3, 0.65, 1.0],
   );
 
+  static const LinearGradient healthCore = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFFF5A5F),
+      Color(0xFFD92532),
+      Color(0xFF8D101C),
+    ],
+  );
+
+  static const LinearGradient staminaCore = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF5EBBFF),
+      Color(0xFF1976D2),
+      Color(0xFF0B3E7A),
+    ],
+  );
+
   static const LinearGradient obsidianPanel = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,

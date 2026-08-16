@@ -19,7 +19,7 @@ class HomeScreen extends ConsumerWidget {
         tasks.where((task) => task.matchesDate(DateTime.now())).toList();
     final hp =
         user == null || user.maxHp == 0 ? 0.0 : user.currentHp / user.maxHp;
-    final maxStamina = user?.selectedClass.maxStamina ?? 0;
+    const maxStamina = User.maxStamina;
     final stamina = user == null || maxStamina == 0
         ? 0.0
         : user.currentStamina / maxStamina;
@@ -27,106 +27,153 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 18),
               Row(children: [
                 const Icon(Icons.local_fire_department_rounded,
-                    color: GothicPalette.emberBright, size: 30),
+                    color: GothicPalette.emberBright, size: 25),
                 const SizedBox(width: 9),
                 Text('BONFIRE',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: GothicPalette.goldBright,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 3)),
+                        letterSpacing: 2.5)),
+                const Spacer(),
+                Text(
+                  'TODAY',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: GothicPalette.parchmentDim,
+                        letterSpacing: 1.6,
+                      ),
+                ),
               ]),
-              const SizedBox(height: 18),
+              const SizedBox(height: 14),
               OrnateFrame(
                 glow: true,
+                radius: 10,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(children: [
-                          Expanded(
-                              child: _Stat(
-                                  label: 'VITALITY',
-                                  value: user == null
-                                      ? '0 / 0'
-                                      : '${user.currentHp} / ${user.maxHp}')),
-                          const SizedBox(width: 16),
-                          _Stat(
-                              label: 'ESSENCE',
-                              value:
-                                  user == null ? '0' : '${user.totalEssence}',
-                              gold: true),
-                        ]),
-                        const SizedBox(height: 14),
-                        DetailedHpBar(
-                            value: hp, label: 'HEALTH  ${(hp * 100).round()}%'),
-                        const SizedBox(height: 14),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
-                              style: const TextStyle(
-                                color: GothicPalette.parchment,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  DetailedHpBar(
+                                    value: hp,
+                                    label:
+                                        'HEALTH  ${user?.currentHp ?? 0} / ${user?.maxHp ?? 0}',
+                                    height: 12,
+                                    fillGradient: GothicPalette.healthCore,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  DetailedHpBar(
+                                    value: stamina,
+                                    label:
+                                        'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
+                                    height: 12,
+                                    fillGradient: GothicPalette.staminaCore,
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: LinearProgressIndicator(
-                                  value: stamina.clamp(0.0, 1.0),
-                                  minHeight: 8,
-                                  backgroundColor: GothicPalette.ironBlack,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                    GothicPalette.goldBright,
-                                  ),
-                                ),
-                              ),
+                            const SizedBox(width: 16),
+                            _Stat(
+                              label: 'ESSENCE',
+                              value: user == null ? '0' : '${user.essence}',
+                              gold: true,
                             ),
                           ],
                         ),
                       ]),
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 20),
               const SectionTitle('Today\'s vows'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Expanded(
-                child: todayTasks.isEmpty
-                    ? const Center(
-                        child: Text('No vows have been sworn today.',
-                            style:
-                                TextStyle(color: GothicPalette.parchmentDim)))
-                    : ListView.separated(
-                        itemCount: todayTasks.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (_, index) =>
-                            _TaskCard(task: todayTasks[index]),
-                      ),
+                child: ListView.separated(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  itemCount: todayTasks.length + 1,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, index) {
+                    if (index == todayTasks.length) {
+                      return _AddTaskRow(
+                        onPressed: () => _showTaskSheet(context),
+                      );
+                    }
+                    return _TaskCard(task: todayTasks[index]);
+                  },
+                ),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (_) => const TaskBottomSheet(),
-        ),
-        child: const Icon(Icons.add),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          if (index != 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Bu bölüm Faz 1 kapsamı dışında.')),
+            );
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_stories_outlined),
+            selectedIcon: Icon(Icons.auto_stories_rounded),
+            label: 'Journal',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront_rounded),
+            label: 'Kiln',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline_rounded),
+            selectedIcon: Icon(Icons.chat_bubble_rounded),
+            label: 'Messages',
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void _showTaskSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const TaskBottomSheet(),
+    );
+  }
+
+}
+
+class _AddTaskRow extends StatelessWidget {
+  const _AddTaskRow({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.add_rounded, size: 19),
+        label: const Text('SWEAR A NEW VOW'),
       ),
     );
   }
@@ -167,10 +214,8 @@ class _TaskCard extends ConsumerWidget {
     final user = ref.watch(userControllerProvider);
     return OrnateFrame(
       radius: 12,
-      borderWidth: task.isBoss ? 1.0 : 0.7,
-      outerGradient: task.isBoss
-          ? GothicPalette.goldFrameGradient
-          : GothicPalette.goldFrameGradientSoft,
+      borderWidth: 0.7,
+      outerGradient: GothicPalette.goldFrameGradientSoft,
       glow: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -184,11 +229,6 @@ class _TaskCard extends ConsumerWidget {
                     await ref
                         .read(tasksProvider.notifier)
                         .toggleComplete(task.id, isCompleted: next);
-                    if (task.isBoss && next) {
-                      await ref
-                          .read(userControllerProvider.notifier)
-                          .markFirstBossDefeated();
-                    }
                   },
           ),
           Expanded(
@@ -198,9 +238,7 @@ class _TaskCard extends ConsumerWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(task.title,
                   style: TextStyle(
-                      color: task.isBoss
-                          ? GothicPalette.goldBright
-                          : GothicPalette.parchmentLight,
+                      color: GothicPalette.parchmentLight,
                       fontWeight: FontWeight.w700,
                       decoration: task.isCompletedOn(DateTime.now())
                           ? TextDecoration.lineThrough
@@ -211,13 +249,11 @@ class _TaskCard extends ConsumerWidget {
                     child: Text(task.description,
                         style: const TextStyle(
                             color: GothicPalette.parchment, fontSize: 12))),
-              if (task.habitTime != null || task.isBoss)
+              if (task.habitTime != null)
                 Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                        task.isBoss
-                            ? '✦ BOSS VOW${task.habitTime == null ? '' : '  •  ${task.habitTime}'}'
-                            : 'TIME  ${task.habitTime}',
+                        'TIME  ${task.habitTime}',
                         style: const TextStyle(
                             color: GothicPalette.emberBright,
                             fontSize: 10,
