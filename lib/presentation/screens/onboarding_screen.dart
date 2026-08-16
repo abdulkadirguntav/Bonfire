@@ -1,175 +1,166 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:bonfire/domain/models/character_class.dart';
+import 'package:bonfire/core/theme/gothic_theme.dart';
+import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
-class OnboardingScreen extends ConsumerStatefulWidget {
+class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  CharacterClass _selectedClass = CharacterClass.warrior;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0D10),
+      backgroundColor: GothicPalette.obsidian,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const Spacer(),
+              const Icon(
+                Icons.local_fire_department_rounded,
+                color: GothicPalette.emberBright,
+                size: 64,
+              ),
               const SizedBox(height: 16),
               Text(
-                'Choose your path',
+                'BONFIRE',
                 style: theme.textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
+                  color: GothicPalette.goldBright,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 4,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
-                'Select the class that defines your first journey through Bonfire.',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFFB2BAC7),
+                'Karanlığın ortasında yanan son kıvılcım.\nKüllerinden doğ, yeminlerini tut ve ateşini canlı tut.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: GothicPalette.parchment,
+                  height: 1.6,
                 ),
               ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: CharacterClass.values.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final characterClass = CharacterClass.values[index];
-                    final isSelected = _selectedClass == characterClass;
-
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFF1E2A2F)
-                            : const Color(0xFF12161A),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFFB89B5B)
-                              : Colors.transparent,
-                          width: 0.8,
-                        ),
+              const SizedBox(height: 32),
+              OrnateFrame(
+                radius: 12,
+                glow: true,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      _RuleRow(
+                        icon: Icons.bolt_rounded,
+                        color: GothicPalette.goldBright,
+                        title: 'Stamina (Dayanıklılık)',
+                        desc: 'Her gün 100 Stamina ile başlarsın. Tamamlanan görevler enerjini tüketir ve Öz kazandırır.',
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(20),
-                        onTap: () =>
-                            setState(() => _selectedClass = characterClass),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFB89B5B),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        characterClass.className
-                                            .substring(0, 1),
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          characterClass.className,
-                                          style: theme.textTheme.titleLarge
-                                              ?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'HP ${characterClass.baseHp} • Essence ${characterClass.essenceMultiplier}x • Damage ${characterClass.damageMultiplier}x',
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                            color: const Color(0xFFB2BAC7),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (isSelected)
-                                    const Icon(
-                                      Icons.check_circle_rounded,
-                                      color: Color(0xFFB89B5B),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                characterClass.description,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFFD7DCE2),
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      SizedBox(height: 12),
+                      _RuleRow(
+                        icon: Icons.warning_amber_rounded,
+                        color: GothicPalette.emberBright,
+                        title: 'Tükenmişlik Riski',
+                        desc: 'Stamina 0 iken görev eklemek risklidir. İhmal edilen görevler 1.5x HP hasarı verir.',
                       ),
-                    );
-                  },
+                      SizedBox(height: 12),
+                      _RuleRow(
+                        icon: Icons.replay_rounded,
+                        color: GothicPalette.bloodBright,
+                        title: 'Ölüm ve Kül İzi',
+                        desc: 'Canın biterse ölürsün. Özlerin sıfırlanır; aynı gün serisine ulaştığında kayıp özlerini geri kazanırsın.',
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () async {
                     await ref
                         .read(userControllerProvider.notifier)
-                        .selectClass(_selectedClass);
+                        .beginJourney();
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFDAA520),
+                    foregroundColor: GothicPalette.goldBright,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                    side: const BorderSide(
+                      color: GothicPalette.brass,
+                      width: 1.0,
                     ),
-                    side:
-                        const BorderSide(color: Color(0xFF6E4A1C), width: 0.8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text(
-                    'Yolculuğa Başla',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    'ATEŞİ YAK / YOLCULUĞA BAŞLA',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                    ),
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RuleRow extends StatelessWidget {
+  const _RuleRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.desc,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String desc;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: const TextStyle(
+                  color: GothicPalette.parchmentLight,
+                  fontSize: 11,
+                  height: 1.4,
                 ),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }

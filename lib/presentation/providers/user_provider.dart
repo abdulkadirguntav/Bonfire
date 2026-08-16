@@ -38,7 +38,7 @@ class UserController extends Notifier<User?> {
       currentHp: User.defaultMaxHp,
       maxHp: User.defaultMaxHp,
       essence: 0,
-      currentStreak: 0,
+      currentStreak: 1,
       currentStamina: User.maxStamina,
       staminaUpdatedAt: now,
     ));

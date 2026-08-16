@@ -13,14 +13,14 @@ class DeathService {
         createdAt: createdAt ?? DateTime.now(),
       );
 
-  /// Starts the new attempt at day zero; the next successful daily resolution
-  /// becomes day one.
+  /// Resets the user after death: HP is restored to max, stamina is refilled,
+  /// essence is zeroed, and streak resets to day 1.
   static User applyDeath(User user, {DateTime? now}) => user.copyWith(
         currentHp: user.maxHp,
         currentStamina: User.maxStamina,
         staminaUpdatedAt: now ?? DateTime.now(),
         essence: 0,
-        currentStreak: 0,
+        currentStreak: 1,
       );
 
   static bool canReclaim(User user, AshMark ashMark) =>
