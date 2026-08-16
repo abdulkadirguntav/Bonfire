@@ -16,11 +16,32 @@ class ItemNotOwnedException implements Exception {
   String toString() => 'Envanterinizde bu eşyadan bulunmuyor.';
 }
 
+class MarketClosedException implements Exception {
+  const MarketClosedException([this.nextDay]);
+  final int? nextDay;
+
+  @override
+  String toString() => nextDay != null
+      ? 'Kadim Fırın Mühürlü: Seyyar tüccar yalnızca belirli günlerde (Gün 5, 10, 15...) açılır. Sonraki pazar: Gün $nextDay'
+      : 'Kadim Fırın Mühürlü: Seyyar tüccar yalnızca belirli günlerde (Gün 5, 10, 15...) açılır.';
+}
+
 class ShopService {
   const ShopService._();
 
-  /// Satın alma işlemi: Essence düşer, envantere eklenir.
-  static User buyItem(User user, ItemType item, {int quantity = 1}) {
+  /// Satın alma işlemi: Pazarın açık olup olmadığı kontrol edilir, Essence düşer, envantere eklenir.
+  static User buyItem(
+    User user,
+    ItemType item, {
+    int quantity = 1,
+    bool bypassMarketOpenCheck = false,
+  }) {
+    if (!bypassMarketOpenCheck &&
+        !ShopItem.isMarketOpenOnStreak(user.currentStreak)) {
+      final nextDay = ShopItem.nextMarketDay(user.currentStreak);
+      throw MarketClosedException(nextDay);
+    }
+
     final totalCost = item.cost * quantity;
     if (user.essence < totalCost) {
       throw const InsufficientEssenceException();

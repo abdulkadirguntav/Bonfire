@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/reflection.dart';
+import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/models/soapstone.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/presentation/providers/ash_mark_provider.dart';
@@ -48,7 +49,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
 
     final currentStreak = user?.currentStreak ?? 1;
 
-    // Check if user is currently standing at an unclaimed milestone (3, 7, 14, 30)
+    // Check if user is currently standing at an unclaimed bonfire milestone (3, 7, 14, 30)
     final eligibleMilestone = bonfireMilestones.where((m) {
       return currentStreak >= m && !(user?.hasClaimedMilestone(m) ?? false);
     }).firstOrNull;
@@ -63,7 +64,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with Back Button (if navigated from Streak badge or Reflection)
+              // Header with Back Button and overflow safety
               Row(
                 children: [
                   if (canPop) ...[
@@ -77,27 +78,31 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                   ],
                   const Icon(
                     Icons.auto_stories_rounded,
                     color: GothicPalette.goldBright,
-                    size: 26,
+                    size: 24,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'THE CHRONICLE',
-                    style: GoogleFonts.cinzel(
-                      color: GothicPalette.goldBright,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.2,
+                  Expanded(
+                    child: Text(
+                      'THE CHRONICLE',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.goldBright,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.0,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: GothicPalette.ironBlack,
                       borderRadius: BorderRadius.circular(20),
@@ -112,14 +117,14 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                         const Icon(
                           Icons.whatshot_rounded,
                           color: GothicPalette.emberBright,
-                          size: 15,
+                          size: 14,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'GÜN $currentStreak',
                           style: GoogleFonts.cinzel(
                             color: GothicPalette.parchmentLight,
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -128,9 +133,9 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
-                'Yolculuk Haritası, Kadim Zemin Notları ve Muhasebe Arşivi',
+                'Yolculuk Haritası, Pazar Günleri ve Arşivler',
                 style: TextStyle(
                   color: GothicPalette.parchmentDim,
                   fontSize: 11,
@@ -146,7 +151,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                   outerGradient: GothicPalette.emberCore,
                   glow: true,
                   child: Padding(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -155,7 +160,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                             const Icon(
                               Icons.local_fire_department_rounded,
                               color: GothicPalette.goldBright,
-                              size: 24,
+                              size: 22,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -163,7 +168,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                                 'BONFIRE BULUNDU! (GÜN $eligibleMilestone)',
                                 style: GoogleFonts.cinzel(
                                   color: GothicPalette.goldBright,
-                                  fontSize: 13,
+                                  fontSize: 12.5,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 1.2,
                                 ),
@@ -205,12 +210,12 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                                   side: const BorderSide(
                                       color: GothicPalette.bloodBright),
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
+                                      const EdgeInsets.symmetric(vertical: 7),
                                 ),
                                 child: const Text(
                                   '+20 MAX HP',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -239,12 +244,12 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                                   side: const BorderSide(
                                       color: Color(0xFF1976D2)),
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
+                                      const EdgeInsets.symmetric(vertical: 7),
                                 ),
                                 child: const Text(
                                   '+15 STAMINA',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -264,7 +269,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                 Container(
                   width: double.infinity,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2A1212),
                     borderRadius: BorderRadius.circular(8),
@@ -276,14 +281,14 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                   child: Row(
                     children: [
                       const Icon(Icons.dangerous_rounded,
-                          color: GothicPalette.bloodBright, size: 18),
+                          color: GothicPalette.bloodBright, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'KÜL İZİ HEDEFİ: Gün ${ashMark.targetStreak} (${ashMark.lostEssence} Kayıp Öz)',
                           style: GoogleFonts.cinzel(
                             color: GothicPalette.parchmentLight,
-                            fontSize: 11,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -294,18 +299,18 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                 const SizedBox(height: 10),
               ],
 
-              // Tabs: [1] Dikey Yolculuk, [2] Soapstone Notları, [3] Muhasebe Cevapları
+              // Tabs: [1] Yolculuk & Pazar Takvimi, [2] Soapstone Notları, [3] Muhasebe Cevapları
               TabBar(
                 controller: _tabController,
                 indicatorColor: GothicPalette.goldBright,
                 labelColor: GothicPalette.goldBright,
                 unselectedLabelColor: GothicPalette.parchmentDim,
                 labelStyle: GoogleFonts.cinzel(
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),
                 unselectedLabelStyle: GoogleFonts.cinzel(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: FontWeight.w600,
                 ),
                 tabs: const [
@@ -314,14 +319,14 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                   Tab(text: 'MUHASEBE'),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // Tab Views
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // Tab 1: Timeline Path
+                    // Tab 1: Timeline Path with Market & Bonfire milestones
                     ListView(
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       children: [
@@ -376,12 +381,12 @@ class _ChroniclePath extends StatelessWidget {
     return Column(
       children: nodes.map((dayNumber) {
         final isMilestone = bonfireMilestones.contains(dayNumber);
+        final isMarketDay = ShopItem.isMarketOpenOnStreak(dayNumber);
         final isCurrentDay = dayNumber == currentStreak;
         final isPast = dayNumber < currentStreak;
         final isAshMarkTarget = targetAshMarkStreak == dayNumber;
         final isClaimed = claimedMilestones.contains(dayNumber);
 
-        // Check if current day or past days have Soapstone or Reflection
         final matchingSoapstone = isCurrentDay && soapstones.isNotEmpty
             ? soapstones.firstOrNull
             : null;
@@ -393,6 +398,7 @@ class _ChroniclePath extends StatelessWidget {
         return _TimelineNode(
           dayNumber: dayNumber,
           isMilestone: isMilestone,
+          isMarketDay: isMarketDay,
           isCurrentDay: isCurrentDay,
           isPast: isPast,
           isAshMarkTarget: isAshMarkTarget,
@@ -410,6 +416,7 @@ class _TimelineNode extends StatelessWidget {
   const _TimelineNode({
     required this.dayNumber,
     required this.isMilestone,
+    required this.isMarketDay,
     required this.isCurrentDay,
     required this.isPast,
     required this.isAshMarkTarget,
@@ -421,6 +428,7 @@ class _TimelineNode extends StatelessWidget {
 
   final int dayNumber;
   final bool isMilestone;
+  final bool isMarketDay;
   final bool isCurrentDay;
   final bool isPast;
   final bool isAshMarkTarget;
@@ -445,6 +453,9 @@ class _TimelineNode extends StatelessWidget {
           ? GothicPalette.goldBright
           : GothicPalette.emberBright;
       nodeIcon = Icons.fireplace_rounded;
+    } else if (isMarketDay) {
+      nodeColor = GothicPalette.gold;
+      nodeIcon = Icons.storefront_rounded;
     } else if (isPast) {
       nodeColor = GothicPalette.bronze;
       nodeIcon = Icons.check_circle_rounded;
@@ -459,12 +470,12 @@ class _TimelineNode extends StatelessWidget {
         children: [
           // Left timeline axis
           SizedBox(
-            width: 44,
+            width: 40,
             child: Column(
               children: [
                 Container(
-                  width: isMilestone || isCurrentDay ? 36 : 28,
-                  height: isMilestone || isCurrentDay ? 36 : 28,
+                  width: isMilestone || isCurrentDay || isMarketDay ? 34 : 26,
+                  height: isMilestone || isCurrentDay || isMarketDay ? 34 : 26,
                   decoration: BoxDecoration(
                     color: isCurrentDay
                         ? GothicPalette.goldBright
@@ -472,13 +483,15 @@ class _TimelineNode extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: nodeColor,
-                      width: isCurrentDay || isMilestone ? 1.5 : 0.8,
+                      width: isCurrentDay || isMilestone || isMarketDay
+                          ? 1.4
+                          : 0.8,
                     ),
-                    boxShadow: (isCurrentDay || isMilestone)
+                    boxShadow: (isCurrentDay || isMilestone || isMarketDay)
                         ? [
                             BoxShadow(
-                              color: nodeColor.withValues(alpha: 0.4),
-                              blurRadius: 10,
+                              color: nodeColor.withValues(alpha: 0.35),
+                              blurRadius: 8,
                             ),
                           ]
                         : null,
@@ -487,7 +500,7 @@ class _TimelineNode extends StatelessWidget {
                     child: Icon(
                       nodeIcon,
                       color: isCurrentDay ? Colors.black : nodeColor,
-                      size: isMilestone || isCurrentDay ? 18 : 14,
+                      size: isMilestone || isCurrentDay || isMarketDay ? 17 : 13,
                     ),
                   ),
                 ),
@@ -503,28 +516,34 @@ class _TimelineNode extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           // Right content card
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                 decoration: BoxDecoration(
                   color: isCurrentDay
                       ? const Color(0xFF1E262C)
                       : isMilestone
                           ? const Color(0xFF1A1713)
-                          : GothicPalette.onyx,
-                  borderRadius: BorderRadius.circular(10),
+                          : isMarketDay
+                              ? const Color(0xFF181C16)
+                              : GothicPalette.onyx,
+                  borderRadius: BorderRadius.circular(9),
                   border: Border.all(
                     color: isCurrentDay
                         ? GothicPalette.goldBright
                         : isMilestone
                             ? GothicPalette.bronze
-                            : GothicPalette.charcoal,
-                    width: isCurrentDay || isMilestone ? 1.0 : 0.6,
+                            : isMarketDay
+                                ? GothicPalette.goldDeep
+                                : GothicPalette.charcoal,
+                    width: isCurrentDay || isMilestone || isMarketDay
+                        ? 0.9
+                        : 0.5,
                   ),
                 ),
                 child: Column(
@@ -538,45 +557,66 @@ class _TimelineNode extends StatelessWidget {
                             color: isCurrentDay
                                 ? GothicPalette.goldBright
                                 : GothicPalette.parchmentLight,
-                            fontSize: 13,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         if (isCurrentDay) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
+                                horizontal: 5, vertical: 1),
                             decoration: BoxDecoration(
                               color: GothicPalette.goldBright,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(3),
                             ),
                             child: const Text(
                               'BUGÜN',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 9,
+                                fontSize: 8.5,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
                           ),
                         ],
                         if (isMilestone) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
+                                horizontal: 5, vertical: 1),
                             decoration: BoxDecoration(
                               color: isClaimed
                                   ? GothicPalette.goldDeep
                                   : GothicPalette.ember,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(3),
                             ),
                             child: Text(
                               isClaimed ? 'KÖRÜKLENDİ' : 'BONFIRE NOKTASI',
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 9,
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (isMarketDay) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF3F321D),
+                              borderRadius: BorderRadius.circular(3),
+                              border: Border.all(
+                                  color: GothicPalette.goldDeep, width: 0.5),
+                            ),
+                            child: const Text(
+                              '🛒 MARKET GÜNÜ',
+                              style: TextStyle(
+                                color: GothicPalette.goldBright,
+                                fontSize: 8.5,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
@@ -594,24 +634,26 @@ class _TimelineNode extends StatelessWidget {
                                   : isPast
                                       ? '🔥 Bonfire keşfedildi.'
                                       : '🕯️ Bonfire Tapınağı: Can fulleme & Kalıcı Stat Geliştirmesi.'
-                              : isCurrentDay
-                                  ? 'Mevcut irade durağındasın. Yeminlerini tamamla.'
-                                  : isPast
-                                      ? 'Yolculukta geçilen aşama.'
-                                      : 'Gelecek irade durağı.',
+                              : isMarketDay
+                                  ? '🛒 Seyyar Tüccar Pazarı: Kadim eşyalar satın alınabilir.'
+                                  : isCurrentDay
+                                      ? 'Mevcut irade durağındasın. Yeminlerini tamamla.'
+                                      : isPast
+                                          ? 'Yolculukta geçilen aşama.'
+                                          : 'Gelecek irade durağı.',
                       style: TextStyle(
                         color: isAshMarkTarget
                             ? GothicPalette.bloodBright
                             : GothicPalette.parchmentDim,
-                        fontSize: 11,
+                        fontSize: 10.5,
                       ),
                     ),
                     // Embedded Soapstone note if present
                     if (soapstone != null) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 5),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                            horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
                           color: GothicPalette.ironBlack,
                           borderRadius: BorderRadius.circular(4),
@@ -621,8 +663,8 @@ class _TimelineNode extends StatelessWidget {
                         child: Row(
                           children: [
                             const Icon(Icons.auto_awesome_rounded,
-                                size: 12, color: GothicPalette.goldBright),
-                            const SizedBox(width: 6),
+                                size: 11, color: GothicPalette.goldBright),
+                            const SizedBox(width: 5),
                             Expanded(
                               child: Text(
                                 'Soapstone: "${soapstone!.message}"',
@@ -630,7 +672,7 @@ class _TimelineNode extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.cinzel(
                                   color: GothicPalette.goldBright,
-                                  fontSize: 10,
+                                  fontSize: 9.5,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -663,13 +705,13 @@ class _SoapstoneArchiveList extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.auto_awesome_outlined,
-                color: GothicPalette.parchmentDim, size: 36),
-            const SizedBox(height: 10),
+                color: GothicPalette.parchmentDim, size: 34),
+            const SizedBox(height: 8),
             Text(
               'Henüz zemine kazınmış bir Soapstone notu yok.',
               style: TextStyle(
                 color: GothicPalette.parchmentDim,
-                fontSize: 12,
+                fontSize: 11.5,
                 fontFamily: GoogleFonts.cinzel().fontFamily,
               ),
             ),
@@ -683,7 +725,8 @@ class _SoapstoneArchiveList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final soap = soapstones[index];
-        final formattedDate = '${soap.date.day}.${soap.date.month}.${soap.date.year}';
+        final formattedDate =
+            '${soap.date.day}.${soap.date.month}.${soap.date.year}';
 
         return OrnateFrame(
           radius: 8,
@@ -695,20 +738,20 @@ class _SoapstoneArchiveList extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(11),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     const Icon(Icons.auto_awesome_rounded,
-                        color: GothicPalette.goldBright, size: 14),
+                        color: GothicPalette.goldBright, size: 13),
                     const SizedBox(width: 6),
                     Text(
                       formattedDate,
                       style: GoogleFonts.cinzel(
                         color: GothicPalette.parchmentDim,
-                        fontSize: 10,
+                        fontSize: 9.5,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -724,12 +767,12 @@ class _SoapstoneArchiveList extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 5),
                 Text(
                   '❝ ${soap.message} ❞',
                   style: GoogleFonts.cinzel(
                     color: GothicPalette.goldBright,
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                     fontStyle: FontStyle.italic,
                   ),
@@ -756,13 +799,13 @@ class _ReflectionsArchiveList extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.nightlight_round_outlined,
-                color: GothicPalette.parchmentDim, size: 36),
-            const SizedBox(height: 10),
+                color: GothicPalette.parchmentDim, size: 34),
+            const SizedBox(height: 8),
             Text(
               'Henüz mühürlenmiş bir Muhasebe günlüğü yok.',
               style: TextStyle(
                 color: GothicPalette.parchmentDim,
-                fontSize: 12,
+                fontSize: 11.5,
                 fontFamily: GoogleFonts.cinzel().fontFamily,
               ),
             ),
@@ -773,14 +816,14 @@ class _ReflectionsArchiveList extends StatelessWidget {
 
     return ListView.separated(
       itemCount: reflections.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final refEntry = reflections[index];
         final formattedDate =
             '${refEntry.date.day}.${refEntry.date.month}.${refEntry.date.year}';
 
         return Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
             color: GothicPalette.onyx,
             borderRadius: BorderRadius.circular(8),
@@ -795,23 +838,23 @@ class _ReflectionsArchiveList extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.local_fire_department_rounded,
-                      color: GothicPalette.emberBright, size: 16),
+                      color: GothicPalette.emberBright, size: 15),
                   const SizedBox(width: 6),
                   Text(
                     'MUHASEBE • $formattedDate',
                     style: GoogleFonts.cinzel(
                       color: GothicPalette.goldBright,
-                      fontSize: 11,
+                      fontSize: 10.5,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.2,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 7),
               ...refEntry.questionsAndAnswers.entries.map((entry) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 7),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -819,17 +862,17 @@ class _ReflectionsArchiveList extends StatelessWidget {
                         entry.key,
                         style: GoogleFonts.cinzel(
                           color: GothicPalette.parchment,
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
                       Text(
                         entry.value,
                         style: const TextStyle(
                           color: GothicPalette.parchmentLight,
-                          fontSize: 12,
-                          height: 1.4,
+                          fontSize: 11.5,
+                          height: 1.35,
                         ),
                       ),
                     ],

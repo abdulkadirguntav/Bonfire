@@ -48,32 +48,36 @@ class AshenRecordScreen extends ConsumerWidget {
       backgroundColor: GothicPalette.obsidian,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header with overflow-safe Expanded title
               Row(
                 children: [
                   const Icon(
                     Icons.account_balance_rounded,
                     color: GothicPalette.goldBright,
-                    size: 26,
+                    size: 24,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'THE ASHEN RECORD',
-                    style: GoogleFonts.cinzel(
-                      color: GothicPalette.goldBright,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.2,
+                  Expanded(
+                    child: Text(
+                      'THE ASHEN RECORD',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.goldBright,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.8,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: GothicPalette.ironBlack,
                       borderRadius: BorderRadius.circular(20),
@@ -88,14 +92,14 @@ class AshenRecordScreen extends ConsumerWidget {
                         const Icon(
                           Icons.whatshot_rounded,
                           color: GothicPalette.goldBright,
-                          size: 15,
+                          size: 14,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         Text(
                           '$essence ÖZ',
                           style: GoogleFonts.cinzel(
                             color: GothicPalette.goldBright,
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -113,9 +117,9 @@ class AshenRecordScreen extends ConsumerWidget {
                   fontFamily: GoogleFonts.cinzel().fontFamily,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
-              // Character Profile Header Card
+              // Character Profile Header Card (Removed confusing extra level badge)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -130,8 +134,8 @@ class AshenRecordScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: GothicPalette.ironBlack,
@@ -144,7 +148,7 @@ class AshenRecordScreen extends ConsumerWidget {
                         child: Icon(
                           Icons.person_rounded,
                           color: GothicPalette.goldBright,
-                          size: 26,
+                          size: 24,
                         ),
                       ),
                     ),
@@ -153,44 +157,20 @@ class AshenRecordScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                user?.selectedClass.className.toUpperCase() ??
-                                    'SAVAŞÇI',
-                                style: GoogleFonts.cinzel(
-                                  color: GothicPalette.goldBright,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: GothicPalette.ironBlack,
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                      color: GothicPalette.goldDeep,
-                                      width: 0.6),
-                                ),
-                                child: Text(
-                                  'SEVİYE ${user?.totalLevel ?? 0}',
-                                  style: GoogleFonts.cinzel(
-                                    color: GothicPalette.goldBright,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            user?.selectedClass.className.toUpperCase() ??
+                                'SAVAŞÇI',
+                            style: GoogleFonts.cinzel(
+                              color: GothicPalette.goldBright,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.5,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             user?.selectedClass.description ?? '',
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: GothicPalette.parchmentDim,
@@ -203,7 +183,7 @@ class AshenRecordScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               // Bonfire Level-Up Status Banner
               if (isAtBonfire)
@@ -229,7 +209,7 @@ class AshenRecordScreen extends ConsumerWidget {
                           '🔥 BONFIRE GÜNÜNDESİN: Nitelik geliştirme (Level Up) mühürleri açıldı!',
                           style: GoogleFonts.cinzel(
                             color: GothicPalette.goldBright,
-                            fontSize: 11,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -268,7 +248,7 @@ class AshenRecordScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               // Scrollable Character Sheet Sections
               Expanded(
@@ -280,7 +260,7 @@ class AshenRecordScreen extends ConsumerWidget {
                     ...AttributeType.values.map((attribute) {
                       final currentLevel = user?.attributeLevel(attribute) ?? 0;
                       final cost = user == null
-                          ? 50
+                          ? 100
                           : AttributeService.getUpgradeCost(user, attribute);
                       final canAfford = isAtBonfire && essence >= cost;
                       final bonusText =
@@ -307,7 +287,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                 ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
+                                horizontal: 12, vertical: 9),
                             child: Row(
                               children: [
                                 Icon(
@@ -315,7 +295,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                   color: canAfford
                                       ? GothicPalette.goldBright
                                       : GothicPalette.parchmentDim,
-                                  size: 20,
+                                  size: 19,
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
@@ -329,14 +309,14 @@ class AshenRecordScreen extends ConsumerWidget {
                                             attribute.nameTr.toUpperCase(),
                                             style: GoogleFonts.cinzel(
                                               color: GothicPalette.goldBright,
-                                              fontSize: 12.5,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w800,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 1),
+                                                horizontal: 5, vertical: 1),
                                             decoration: BoxDecoration(
                                               color: GothicPalette.ironBlack,
                                               borderRadius:
@@ -351,7 +331,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                               style: GoogleFonts.cinzel(
                                                 color:
                                                     GothicPalette.parchmentLight,
-                                                fontSize: 9.5,
+                                                fontSize: 9,
                                                 fontWeight: FontWeight.w800,
                                               ),
                                             ),
@@ -363,13 +343,13 @@ class AshenRecordScreen extends ConsumerWidget {
                                         '${attribute.description} ($bonusText)',
                                         style: const TextStyle(
                                           color: GothicPalette.parchmentDim,
-                                          fontSize: 10.5,
+                                          fontSize: 10,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 8),
                                 // Level Up Action
                                 OutlinedButton(
                                   onPressed: !canAfford
@@ -415,7 +395,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                       width: 0.8,
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 6),
+                                        horizontal: 8, vertical: 5),
                                   ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -424,12 +404,12 @@ class AshenRecordScreen extends ConsumerWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           const Icon(Icons.arrow_upward_rounded,
-                                              size: 13),
+                                              size: 12),
                                           const SizedBox(width: 2),
                                           Text(
                                             'GELİŞTİR',
                                             style: GoogleFonts.cinzel(
-                                              fontSize: 10,
+                                              fontSize: 9.5,
                                               fontWeight: FontWeight.w900,
                                             ),
                                           ),
@@ -441,7 +421,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                           color: canAfford
                                               ? GothicPalette.goldBright
                                               : GothicPalette.parchmentDim,
-                                          fontSize: 9,
+                                          fontSize: 8.5,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -454,7 +434,7 @@ class AshenRecordScreen extends ConsumerWidget {
                         ),
                       );
                     }),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     // Section 2: Lifetime Statistics (Geçmişin Külleri)
                     const SectionTitle('Geçmişin Külleri (İstatistikler)'),
@@ -520,7 +500,7 @@ class AshenRecordScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                   ],
                 ),
               ),
@@ -550,15 +530,15 @@ class _StatRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       child: Row(
         children: [
           Icon(icon,
-              size: 18,
+              size: 17,
               color: isGold
                   ? GothicPalette.goldBright
                   : GothicPalette.parchmentDim),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +549,7 @@ class _StatRow extends StatelessWidget {
                     color: isGold
                         ? GothicPalette.goldBright
                         : GothicPalette.parchmentLight,
-                    fontSize: 12,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -577,7 +557,7 @@ class _StatRow extends StatelessWidget {
                   detail,
                   style: const TextStyle(
                     color: GothicPalette.parchmentDim,
-                    fontSize: 10,
+                    fontSize: 9.5,
                   ),
                 ),
               ],
@@ -589,7 +569,7 @@ class _StatRow extends StatelessWidget {
               color: isGold
                   ? GothicPalette.goldBright
                   : GothicPalette.parchmentLight,
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
             ),
           ),

@@ -65,8 +65,8 @@ void main() {
             .clamp(0, 1 << 31),
       );
 
-      expect(undoneUser.currentStamina, 100); // 80 + 40 -> 100
-      expect(undoneUser.essence, 60); // 100 - 40
+      expect(undoneUser.currentStamina, 100); // 80 + 35 -> 100 capped
+      expect(undoneUser.essence, 92); // 100 - 8
     });
   });
 
@@ -97,9 +97,8 @@ void main() {
       expect(user.maxHp, 80);
       expect(user.currentStamina, 150);
       expect(user.maxStamina, 150);
-
-      // Reward multiplier test: 40 * 1.2 = 48
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 48);
+      // Reward multiplier test: 8 * 1.2 = 9.6 -> 10
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 10);
     });
 
     test('Prisoner has 50 HP, 70 Stamina, 1.5x damage, 1.5x essence', () {
@@ -115,8 +114,8 @@ void main() {
       expect(user.currentStamina, 70);
       expect(user.maxStamina, 70);
 
-      // Reward multiplier test: 40 * 1.5 = 60
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 60);
+      // Reward multiplier test: 8 * 1.5 = 12
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 12);
 
       // Damage penalty test: 10 * 1.5 (class) = 15
       final normalTask = Task(
@@ -143,23 +142,20 @@ void main() {
 
   group('3. Uzun Vadeli Boss (Bağımlılık) Sistemi & Faz Ölçeklendirmesi', () {
     test('Boss phase HP progression: 30 -> 90 -> 180 -> 365', () {
-      expect(Boss.maxHpForPhase(1), 30);
-      expect(Boss.maxHpForPhase(2), 90);
-      expect(Boss.maxHpForPhase(3), 180);
-      expect(Boss.maxHpForPhase(4), 365);
+      final boss = BossService.createBoss(title: 'Sigarayı Bırak');
+      expect(boss.phase, 1);
+      expect(boss.maxHp, 30);
+      expect(boss.currentHp, 30);
     });
 
     test('Direndim (Resisted) gives 0 daily Essence on normal strike', () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak');
-      final user = User.create(
-        id: 'u1',
-        selectedClass: CharacterClass.mage,
-      );
+      final user = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
 
       final result = BossService.resist(boss: boss, user: user);
-      expect(result.boss.currentHp, 29);
       expect(result.didPhaseMutate, isFalse);
-      expect(result.essenceGained, 0); // 0 daily essence as requested
+      expect(result.boss.currentHp, 29); // 30 - 1
+      expect(result.essenceGained, 0);
       expect(result.user.essence, 0);
     });
 
@@ -169,10 +165,8 @@ void main() {
       final today = DateTime.now();
 
       final firstStrike = BossService.resist(boss: boss, user: user, now: today);
-      expect(firstStrike.boss.currentHp, 29);
       expect(firstStrike.boss.wasInteractedOn(today), isTrue);
 
-      // Second strike on the same day must throw BossAlreadyInteractedException
       expect(
         () => BossService.resist(boss: firstStrike.boss, user: user, now: today),
         throwsA(isA<BossAlreadyInteractedException>()),
@@ -206,7 +200,7 @@ void main() {
       expect(result.boss.currentHp, 30); // Capped at maxHp (30)
     });
 
-    test('Phase Mutation 1 -> 2: mutates to 90 days and awards 300 Essence', () {
+    test('Phase Mutation 1 -> 2: mutates to 90 days and awards 150 Essence', () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak')
           .copyWith(currentHp: 1, phase: 1);
       final user = User.create(
@@ -219,11 +213,11 @@ void main() {
       expect(result.boss.phase, 2);
       expect(result.boss.maxHp, 90);
       expect(result.boss.currentHp, 90);
-      expect(result.essenceGained, 300); // 300 * 1.0
-      expect(result.user.essence, 300);
+      expect(result.essenceGained, 150); // 150 * 1.0
+      expect(result.user.essence, 150);
     });
 
-    test('Phase Mutation 2 -> 3: mutates to 180 days and awards 1000 Essence (scaled by Mage 1.2x)', () {
+    test('Phase Mutation 2 -> 3: mutates to 180 days and awards 400 Essence (scaled by Mage 1.2x)', () {
       final boss = Boss(
         id: 'b1',
         title: 'Sigarayı Bırak',
@@ -241,11 +235,11 @@ void main() {
       expect(result.boss.phase, 3);
       expect(result.boss.maxHp, 180);
       expect(result.boss.currentHp, 180);
-      expect(result.essenceGained, 1200); // 1000 * 1.2 = 1200
-      expect(result.user.essence, 1200);
+      expect(result.essenceGained, 480); // 400 * 1.2 = 480
+      expect(result.user.essence, 480);
     });
 
-    test('Phase Mutation 3 -> 4: mutates to 365 days and awards 2500 Essence', () {
+    test('Phase Mutation 3 -> 4: mutates to 365 days and awards 1000 Essence', () {
       final boss = Boss(
         id: 'b1',
         title: 'Sigarayı Bırak',
@@ -263,7 +257,8 @@ void main() {
       expect(result.boss.phase, 4);
       expect(result.boss.maxHp, 365);
       expect(result.boss.currentHp, 365);
-      expect(result.essenceGained, 2500);
+      expect(result.essenceGained, 1000); // Phase 3 completion reward
+      expect(result.user.essence, 1000);
     });
   });
 

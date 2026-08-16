@@ -23,7 +23,7 @@ const Map<TaskCategory, List<String>> _categorySuggestions = {
     'Yabancı Dil Pratiği',
     'Makale / Analiz Oku',
   ],
-  TaskCategory.mindful: [
+  TaskCategory.spiritual: [
     '15 Dk Meditasyon',
     'Günlük Tutma (Journaling)',
     'Derin Nefes Egzersizi',

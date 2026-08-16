@@ -46,12 +46,12 @@ enum AttributeType {
   final String iconName;
 
   /// RPG Exponential Level-up Cost Formula
-  /// Level 0 -> 50 Essence
-  /// Level 1 -> 68 Essence
-  /// Level 2 -> 91 Essence
-  /// Level 3 -> 123 Essence, etc.
+  /// Level 0 -> 100 Essence
+  /// Level 1 -> 145 Essence
+  /// Level 2 -> 210 Essence
+  /// Level 3 -> 305 Essence, etc.
   static int costForLevel(int currentLevel) {
-    if (currentLevel <= 0) return 50;
-    return (50 * pow(1.35, currentLevel)).round();
+    if (currentLevel <= 0) return 100;
+    return (100 * pow(1.45, currentLevel)).round();
   }
 }

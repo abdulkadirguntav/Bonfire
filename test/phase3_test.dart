@@ -9,22 +9,43 @@ import 'package:bonfire/domain/services/shop_service.dart';
 
 void main() {
   group('1. The Kiln (Mağaza) Satın Alma & Envanter Kuralları', () {
-    test('buying items deducts essence and adds to inventory', () {
+    test('buying items deducts essence and adds to inventory when market is open', () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
-      ).copyWith(essence: 100);
+      ).copyWith(
+        currentStreak: 5, // Market open day!
+        essence: 200,
+      );
 
       final updatedUser = ShopService.buyItem(user, ItemType.estusFlask);
-      expect(updatedUser.essence, 50); // 100 - 50 = 50
+      expect(updatedUser.essence, 80); // 200 - 120 = 80
       expect(updatedUser.itemCount(ItemType.estusFlask.id), 1);
     });
 
-    test('buying items throws InsufficientEssenceException when essence is low', () {
+    test('buying items throws MarketClosedException on non-market days', () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
-      ).copyWith(essence: 20);
+      ).copyWith(
+        currentStreak: 2, // Closed
+        essence: 500,
+      );
+
+      expect(
+        () => ShopService.buyItem(user, ItemType.estusFlask),
+        throwsA(isA<MarketClosedException>()),
+      );
+    });
+
+    test('buying items throws InsufficientEssenceException when essence is low on market day', () {
+      final user = User.create(
+        id: 'u1',
+        selectedClass: CharacterClass.warrior,
+      ).copyWith(
+        currentStreak: 5,
+        essence: 20,
+      );
 
       expect(
         () => ShopService.buyItem(user, ItemType.estusFlask),

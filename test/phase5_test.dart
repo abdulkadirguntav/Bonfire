@@ -23,7 +23,7 @@ void main() {
       expect(upgraded.vitalityLevel, 1);
       expect(upgraded.maxHp, 165); // 150 + 15
       expect(upgraded.currentHp, 165);
-      expect(upgraded.essence, 150); // 200 - 50 = 150
+      expect(upgraded.essence, 100); // 200 - 100 = 100
     });
 
     test('Endurance increases maxStamina by +10 per level', () {
@@ -54,9 +54,9 @@ void main() {
       expect(upgraded.strengthLevel, 1);
       expect(upgraded.totalEssenceMultiplier, closeTo(1.05, 0.001));
 
-      // Physical task base reward = 40 Essence -> 40 * 1.05 = 42 Essence
+      // Physical task base reward = 8 Essence -> 8 * 1.05 = 8.4 -> 8 Essence
       final reward = TaskEconomyService.rewardFor(TaskCategory.physical, user: upgraded);
-      expect(reward, 42);
+      expect(reward, 8);
     });
 
     test('Adaptability reduces HP penalty damage by -4% per level', () {
@@ -121,10 +121,10 @@ void main() {
 
   group('3. RPG Essence Bedeli Artışı ve Yetersiz Öz Kontrolü', () {
     test('level up cost scales exponentially with current attribute level', () {
-      expect(AttributeType.costForLevel(0), 50);
-      expect(AttributeType.costForLevel(1), 68);
-      expect(AttributeType.costForLevel(2), 91);
-      expect(AttributeType.costForLevel(3), 123);
+      expect(AttributeType.costForLevel(0), 100);
+      expect(AttributeType.costForLevel(1), 145);
+      expect(AttributeType.costForLevel(2), 210);
+      expect(AttributeType.costForLevel(3), 305);
     });
 
     test('throws InsufficientEssenceException when user cannot afford upgrade', () {
@@ -133,7 +133,7 @@ void main() {
         selectedClass: CharacterClass.warrior,
       ).copyWith(
         currentStreak: 3,
-        essence: 30, // Needs 50
+        essence: 30, // Needs 100
       );
 
       expect(

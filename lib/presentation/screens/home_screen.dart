@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:bonfire/core/constants/daily_quotes.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/task.dart';
@@ -46,23 +45,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.fireplace_outlined),
-            selectedIcon: Icon(Icons.fireplace_rounded),
+            icon: Icon(Icons.local_fire_department_outlined),
+            selectedIcon: Icon(Icons.local_fire_department_rounded),
             label: 'BONFIRE',
           ),
           NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront_rounded),
+            icon: Icon(Icons.token_outlined),
+            selectedIcon: Icon(Icons.token_rounded),
             label: 'THE KILN',
           ),
           NavigationDestination(
-            icon: Icon(Icons.nightlight_round_outlined),
-            selectedIcon: Icon(Icons.nightlight_round),
+            icon: Icon(Icons.auto_stories_outlined),
+            selectedIcon: Icon(Icons.auto_stories_rounded),
             label: 'MUHASEBE',
           ),
           NavigationDestination(
-            icon: Icon(Icons.account_balance_outlined),
-            selectedIcon: Icon(Icons.account_balance_rounded),
+            icon: Icon(Icons.shield_outlined),
+            selectedIcon: Icon(Icons.shield_rounded),
             label: 'KAYIT',
           ),
         ],
@@ -90,8 +89,6 @@ class _DashboardView extends ConsumerWidget {
         ? 0.0
         : user.currentStamina / maxStamina;
 
-    final todayQuote = quoteForDate(today);
-
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -106,31 +103,37 @@ class _DashboardView extends ConsumerWidget {
                   size: 28,
                 ),
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'BONFIRE',
-                      style: GoogleFonts.cinzel(
-                        color: GothicPalette.goldBright,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.5,
-                      ),
-                    ),
-                    if (user != null)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        user.selectedClass.className.toUpperCase(),
-                        style: const TextStyle(
-                          color: GothicPalette.parchmentDim,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.5,
+                        'BONFIRE',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.cinzel(
+                          color: GothicPalette.goldBright,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.5,
                         ),
                       ),
-                  ],
+                      if (user != null)
+                        Text(
+                          user.selectedClass.className.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: GothicPalette.parchmentDim,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 // Streak Button -> Navigates to Chronicle (The Journey, Takvim, Soapstones & Reflections)
                 InkWell(
                   onTap: () {
@@ -277,45 +280,6 @@ class _DashboardView extends ConsumerWidget {
             const SizedBox(height: 10),
             // Soapstone Rune Card (Available from Day 1)
             const SoapstoneRuneCard(),
-            const SizedBox(height: 10),
-            // Daily Philosophical Quote Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: GothicPalette.onyx,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: GothicPalette.charcoal,
-                  width: 0.8,
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '❝',
-                    style: TextStyle(
-                      color: GothicPalette.goldBright,
-                      fontSize: 15,
-                      height: 1,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      todayQuote,
-                      style: const TextStyle(
-                        color: GothicPalette.parchment,
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 12),
             const SectionTitle('Bugünün Yeminleri (Vows)'),
             const SizedBox(height: 8),

@@ -46,6 +46,10 @@ class ShopScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userControllerProvider);
+    final currentStreak = user?.currentStreak ?? 1;
+    final isMarketOpen = ShopItem.isMarketOpenOnStreak(currentStreak);
+    final nextMarketDay = ShopItem.nextMarketDay(currentStreak);
+    final daysLeft = nextMarketDay - currentStreak;
     final catalog = ShopItem.defaultKilnCatalog;
 
     return Scaffold(
@@ -56,28 +60,32 @@ class ShopScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header with overflow-safe title
               Row(
                 children: [
                   const Icon(
                     Icons.fireplace_rounded,
                     color: GothicPalette.emberBright,
-                    size: 28,
+                    size: 26,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'THE KILN',
-                    style: GoogleFonts.cinzel(
-                      color: GothicPalette.goldBright,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 3,
+                  Expanded(
+                    child: Text(
+                      'THE KILN',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.goldBright,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.5,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: GothicPalette.ironBlack,
                       borderRadius: BorderRadius.circular(20),
@@ -92,14 +100,14 @@ class ShopScreen extends ConsumerWidget {
                         const Icon(
                           Icons.whatshot_rounded,
                           color: GothicPalette.goldBright,
-                          size: 15,
+                          size: 14,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         Text(
                           '${user?.essence ?? 0} ÖZ',
                           style: GoogleFonts.cinzel(
                             color: GothicPalette.goldBright,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -110,14 +118,79 @@ class ShopScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Kadim Eşyalar ve Kutsal Emanetler',
+                'Kadim Eşyalar ve Seyyar Tüccar Pazarı',
                 style: TextStyle(
                   color: GothicPalette.parchmentDim,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontFamily: GoogleFonts.cinzel().fontFamily,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
+
+              // Market Open/Closed Status Banner
+              if (isMarketOpen)
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2012),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: GothicPalette.goldBright,
+                      width: 0.9,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.storefront_rounded,
+                          color: GothicPalette.goldBright, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '🔥 PAZAR AÇIK (GÜN $currentStreak): Seyyar tüccar kamp kurdu. Eşya satın alabilirsin.',
+                          style: GoogleFonts.cinzel(
+                            color: GothicPalette.goldBright,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: GothicPalette.ironBlack,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: GothicPalette.charcoal,
+                      width: 0.7,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock_outline_rounded,
+                          color: GothicPalette.parchmentDim, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Mühürlü: Market her 5 günde bir (Gün 5, 10, 15, 20, 25, 30...) açılır. Sonraki pazar: Gün $nextMarketDay ($daysLeft gün kaldı).',
+                          style: TextStyle(
+                            color: GothicPalette.parchmentDim,
+                            fontSize: 10.5,
+                            fontFamily: GoogleFonts.cinzel().fontFamily,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 10),
 
               // Active status indicators (Purging stones & Stasis)
               if (user != null &&
@@ -176,32 +249,33 @@ class ShopScreen extends ConsumerWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
 
               // Catalog List
               Expanded(
                 child: ListView.separated(
                   itemCount: catalog.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final item = catalog[index];
                     final ownedCount = user?.itemCount(item.id) ?? 0;
                     final itemColor = _colorForItem(item.type);
-                    final canAfford = (user?.essence ?? 0) >= item.cost;
+                    final canAfford =
+                        isMarketOpen && (user?.essence ?? 0) >= item.cost;
 
                     return OrnateFrame(
                       radius: 12,
                       outerGradient: LinearGradient(
                         colors: [
-                          itemColor.withValues(alpha: 0.3),
+                          itemColor.withValues(alpha: 0.25),
                           GothicPalette.charcoal,
                           GothicPalette.ironBlack,
                         ],
                       ),
                       glow: true,
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -209,8 +283,8 @@ class ShopScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  width: 44,
-                                  height: 44,
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
                                     color: GothicPalette.ironBlack,
                                     shape: BoxShape.circle,
@@ -228,10 +302,10 @@ class ShopScreen extends ConsumerWidget {
                                   child: Icon(
                                     _iconForName(item.iconName),
                                     color: itemColor,
-                                    size: 22,
+                                    size: 20,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -245,7 +319,7 @@ class ShopScreen extends ConsumerWidget {
                                             item.name.toUpperCase(),
                                             style: GoogleFonts.cinzel(
                                               color: GothicPalette.goldBright,
-                                              fontSize: 14,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w900,
                                               letterSpacing: 1.1,
                                             ),
@@ -254,7 +328,7 @@ class ShopScreen extends ConsumerWidget {
                                             Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 8,
+                                                      horizontal: 7,
                                                       vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: GothicPalette.ironBlack,
@@ -270,7 +344,7 @@ class ShopScreen extends ConsumerWidget {
                                                 style: const TextStyle(
                                                   color:
                                                       GothicPalette.parchment,
-                                                  fontSize: 10,
+                                                  fontSize: 9.5,
                                                   fontWeight: FontWeight.w700,
                                                 ),
                                               ),
@@ -282,7 +356,7 @@ class ShopScreen extends ConsumerWidget {
                                         item.nameTr,
                                         style: const TextStyle(
                                           color: GothicPalette.parchmentDim,
-                                          fontSize: 11,
+                                          fontSize: 10.5,
                                           fontStyle: FontStyle.italic,
                                         ),
                                       ),
@@ -291,16 +365,16 @@ class ShopScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             Text(
                               item.description,
                               style: const TextStyle(
                                 color: GothicPalette.parchmentLight,
-                                fontSize: 12,
-                                height: 1.4,
+                                fontSize: 11.5,
+                                height: 1.35,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             Row(
                               children: [
                                 Text(
@@ -309,7 +383,7 @@ class ShopScreen extends ConsumerWidget {
                                     color: canAfford
                                         ? GothicPalette.goldBright
                                         : GothicPalette.parchmentDim,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
@@ -348,12 +422,12 @@ class ShopScreen extends ConsumerWidget {
                                       foregroundColor: itemColor,
                                       side: BorderSide(color: itemColor),
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 8),
+                                          horizontal: 12, vertical: 6),
                                     ),
                                     child: const Text(
                                       'KULLAN',
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 10.5,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
@@ -381,6 +455,15 @@ class ShopScreen extends ConsumerWidget {
                                                 ),
                                               );
                                             }
+                                          } on MarketClosedException catch (e) {
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content:
+                                                        Text(e.toString())),
+                                              );
+                                            }
                                           } on InsufficientEssenceException {
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
@@ -395,15 +478,22 @@ class ShopScreen extends ConsumerWidget {
                                         },
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: GothicPalette.goldBright,
-                                    side: const BorderSide(
-                                        color: GothicPalette.brass),
+                                    disabledForegroundColor:
+                                        GothicPalette.parchmentDim,
+                                    side: BorderSide(
+                                      color: canAfford
+                                          ? GothicPalette.goldBright
+                                          : GothicPalette.charcoal,
+                                    ),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 8),
+                                        horizontal: 12, vertical: 6),
                                   ),
-                                  child: const Text(
-                                    'SATIN AL',
-                                    style: TextStyle(
-                                      fontSize: 11,
+                                  child: Text(
+                                    !isMarketOpen
+                                        ? 'KAPALI'
+                                        : 'SATIN AL',
+                                    style: const TextStyle(
+                                      fontSize: 10.5,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),

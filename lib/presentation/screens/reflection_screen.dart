@@ -158,16 +158,20 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen>
                     size: 24,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    'STOIC REFLECTION',
-                    style: GoogleFonts.cinzel(
-                      color: GothicPalette.goldBright,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.2,
+                  Expanded(
+                    child: Text(
+                      'STOIC REFLECTION',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cinzel(
+                        color: GothicPalette.goldBright,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.2,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   IconButton(
                     onPressed: _showAddQuestionDialog,
                     icon: const Icon(Icons.add_circle_outline_rounded,

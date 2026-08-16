@@ -37,14 +37,14 @@ class Boss {
   static int rewardForPhaseCompletion(int completedPhase) {
     switch (completedPhase) {
       case 1:
-        return 300;
+        return 150;
       case 2:
-        return 1000;
+        return 400;
       case 3:
-        return 2500;
+        return 1000;
       case 4:
       default:
-        return 5000;
+        return 2500;
     }
   }
 

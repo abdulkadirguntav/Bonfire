@@ -11,11 +11,11 @@ void main() {
       final warrior = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
       final mage = User.create(id: 'u2', selectedClass: CharacterClass.mage);
 
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: warrior), 40); // 40 * 1.0
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: mage), 48); // 40 * 1.2
-      expect(TaskEconomyService.rewardFor(TaskCategory.mental, user: mage), 36); // 30 * 1.2
-      expect(TaskEconomyService.rewardFor(TaskCategory.mindful, user: mage), 18); // 15 * 1.2
-      expect(TaskEconomyService.rewardFor(TaskCategory.routine, user: mage), 12); // 10 * 1.2
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: warrior), 8); // 8 * 1.0
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: mage), 10); // 8 * 1.2 = 9.6 -> 10
+      expect(TaskEconomyService.rewardFor(TaskCategory.mental, user: mage), 10); // 8 * 1.2 = 9.6 -> 10
+      expect(TaskEconomyService.rewardFor(TaskCategory.spiritual, user: mage), 6); // 5 * 1.2 = 6
+      expect(TaskEconomyService.rewardFor(TaskCategory.routine, user: mage), 4); // 3 * 1.2 = 3.6 -> 4
     });
 
     test('penalties calculate 1.5x damage when accepted while exhausted with class multiplier', () {

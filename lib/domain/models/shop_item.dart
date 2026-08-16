@@ -1,88 +1,129 @@
-/// Eşya Tipleri ve The Kiln (Mağaza) kataloğu.
 enum ItemType {
   estusFlask(
     id: 'estus_flask',
+    cost: 120,
     name: 'Estus Flask',
     nameTr: 'Can Şişesi',
-    cost: 50,
+    description:
+        'Közün sıcaklığını taşır. Kullanıldığında anında +40 Can (HP) yeniler.',
     iconName: 'local_drink',
-    description: 'Yaralarını sarar ve 40 HP yeniler (Maksimum canı aşamaz).',
   ),
   ashenEstus(
     id: 'ashen_estus',
+    cost: 90,
     name: 'Ashen Estus',
     nameTr: 'Kül Şişesi',
-    cost: 40,
+    description:
+        'Sönmüş küllerin enerjisini taşır. Günlük Stamina havuzunu tamamen doldurur.',
     iconName: 'electric_bolt',
-    description: 'Tükenen iradeni ve günlük Stamina\'nı tamamen doldurur.',
   ),
   purgingStone(
     id: 'purging_stone',
+    cost: 180,
     name: 'Purging Stone',
     nameTr: 'Arınma Taşı',
-    cost: 70,
-    iconName: 'shield',
     description:
-        'Kullanıldığında o gün ihmal edilen 1 görevin gün sonu HP cezasını engeller.',
+        'Lanetleri ve ihmalleri temizler. O gün ihmal edilen 1 görevin gün sonu HP cezasını engeller.',
+    iconName: 'shield',
   ),
   ringOfSacrifice(
     id: 'ring_of_sacrifice',
+    cost: 450,
     name: 'Ring of Sacrifice',
     nameTr: 'Fedakarlık Yüzüğü',
-    cost: 150,
-    iconName: 'fingerprint',
     description:
-        'Envanterdeyken ölüm halinde Gün Serisi sıfırlanır ancak elindeki tüm Öz\'ler korunur (Ash Mark oluşmaz). Dirilirken yok olur.',
+        'Ölüm anında parçalanır. Canın sıfırlandığında Gün Serisi sıfırlanır ancak elindeki tüm Öz\'ler korunur (Ash Mark oluşmaz).',
+    iconName: 'fingerprint',
   ),
   scrollOfStasis(
     id: 'scroll_of_stasis',
+    cost: 800,
     name: 'Scroll of Stasis',
     nameTr: 'Zaman Tomarı',
-    cost: 300,
-    iconName: 'hourglass_full',
     description:
-        'Mevcut günü dondurur. O gün görev yapılmasa bile HP düşmez, seri bozulmaz (Tatil / Hastalık modu).',
+        'Mevcut günü dondurur. O gün hiçbir görev yapılmasa dahi can düşmez ve gün serisi korunur (Tatil/Hastalık modu).',
+    iconName: 'hourglass_full',
   );
 
   const ItemType({
     required this.id,
+    required this.cost,
     required this.name,
     required this.nameTr,
-    required this.cost,
-    required this.iconName,
     required this.description,
+    required this.iconName,
   });
 
   final String id;
+  final int cost;
   final String name;
   final String nameTr;
-  final int cost;
-  final String iconName;
   final String description;
+  final String iconName;
 
-  static ItemType fromId(String id) => ItemType.values.firstWhere(
-        (item) => item.id == id,
-        orElse: () => ItemType.estusFlask,
-      );
+  static ItemType fromString(String? value) {
+    return ItemType.values.firstWhere(
+      (type) => type.name == value || type.id == value,
+      orElse: () => ItemType.estusFlask,
+    );
+  }
 }
 
+/// Market (The Kiln / Seyyar Tüccar) schedule and catalog
 class ShopItem {
   const ShopItem({
     required this.type,
-    required this.stock,
+    required this.cost,
+    required this.name,
+    required this.nameTr,
+    required this.description,
+    required this.iconName,
   });
 
   final ItemType type;
-  final int stock;
+  final int cost;
+  final String name;
+  final String nameTr;
+  final String description;
+  final String iconName;
 
   String get id => type.id;
-  String get name => type.name;
-  String get nameTr => type.nameTr;
-  int get cost => type.cost;
-  String get description => type.description;
-  String get iconName => type.iconName;
+
+  /// Market is open every 5th streak day (5, 10, 15, 20, 25, 30, 45, 60, 90...)
+  static const List<int> marketMilestones = [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    45,
+    60,
+    90
+  ];
+
+  static bool isMarketOpenOnStreak(int streak) {
+    return marketMilestones.contains(streak) || (streak > 0 && streak % 5 == 0);
+  }
+
+  static int nextMarketDay(int currentStreak) {
+    if (isMarketOpenOnStreak(currentStreak)) return currentStreak;
+    for (int day = currentStreak + 1; day <= currentStreak + 10; day++) {
+      if (isMarketOpenOnStreak(day)) return day;
+    }
+    return ((currentStreak ~/ 5) + 1) * 5;
+  }
 
   static List<ShopItem> get defaultKilnCatalog => ItemType.values
-      .map((type) => ShopItem(type: type, stock: -1)) // -1 = Unlimited in kiln
+      .map(
+        (type) => ShopItem(
+          type: type,
+          cost: type.cost,
+          name: type.name,
+          nameTr: type.nameTr,
+          description: type.description,
+          iconName: type.iconName,
+        ),
+      )
       .toList();
 }

@@ -32,17 +32,17 @@ void main() {
 
   group('2. Stamina ve Kategori Sistemi', () {
     test('categories have exact Phase 1 stamina costs and essence rewards', () {
-      expect(TaskCategory.physical.staminaCost, 40);
-      expect(TaskCategory.physical.essenceReward, 40);
+      expect(TaskCategory.routine.staminaCost, 10);
+      expect(TaskCategory.routine.essenceReward, 3);
+
+      expect(TaskCategory.physical.staminaCost, 35);
+      expect(TaskCategory.physical.essenceReward, 8);
 
       expect(TaskCategory.mental.staminaCost, 30);
-      expect(TaskCategory.mental.essenceReward, 30);
+      expect(TaskCategory.mental.essenceReward, 8);
 
-      expect(TaskCategory.mindful.staminaCost, 15);
-      expect(TaskCategory.mindful.essenceReward, 15);
-
-      expect(TaskCategory.routine.staminaCost, 10);
-      expect(TaskCategory.routine.essenceReward, 10);
+      expect(TaskCategory.spiritual.staminaCost, 20);
+      expect(TaskCategory.spiritual.essenceReward, 5);
     });
 
     test('completing a task spends stamina and rewards essence', () {
@@ -59,8 +59,8 @@ void main() {
             TaskEconomyService.rewardFor(TaskCategory.physical, user: initialUser),
       );
 
-      expect(userAfterPhysical.currentStamina, 60); // 100 - 40
-      expect(userAfterPhysical.essence, 40); // 0 + 40
+      expect(userAfterPhysical.currentStamina, 65); // 100 - 35
+      expect(userAfterPhysical.essence, 8); // 0 + 8
     });
 
     test('stamina clamps at 0 and does not go negative', () {
