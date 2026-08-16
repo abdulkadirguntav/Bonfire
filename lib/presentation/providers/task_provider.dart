@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
+import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
@@ -66,12 +67,17 @@ class TaskController extends Notifier<List<Task>> {
       final wasCompleted = task.isCompletedOn(DateTime.now());
       if (wasCompleted) {
         final maxStamina = StaminaService.maxStaminaFor(user);
-        final updatedStamina =
-            (user.currentStamina + task.category.staminaCost)
-                .clamp(0, maxStamina)
-                .toInt();
+        final reward = TaskEconomyService.resolveReward(
+          user,
+          isBoss: task.isBoss,
+          baseEssence: task.rewardValue,
+        );
+        final updatedStamina = (user.currentStamina + task.category.staminaCost)
+            .clamp(0, maxStamina)
+            .toInt();
         final updatedUser = user.copyWith(
           currentStamina: updatedStamina,
+          totalEssence: (user.totalEssence - reward).clamp(0, 1 << 31).toInt(),
         );
         await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
       }
@@ -96,25 +102,29 @@ class TaskController extends Notifier<List<Task>> {
         .map((item) => item.id == taskId
             ? item.copyWith(
                 completedOn: isCompleted ? now : null,
-                clearCompletedOn: !isCompleted)
+                clearCompletedOn: !isCompleted,
+                isCompleted: isCompleted)
             : item)
         .toList();
 
     await _repository.saveTasks(tasks);
     state = tasks;
+    final reward = TaskEconomyService.resolveReward(
+      user,
+      isBoss: task.isBoss,
+      baseEssence: task.rewardValue,
+    );
     final updatedUser = isCompleted
         ? StaminaService.spendForCompletion(user, task.category, now: now)
             .copyWith(
-            totalEssence: user.totalEssence + task.category.essenceReward,
+            totalEssence: user.totalEssence + reward,
           )
         : user.copyWith(
-            currentStamina:
-                (user.currentStamina + task.category.staminaCost)
-                    .clamp(0, StaminaService.maxStaminaFor(user))
-                    .toInt(),
-            totalEssence: (user.totalEssence - task.category.essenceReward)
-                .clamp(0, 1 << 31)
+            currentStamina: (user.currentStamina + task.category.staminaCost)
+                .clamp(0, StaminaService.maxStaminaFor(user))
                 .toInt(),
+            totalEssence:
+                (user.totalEssence - reward).clamp(0, 1 << 31).toInt(),
           );
     await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
   }

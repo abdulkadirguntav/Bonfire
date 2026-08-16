@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bonfire/core/theme/gothic_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/task.dart';
-import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/task_provider.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 import 'package:bonfire/presentation/widgets/task_bottom_sheet.dart';
@@ -144,16 +143,11 @@ class _TaskCard extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Checkbox(
-            value: task.isCompleted,
+            value: task.isCompletedOn(DateTime.now()),
             onChanged: user == null
                 ? null
                 : (value) async {
-                    final currentUser = user;
                     final next = value ?? false;
-                    final delta = TaskEconomyService.calculateCompletionDelta(
-                        currentUser, task,
-                        isCompleted: next);
-                    if (delta == 0) return;
                     await ref
                         .read(tasksProvider.notifier)
                         .toggleComplete(task.id, isCompleted: next);
@@ -162,9 +156,6 @@ class _TaskCard extends ConsumerWidget {
                           .read(userControllerProvider.notifier)
                           .markFirstBossDefeated();
                     }
-                    await ref.read(userControllerProvider.notifier).saveUser(
-                        currentUser.copyWith(
-                            totalEssence: currentUser.totalEssence + delta));
                   },
           ),
           Expanded(
