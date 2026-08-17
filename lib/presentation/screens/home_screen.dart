@@ -416,7 +416,9 @@ class _DashboardView extends ConsumerWidget {
               controller: titleController,
               style: GoogleFonts.inter(color: AppPalette.textBoneWhite),
               decoration: InputDecoration(
-                hintText: l10n.isTurkish ? 'Boss / Bağımlılık Adı' : 'Boss / Habit Name',
+                hintText: l10n.isTurkish
+                    ? 'Boss / Bağımlılık Adı'
+                    : 'Boss / Habit Name',
               ),
             ),
           ],
@@ -550,7 +552,9 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                 ),
                 child: Text(
                   boss.phase > 1
-                      ? (l10n.isTurkish ? 'FAZ ${boss.phase}' : 'PHASE ${boss.phase}')
+                      ? (l10n.isTurkish
+                          ? 'FAZ ${boss.phase}'
+                          : 'PHASE ${boss.phase}')
                       : (l10n.isTurkish ? 'FAZ 1' : 'PHASE 1'),
                   style: GoogleFonts.inter(
                     color: AppPalette.bloodBright,
@@ -571,23 +575,26 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                     builder: (ctx) => AlertDialog(
                       backgroundColor: AppPalette.surface,
                       title: Text(
-                        l10n.isTurkish ? 'Boss Mücadelesini Bırak?' : 'Abandon Boss Battle?',
-                        style: GoogleFonts.cinzel(
-                            color: AppPalette.primaryGold),
+                        l10n.isTurkish
+                            ? 'Boss Mücadelesini Bırak?'
+                            : 'Abandon Boss Battle?',
+                        style:
+                            GoogleFonts.cinzel(color: AppPalette.primaryGold),
                       ),
                       content: Text(
                         l10n.isTurkish
                             ? 'Bu boss mücadelesini terk etmek istediğine emin misin?'
                             : 'Are you sure you wish to abandon this battle?',
-                        style: GoogleFonts.inter(
-                            color: AppPalette.textBoneWhite),
+                        style:
+                            GoogleFonts.inter(color: AppPalette.textBoneWhite),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, false),
                           child: Text(
                             l10n.cancel,
-                            style: GoogleFonts.inter(color: AppPalette.textAshGray),
+                            style: GoogleFonts.inter(
+                                color: AppPalette.textAshGray),
                           ),
                         ),
                         TextButton(
@@ -613,7 +620,8 @@ class _BossBattleMinimalCard extends ConsumerWidget {
           const SizedBox(height: 8),
           DetailedHpBar(
             value: hpRatio,
-            label: '${l10n.bossHp}  ${boss.currentHp} / ${boss.maxHp} ${l10n.streakDay}',
+            label:
+                '${l10n.bossHp}  ${boss.currentHp} / ${boss.maxHp} ${l10n.streakDay}',
             activeColor: AppPalette.bloodCrimson,
           ),
           const SizedBox(height: 10),
@@ -1006,4 +1014,3 @@ class _MinimalTaskRow extends ConsumerWidget {
     );
   }
 }
-
