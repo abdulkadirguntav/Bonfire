@@ -17,6 +17,18 @@ class NotificationService {
     try {
       tz.initializeTimeZones();
 
+      // Ensure local timezone is correctly mapped from device offset
+      try {
+        final localOffset = DateTime.now().timeZoneOffset;
+        final matchingLoc = tz.timeZoneDatabase.locations.values.firstWhere(
+          (loc) => loc.currentTimeZone.offset == localOffset,
+          orElse: () => tz.getLocation('UTC'),
+        );
+        tz.setLocalLocation(matchingLoc);
+      } catch (_) {
+        // Fallback to UTC if timezone lookup fails
+      }
+
       const androidSettings =
           AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings(
@@ -39,7 +51,18 @@ class NotificationService {
               AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidImplementation != null) {
+        // Create high priority notification channel
+        const channel = AndroidNotificationChannel(
+          'bonfire_habits_channel',
+          'Bonfire Yemin Bildirimleri',
+          description: 'Günlük yemin ve alışkanlık hatırlatıcıları',
+          importance: Importance.high,
+          playSound: true,
+          enableVibration: true,
+        );
+        await androidImplementation.createNotificationChannel(channel);
         await androidImplementation.requestNotificationsPermission();
+        await androidImplementation.requestExactAlarmsPermission();
       }
 
       _isInitialized = true;
@@ -76,22 +99,24 @@ class NotificationService {
       await init();
     }
 
+    final scheduledTime = _nextInstanceOfTime(hour, minute);
+
+    const androidDetails = AndroidNotificationDetails(
+      'bonfire_habits_channel',
+      'Bonfire Yemin Bildirimleri',
+      channelDescription: 'Günlük yemin ve alışkanlık hatırlatıcıları',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(sound: 'default'),
+    );
+
     try {
-      final scheduledTime = _nextInstanceOfTime(hour, minute);
-
-      const androidDetails = AndroidNotificationDetails(
-        'bonfire_habits_channel',
-        'Bonfire Yemin Bildirimleri',
-        channelDescription: 'Günlük yemin ve alışkanlık hatırlatıcıları',
-        importance: Importance.high,
-        priority: Priority.high,
-      );
-
-      const notificationDetails = NotificationDetails(
-        android: androidDetails,
-        iOS: DarwinNotificationDetails(sound: 'default'),
-      );
-
       await _notificationsPlugin.zonedSchedule(
         id: id,
         title: '🔥 BONFIRE: $taskTitle',
@@ -102,7 +127,19 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time,
       );
     } catch (_) {
-      // Notification scheduling fails gracefully without interrupting task creation
+      try {
+        // Fallback for devices restricting exact alarms
+        await _notificationsPlugin.zonedSchedule(
+          id: id,
+          title: '🔥 BONFIRE: $taskTitle',
+          body:
+              'Vakit geldi kül doğuran. Bu yemini tamamla ve ateşini canlı tut!',
+          scheduledDate: scheduledTime,
+          notificationDetails: notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      } catch (_) {}
     }
   }
 

@@ -4,7 +4,6 @@ import 'package:bonfire/core/services/notification_service.dart';
 import 'package:bonfire/data/repositories/task_repository.dart';
 import 'package:bonfire/domain/models/task.dart';
 import 'package:bonfire/domain/services/day_resolution_service.dart';
-import 'package:bonfire/domain/services/death_service.dart';
 import 'package:bonfire/domain/services/stamina_service.dart';
 import 'package:bonfire/domain/services/task_economy_service.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
@@ -35,7 +34,28 @@ class TaskController extends Notifier<List<Task>> {
 
   Future<void> _loadTasks() async {
     state = await _repository.loadTasks();
+    await _rescheduleNotifications();
     await checkAndResolvePastDays();
+  }
+
+  Future<void> _rescheduleNotifications() async {
+    for (final task in state) {
+      if (task.habitTime != null && task.habitTime!.contains(':')) {
+        final parts = task.habitTime!.split(':');
+        if (parts.length == 2) {
+          final hour = int.tryParse(parts[0]);
+          final minute = int.tryParse(parts[1]);
+          if (hour != null && minute != null) {
+            await NotificationService.instance.scheduleHabitNotification(
+              id: task.id.hashCode & 0x7FFFFFFF,
+              taskTitle: task.title,
+              hour: hour,
+              minute: minute,
+            );
+          }
+        }
+      }
+    }
   }
 
   /// Automatically catches up on all past un-resolved days on load.
@@ -52,11 +72,6 @@ class TaskController extends Notifier<List<Task>> {
 
     if (updatedUser != user) {
       await ref.read(userControllerProvider.notifier).saveUser(updatedUser);
-      if (DeathService.shouldDie(updatedUser)) {
-        await ref
-            .read(userControllerProvider.notifier)
-            .resolveDeathIfNeeded(now: today);
-      }
       await ref
           .read(userControllerProvider.notifier)
           .reclaimAshMarkIfEligible();

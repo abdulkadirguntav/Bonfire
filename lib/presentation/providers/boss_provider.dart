@@ -79,9 +79,6 @@ class BossController extends Notifier<Boss?> {
 
       await setBoss(result.boss);
       await ref.read(userControllerProvider.notifier).saveUser(result.user);
-      await ref
-          .read(userControllerProvider.notifier)
-          .resolveDeathIfNeeded(now: now);
       return result;
     } on BossAlreadyInteractedException {
       return null;

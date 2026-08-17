@@ -25,17 +25,17 @@ class BonfireLogo extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(size * 0.22),
         boxShadow: [
           BoxShadow(
-            color: AppPalette.primaryGold.withValues(alpha: 0.35),
+            color: AppPalette.primaryGold.withValues(alpha: 0.25),
             blurRadius: 10,
             spreadRadius: 0.5,
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(size / 2),
+        borderRadius: BorderRadius.circular(size * 0.22),
         child: Image.asset(
           'assets/images/bonfire_logo.png',
           width: size,

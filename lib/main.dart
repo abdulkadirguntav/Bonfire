@@ -64,32 +64,23 @@ class BonfireApp extends ConsumerWidget {
     final ashMark = ref.watch(ashMarkControllerProvider);
     final theme = GothicTheme.build();
 
+    final Widget homeScreen;
     if (user == null) {
-      return MaterialApp(
-        title: 'Bonfire',
-        debugShowCheckedModeBanner: false,
-        theme: theme,
-        home: const OnboardingScreen(),
+      homeScreen = const OnboardingScreen();
+    } else if (user.currentHp <= 0) {
+      homeScreen = DeathScreen(
+        lostEssence: ashMark?.lostEssence ?? user.essence,
+        targetStreak: ashMark?.targetStreak ?? user.currentStreak,
       );
-    }
-
-    if (user.currentHp <= 0) {
-      return MaterialApp(
-        title: 'Bonfire',
-        debugShowCheckedModeBanner: false,
-        theme: theme,
-        home: DeathScreen(
-          lostEssence: ashMark?.lostEssence ?? user.essence,
-          targetStreak: ashMark?.targetStreak ?? user.currentStreak,
-        ),
-      );
+    } else {
+      homeScreen = const HomeScreen();
     }
 
     return MaterialApp(
       title: 'Bonfire',
       debugShowCheckedModeBanner: false,
       theme: theme,
-      home: const HomeScreen(),
+      home: homeScreen,
     );
   }
 }
