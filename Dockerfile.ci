@@ -1,0 +1,16 @@
+# ==============================================================================
+# Dockerfile.ci: Isolated CI Environment for Testing and Linting
+# ==============================================================================
+FROM ghcr.io/cirruslabs/flutter:stable
+
+WORKDIR /app
+
+# Copy dependency manifests
+COPY pubspec.yaml pubspec.lock ./
+RUN flutter pub get
+
+# Copy source
+COPY . .
+
+# Default command runs analysis and test suite
+CMD ["sh", "-c", "flutter analyze && flutter test"]

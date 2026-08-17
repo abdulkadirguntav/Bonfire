@@ -1,0 +1,33 @@
+services:
+  # Production Flutter Web Service
+  bonfire-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: bonfire_web_prod
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    environment:
+      - NODE_ENV=production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # CI / Local Testing Service
+  bonfire-ci:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    container_name: bonfire_ci_runner
+    profiles: ["ci"]
+    command: ["sh", "-c", "flutter analyze && flutter test --coverage"]

@@ -59,7 +59,8 @@ class Task {
   static String dateKey(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
-  bool isCompletedOn(DateTime date) => completedDateKeys.contains(dateKey(date));
+  bool isCompletedOn(DateTime date) =>
+      completedDateKeys.contains(dateKey(date));
 
   bool matchesDate(DateTime date) {
     if (isScheduled || scheduledDays.isNotEmpty) {
@@ -120,8 +121,8 @@ class Task {
     final rawDates = json['completedDateKeys'] as List<dynamic>? ?? [];
     final dateKeys = rawDates.map((item) => item.toString()).toSet();
     final legacyCompleted = json['isCompleted'] as bool? ?? false;
-    final created = DateTime.tryParse(json['createdAt'] as String? ?? '') ??
-        DateTime.now();
+    final created =
+        DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now();
     if (legacyCompleted && dateKeys.isEmpty) {
       dateKeys.add(dateKey(created));
     }

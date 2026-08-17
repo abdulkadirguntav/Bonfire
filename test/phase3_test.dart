@@ -28,7 +28,9 @@ void main() {
       );
     });
 
-    test('buying items succeeds on Market Days (streaks 5, 10, 15, 20...) and deducts Essence', () {
+    test(
+        'buying items succeeds on Market Days (streaks 5, 10, 15, 20...) and deducts Essence',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -44,7 +46,9 @@ void main() {
       expect(updated.itemCount(ItemType.estusFlask.id), 1);
     });
 
-    test('buying items throws InsufficientEssenceException when player has not enough essence', () {
+    test(
+        'buying items throws InsufficientEssenceException when player has not enough essence',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -59,7 +63,8 @@ void main() {
       );
     });
 
-    test('using Estus Flask heals 40 HP capped at maxHp and consumes 1 item', () {
+    test('using Estus Flask heals 40 HP capped at maxHp and consumes 1 item',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior, // maxHp = 100
@@ -78,7 +83,8 @@ void main() {
       expect(fullHealed.itemCount(ItemType.estusFlask.id), 0);
     });
 
-    test('using Ashen Estus refills stamina to maxStamina and consumes item', () {
+    test('using Ashen Estus refills stamina to maxStamina and consumes item',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.prisoner, // maxStamina = 150
@@ -92,7 +98,8 @@ void main() {
       expect(refilledUser.itemCount(ItemType.ashenEstus.id), 0);
     });
 
-    test('using Purging Stone activates purging stone protection for today', () {
+    test('using Purging Stone activates purging stone protection for today',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -115,14 +122,17 @@ void main() {
         inventory: {ItemType.scrollOfStasis.id: 1},
       );
 
-      final updatedUser = ShopService.useItem(user, ItemType.scrollOfStasis, now: date);
+      final updatedUser =
+          ShopService.useItem(user, ItemType.scrollOfStasis, now: date);
       expect(updatedUser.isStasisActive(date), isTrue);
       expect(updatedUser.itemCount(ItemType.scrollOfStasis.id), 0);
     });
   });
 
   group('2. Ring of Sacrifice Ölüm Koruma Mekaniği', () {
-    test('death with Ring of Sacrifice preserves Essence and creates NO AshMark', () {
+    test(
+        'death with Ring of Sacrifice preserves Essence and creates NO AshMark',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -143,7 +153,8 @@ void main() {
       expect(revivedUser.essence, 350); // Essence PRESERVED!
       expect(revivedUser.currentHp, 100);
       expect(revivedUser.currentStreak, 1); // Streak still resets
-      expect(revivedUser.itemCount(ItemType.ringOfSacrifice.id), 0); // Ring consumed
+      expect(revivedUser.itemCount(ItemType.ringOfSacrifice.id),
+          0); // Ring consumed
     });
   });
 
@@ -172,11 +183,14 @@ void main() {
       );
 
       expect(resolution.purgedTaskCount, 1);
-      expect(resolution.user.currentHp, 100); // 0 damage taken because it was purged!
+      expect(resolution.user.currentHp,
+          100); // 0 damage taken because it was purged!
       expect(resolution.user.activePurgingStones, 0); // Reset for next day
     });
 
-    test('Scroll of Stasis prevents damage and preserves streak during vacation/illness', () {
+    test(
+        'Scroll of Stasis prevents damage and preserves streak during vacation/illness',
+        () {
       final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
@@ -207,7 +221,9 @@ void main() {
   });
 
   group('4. Bonfire Dönüm Noktaları (3, 7, 14, 30)', () {
-    test('Kindling Bonfire full heals and grants permanent Max HP or Max Stamina', () {
+    test(
+        'Kindling Bonfire full heals and grants permanent Max HP or Max Stamina',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior, // baseHp 100, maxStam 100

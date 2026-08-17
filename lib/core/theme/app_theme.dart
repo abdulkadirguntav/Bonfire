@@ -172,9 +172,7 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final isSelected = states.contains(WidgetState.selected);
           return GoogleFonts.cinzel(
-            color: isSelected
-                ? AppPalette.primaryGold
-                : AppPalette.textAshGray,
+            color: isSelected ? AppPalette.primaryGold : AppPalette.textAshGray,
             fontSize: 10,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             letterSpacing: 1.2,
@@ -183,9 +181,7 @@ class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final isSelected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: isSelected
-                ? AppPalette.primaryGold
-                : AppPalette.textAshGray,
+            color: isSelected ? AppPalette.primaryGold : AppPalette.textAshGray,
             size: 21,
           );
         }),
@@ -218,17 +214,21 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
+          borderSide:
+              const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.primaryGold, width: 0.9),
+          borderSide:
+              const BorderSide(color: AppPalette.primaryGold, width: 0.9),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.bloodCrimson, width: 0.8),
+          borderSide:
+              const BorderSide(color: AppPalette.bloodCrimson, width: 0.8),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppPalette.surface,

@@ -111,17 +111,7 @@ class ShopItem {
   String get id => type.id;
 
   /// Market is open every 5th streak day (5, 10, 15, 20, 25, 30, 45, 60, 90...)
-  static const List<int> marketMilestones = [
-    5,
-    10,
-    15,
-    20,
-    25,
-    30,
-    45,
-    60,
-    90
-  ];
+  static const List<int> marketMilestones = [5, 10, 15, 20, 25, 30, 45, 60, 90];
 
   static bool isMarketOpenOnStreak(int streak) {
     return marketMilestones.contains(streak) || (streak > 0 && streak % 5 == 0);

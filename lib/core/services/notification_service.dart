@@ -120,7 +120,8 @@ class NotificationService {
       await _notificationsPlugin.zonedSchedule(
         id: id,
         title: '🔥 BONFIRE: $taskTitle',
-        body: 'Vakit geldi kül doğuran. Bu yemini tamamla ve ateşini canlı tut!',
+        body:
+            'Vakit geldi kül doğuran. Bu yemini tamamla ve ateşini canlı tut!',
         scheduledDate: scheduledTime,
         notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -178,7 +179,8 @@ class NotificationService {
       await _notificationsPlugin.show(
         id: 999999,
         title: title ?? '🔥 BONFIRE: Kadim Ateş Yanıyor',
-        body: body ?? 'Bildirim sistemi başarıyla bağlandı. Yeminlerin koruma altında!',
+        body: body ??
+            'Bildirim sistemi başarıyla bağlandı. Yeminlerin koruma altında!',
         notificationDetails: notificationDetails,
       );
     } catch (_) {}

@@ -35,12 +35,14 @@ class ReflectionService {
     return list;
   }
 
-  static Reflection? getTodayReflection(List<Reflection> list, {DateTime? now}) {
+  static Reflection? getTodayReflection(List<Reflection> list,
+      {DateTime? now}) {
     final target = now ?? DateTime.now();
     return getReflectionForDate(list, target);
   }
 
-  static Reflection? getReflectionForDate(List<Reflection> list, DateTime target) {
+  static Reflection? getReflectionForDate(
+      List<Reflection> list, DateTime target) {
     for (final r in list) {
       if (r.isSameDay(target)) return r;
     }

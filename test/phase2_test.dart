@@ -19,7 +19,8 @@ void main() {
         now: now,
       ).copyWith(currentStamina: 100, essence: 0, staminaUpdatedAt: now);
 
-      final updated = StaminaService.consumeForTask(user, TaskCategory.physical, now: now);
+      final updated =
+          StaminaService.consumeForTask(user, TaskCategory.physical, now: now);
       expect(updated.currentStamina, 65); // 100 - 35 = 65
     });
 
@@ -31,11 +32,16 @@ void main() {
         now: now,
       ).copyWith(currentStamina: 95, staminaUpdatedAt: now);
 
-      final refunded = StaminaService.refundCompletion(user, TaskCategory.physical, now: now);
-      expect(refunded.currentStamina, 100); // 95 + 35 = 130 -> clamped to 100 maxStamina
+      final refunded = StaminaService.refundCompletion(
+          user, TaskCategory.physical,
+          now: now);
+      expect(refunded.currentStamina,
+          100); // 95 + 35 = 130 -> clamped to 100 maxStamina
     });
 
-    test('unchecking completed task refunds stamina capped at maxStamina and deducts essence', () {
+    test(
+        'unchecking completed task refunds stamina capped at maxStamina and deducts essence',
+        () {
       final now = DateTime.now();
       final user = User.create(
         id: 'u1',
@@ -43,11 +49,14 @@ void main() {
         now: now,
       ).copyWith(currentStamina: 50, essence: 30, staminaUpdatedAt: now);
 
-      final refunded = StaminaService.refundCompletion(user, TaskCategory.mental, now: now);
+      final refunded =
+          StaminaService.refundCompletion(user, TaskCategory.mental, now: now);
       expect(refunded.currentStamina, 80); // 50 + 30 = 80
     });
 
-    test('when cost > stamina, consumeForTask clamps stamina to 0 and never goes negative', () {
+    test(
+        'when cost > stamina, consumeForTask clamps stamina to 0 and never goes negative',
+        () {
       final now = DateTime.now();
       final user = User.create(
         id: 'u1',
@@ -55,7 +64,9 @@ void main() {
         now: now,
       ).copyWith(currentStamina: 10, staminaUpdatedAt: now);
 
-      final consumed = StaminaService.consumeForTask(user, TaskCategory.physical, now: now); // cost: 35
+      final consumed = StaminaService.consumeForTask(
+          user, TaskCategory.physical,
+          now: now); // cost: 35
       expect(consumed.currentStamina, 0); // 10 - 35 = -25 -> clamped to 0
     });
   });
@@ -88,7 +99,8 @@ void main() {
       expect(user.currentStamina, 50);
       expect(user.maxStamina, 50);
       // Reward multiplier test: 8 * 1.0 = 8
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 8);
+      expect(
+          TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 8);
     });
 
     test('Prisoner has 50 HP, 150 Stamina, 1.25x damage, 1.5x essence', () {
@@ -105,7 +117,8 @@ void main() {
       expect(user.maxStamina, 150);
 
       // Reward multiplier test: 8 * 1.5 = 12
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 12);
+      expect(
+          TaskEconomyService.rewardFor(TaskCategory.physical, user: user), 12);
 
       // Damage penalty test: 10 * 1.25 (class) = 12.5 -> 13
       final normalTask = Task(
@@ -138,7 +151,9 @@ void main() {
       expect(Boss.maxHpForPhase(4), 365);
     });
 
-    test('Direndim (Resisted) damages Boss by 1 HP and awards NO Essence before phase completion', () {
+    test(
+        'Direndim (Resisted) damages Boss by 1 HP and awards NO Essence before phase completion',
+        () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak');
       final user = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
 
@@ -171,11 +186,13 @@ void main() {
 
       // Interaction on NEXT day succeeds
       final nextDay = DateTime(2026, 8, 17);
-      final second = BossService.resist(boss: first.boss, user: user, now: nextDay);
+      final second =
+          BossService.resist(boss: first.boss, user: user, now: nextDay);
       expect(second.boss.currentHp, 28);
     });
 
-    test('Yenildim (Failed) damages user and heals Boss (+1 HP up to maxHp)', () {
+    test('Yenildim (Failed) damages user and heals Boss (+1 HP up to maxHp)',
+        () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak')
           .copyWith(currentHp: 25);
       final user = User.create(
@@ -197,7 +214,8 @@ void main() {
       expect(result.boss.currentHp, 30); // Capped at maxHp (30)
     });
 
-    test('Phase Mutation 1 -> 2: mutates to 90 days and awards 150 Essence', () {
+    test('Phase Mutation 1 -> 2: mutates to 90 days and awards 150 Essence',
+        () {
       final boss = BossService.createBoss(title: 'Sigarayı Bırak')
           .copyWith(currentHp: 1, phase: 1);
       final user = User.create(
@@ -214,7 +232,9 @@ void main() {
       expect(result.user.essence, 150);
     });
 
-    test('Phase Mutation 2 -> 3: mutates to 180 days and awards 400 Essence (scaled by Prisoner 1.5x)', () {
+    test(
+        'Phase Mutation 2 -> 3: mutates to 180 days and awards 400 Essence (scaled by Prisoner 1.5x)',
+        () {
       final boss = Boss(
         id: 'b1',
         title: 'Sigarayı Bırak',
@@ -236,7 +256,8 @@ void main() {
       expect(result.user.essence, 600);
     });
 
-    test('Phase Mutation 3 -> 4: mutates to 365 days and awards 1000 Essence', () {
+    test('Phase Mutation 3 -> 4: mutates to 365 days and awards 1000 Essence',
+        () {
       final boss = Boss(
         id: 'b1',
         title: 'Sigarayı Bırak',
@@ -260,7 +281,8 @@ void main() {
   });
 
   group('4. Multi-Day Streak Catch-up & Auto Resolution', () {
-    test('resolvePastDays catches up streak across multiple completed days', () {
+    test('resolvePastDays catches up streak across multiple completed days',
+        () {
       final day1 = DateTime(2026, 8, 14);
       final day2 = DateTime(2026, 8, 15);
       final today = DateTime(2026, 8, 16);
@@ -298,7 +320,8 @@ void main() {
       expect(DayResolutionService.wasResolvedFor(caughtUpUser, day2), isTrue);
     });
 
-    test('resolvePastDays resets streak to 1 and applies damage on missed day', () {
+    test('resolvePastDays resets streak to 1 and applies damage on missed day',
+        () {
       final day1 = DateTime(2026, 8, 14);
       final day2 = DateTime(2026, 8, 15); // Missed day!
       final today = DateTime(2026, 8, 16);

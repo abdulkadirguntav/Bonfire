@@ -13,7 +13,8 @@ final activeQuestionsProvider =
         ActiveQuestionsController.new);
 
 class ActiveQuestionsController extends Notifier<List<String>> {
-  ReflectionRepository get _repository => ref.read(reflectionRepositoryProvider);
+  ReflectionRepository get _repository =>
+      ref.read(reflectionRepositoryProvider);
 
   @override
   List<String> build() {
@@ -51,7 +52,8 @@ final reflectionControllerProvider =
         ReflectionController.new);
 
 class ReflectionController extends Notifier<List<Reflection>> {
-  ReflectionRepository get _repository => ref.read(reflectionRepositoryProvider);
+  ReflectionRepository get _repository =>
+      ref.read(reflectionRepositoryProvider);
 
   @override
   List<Reflection> build() {

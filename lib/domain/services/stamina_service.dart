@@ -25,8 +25,8 @@ class StaminaService {
   }) {
     final currentTime = now ?? DateTime.now();
     final refreshed = refreshIfNeeded(user, now: currentTime);
-    final nextStamina =
-        (refreshed.currentStamina - category.staminaCost).clamp(0, user.maxStamina);
+    final nextStamina = (refreshed.currentStamina - category.staminaCost)
+        .clamp(0, user.maxStamina);
 
     return refreshed.copyWith(
       currentStamina: nextStamina,
@@ -50,8 +50,8 @@ class StaminaService {
   }) {
     final currentTime = now ?? DateTime.now();
     final refreshed = refreshIfNeeded(user, now: currentTime);
-    final nextStamina =
-        (refreshed.currentStamina + category.staminaCost).clamp(0, user.maxStamina);
+    final nextStamina = (refreshed.currentStamina + category.staminaCost)
+        .clamp(0, user.maxStamina);
 
     return refreshed.copyWith(
       currentStamina: nextStamina,

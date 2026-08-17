@@ -37,7 +37,8 @@ class AshMark {
       id: json['id'] as String? ?? '',
       lostEssence: json['lostEssence'] as int? ?? 0,
       targetStreak: json['targetStreak'] as int? ?? 0,
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 }

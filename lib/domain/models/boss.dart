@@ -19,7 +19,8 @@ class Boss {
   DateTime? get lastInteractedAt => lastInteractionDate;
 
   static const int defaultInitialHp = 30;
-  static const int dailyResistEssence = 0; // Direndim gives 0 daily essence as per requirements
+  static const int dailyResistEssence =
+      0; // Direndim gives 0 daily essence as per requirements
   static const int dailyFailDamage = 40;
 
   static int maxHpForPhase(int phase) {

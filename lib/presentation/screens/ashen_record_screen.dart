@@ -91,7 +91,9 @@ class AshenRecordScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          l10n.isTurkish ? 'NİTELİKLER VE GEÇMİŞİN KÜLLERİ' : 'ATTRIBUTES & HISTORICAL ASHES',
+                          l10n.isTurkish
+                              ? 'NİTELİKLER VE GEÇMİŞİN KÜLLERİ'
+                              : 'ATTRIBUTES & HISTORICAL ASHES',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -311,8 +313,7 @@ class AshenRecordScreen extends ConsumerWidget {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -410,8 +411,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                       },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppPalette.primaryGold,
-                                  disabledForegroundColor:
-                                      AppPalette.textDim,
+                                  disabledForegroundColor: AppPalette.textDim,
                                   side: BorderSide(
                                     color: canAfford
                                         ? AppPalette.primaryGold
@@ -460,7 +460,8 @@ class AshenRecordScreen extends ConsumerWidget {
                                 : 'Vows Completed (Enemies Slain)',
                             value: '${user?.enemiesDefeated ?? 0}',
                           ),
-                          const Divider(height: 1, color: AppPalette.dividerLine),
+                          const Divider(
+                              height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.dangerous_outlined,
                             label: l10n.isTurkish
@@ -468,13 +469,16 @@ class AshenRecordScreen extends ConsumerWidget {
                                 : 'Boss Phases Defeated',
                             value: '${user?.bossPhasesDefeated ?? 0}',
                           ),
-                          const Divider(height: 1, color: AppPalette.dividerLine),
+                          const Divider(
+                              height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.heart_broken_outlined,
-                            label: l10n.isTurkish ? 'Ölüm Sayısı' : 'Death Count',
+                            label:
+                                l10n.isTurkish ? 'Ölüm Sayısı' : 'Death Count',
                             value: '${user?.deathCount ?? 0}',
                           ),
-                          const Divider(height: 1, color: AppPalette.dividerLine),
+                          const Divider(
+                              height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.replay_outlined,
                             label: l10n.isTurkish
@@ -482,13 +486,15 @@ class AshenRecordScreen extends ConsumerWidget {
                                 : 'Ash Marks Reclaimed',
                             value: '${user?.ashMarksReclaimed ?? 0}',
                           ),
-                          const Divider(height: 1, color: AppPalette.dividerLine),
+                          const Divider(
+                              height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.whatshot_outlined,
                             label: l10n.isTurkish
                                 ? 'En Yüksek Gün Serisi'
                                 : 'Highest Streak',
-                            value: '${l10n.streakDay} ${user?.highestStreak ?? 1}',
+                            value:
+                                '${l10n.streakDay} ${user?.highestStreak ?? 1}',
                             isHighlighted: true,
                           ),
                         ],
@@ -557,7 +563,8 @@ class AshenRecordScreen extends ConsumerWidget {
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(ctx, false),
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
                                         child: Text(
                                           l10n.cancel,
                                           style: GoogleFonts.inter(
@@ -566,9 +573,11 @@ class AshenRecordScreen extends ConsumerWidget {
                                         ),
                                       ),
                                       OutlinedButton(
-                                        onPressed: () => Navigator.pop(ctx, true),
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
                                         style: OutlinedButton.styleFrom(
-                                          foregroundColor: AppPalette.bloodBright,
+                                          foregroundColor:
+                                              AppPalette.bloodBright,
                                           side: const BorderSide(
                                             color: AppPalette.bloodCrimson,
                                             width: 1.0,
@@ -598,12 +607,14 @@ class AshenRecordScreen extends ConsumerWidget {
                                   color: AppPalette.bloodCrimson,
                                   width: 0.9,
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              icon: const Icon(Icons.delete_forever_rounded, size: 16),
+                              icon: const Icon(Icons.delete_forever_rounded,
+                                  size: 16),
                               label: Text(
                                 l10n.wipeCharacter,
                                 style: GoogleFonts.cinzel(
@@ -651,9 +662,8 @@ class _StatRow extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: isHighlighted
-                ? AppPalette.primaryGold
-                : AppPalette.textAshGray,
+            color:
+                isHighlighted ? AppPalette.primaryGold : AppPalette.textAshGray,
           ),
           const SizedBox(width: 10),
           Expanded(

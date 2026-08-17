@@ -262,9 +262,8 @@ class _TaskBottomSheetState extends ConsumerState<TaskBottomSheet> {
                 final selected = _selectedCategory == category;
                 final reward =
                     TaskEconomyService.rewardFor(category, user: user);
-                final categoryLabel = l10n.isTurkish
-                    ? category.label
-                    : _categoryNameEn(category);
+                final categoryLabel =
+                    l10n.isTurkish ? category.label : _categoryNameEn(category);
                 return InkWell(
                   onTap: () => setState(() => _selectedCategory = category),
                   borderRadius: BorderRadius.circular(6),

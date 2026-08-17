@@ -56,7 +56,8 @@ void main() {
         TaskCategory.physical,
       ).copyWith(
         essence: initialUser.essence +
-            TaskEconomyService.rewardFor(TaskCategory.physical, user: initialUser),
+            TaskEconomyService.rewardFor(TaskCategory.physical,
+                user: initialUser),
       );
 
       expect(userAfterPhysical.currentStamina, 65); // 100 - 35
@@ -100,7 +101,9 @@ void main() {
       expect(refreshed.currentStamina, 100);
     });
 
-    test('over-exertion penalty: missed task accepted while exhausted deals 1.5x damage', () {
+    test(
+        'over-exertion penalty: missed task accepted while exhausted deals 1.5x damage',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior, // damageMultiplier: 1.0
@@ -125,12 +128,14 @@ void main() {
       );
 
       expect(TaskEconomyService.penaltyFor(normalTask, user: user), 10);
-      expect(TaskEconomyService.penaltyFor(exhaustedTask, user: user), 15); // 10 * 1.5 = 15
+      expect(TaskEconomyService.penaltyFor(exhaustedTask, user: user),
+          15); // 10 * 1.5 = 15
     });
   });
 
   group('3. Gün Serisi (Streak), Gün Sonu, Ölüm ve Ash Mark', () {
-    test('day resolution increments streak when all due tasks are completed', () {
+    test('day resolution increments streak when all due tasks are completed',
+        () {
       final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
@@ -160,7 +165,9 @@ void main() {
       expect(resolution.user.currentHp, 100);
     });
 
-    test('day resolution applies penalty and resets streak to day 1 on missed task', () {
+    test(
+        'day resolution applies penalty and resets streak to day 1 on missed task',
+        () {
       final date = DateTime(2026, 8, 16);
       final user = User.create(
         id: 'u1',
@@ -186,11 +193,14 @@ void main() {
       );
 
       expect(resolution.missedTasks.length, 1);
-      expect(resolution.user.currentHp, 127); // 150 - (20 * 1.5 * 0.75 = 22.5 -> 23) = 127
+      expect(resolution.user.currentHp,
+          127); // 150 - (20 * 1.5 * 0.75 = 22.5 -> 23) = 127
       expect(resolution.user.currentStreak, 1); // Streak resets to 1. gün
     });
 
-    test('death creates AshMark, resets essence to 0, resets streak to day 1, and refills HP', () {
+    test(
+        'death creates AshMark, resets essence to 0, resets streak to day 1, and refills HP',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -214,7 +224,9 @@ void main() {
       expect(revivedUser.currentStreak, 1); // 1. güne döner
     });
 
-    test('reclaiming AshMark: grants lost essence when user reaches target streak', () {
+    test(
+        'reclaiming AshMark: grants lost essence when user reaches target streak',
+        () {
       final ashMark = AshMark(
         id: 'ash-1',
         lostEssence: 150,

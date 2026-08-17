@@ -6,7 +6,8 @@ enum AttributeType {
     id: 'vitality',
     name: 'Vitality',
     nameTr: 'Can (Kudret)',
-    description: 'Bedenin dayanıklılığı. Her seviye maxHp değerini +15 artırır.',
+    description:
+        'Bedenin dayanıklılığı. Her seviye maxHp değerini +15 artırır.',
     iconName: 'favorite',
   ),
   endurance(
@@ -20,14 +21,16 @@ enum AttributeType {
     id: 'strength',
     name: 'Strength',
     nameTr: 'İrade (Kuvvet)',
-    description: 'Yeminlerin gücü. Her seviye kazanılan Öz çarpanını +%5 artırır.',
+    description:
+        'Yeminlerin gücü. Her seviye kazanılan Öz çarpanını +%5 artırır.',
     iconName: 'fitness_center',
   ),
   adaptability(
     id: 'adaptability',
     name: 'Adaptability',
     nameTr: 'Uyum',
-    description: 'Hatalara karşı direnç. Her seviye alınan ceza hasarını -%4 azaltır.',
+    description:
+        'Hatalara karşı direnç. Her seviye alınan ceza hasarını -%4 azaltır.',
     iconName: 'shield',
   );
 

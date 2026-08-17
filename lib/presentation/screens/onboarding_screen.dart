@@ -130,7 +130,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          _getClassDifficulty(characterClass, l10n),
+                                          _getClassDifficulty(
+                                              characterClass, l10n),
                                           style: GoogleFonts.inter(
                                             color: isSelected
                                                 ? AppPalette.primaryGold
@@ -168,11 +169,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 runSpacing: 6,
                                 children: [
                                   _TraitChip(
-                                    label: '${l10n.health}: ${characterClass.baseHp}',
+                                    label:
+                                        '${l10n.health}: ${characterClass.baseHp}',
                                     isBuff: characterClass.baseHp >= 100,
                                   ),
                                   _TraitChip(
-                                    label: '${l10n.stamina}: ${characterClass.maxStamina}',
+                                    label:
+                                        '${l10n.stamina}: ${characterClass.maxStamina}',
                                     isBuff: characterClass.maxStamina >= 100,
                                   ),
                                   _TraitChip(
@@ -245,7 +248,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  String _getClassDifficulty(CharacterClass characterClass, AppLocalizations l10n) {
+  String _getClassDifficulty(
+      CharacterClass characterClass, AppLocalizations l10n) {
     if (l10n.isTurkish) {
       switch (characterClass) {
         case CharacterClass.mage:
@@ -266,7 +270,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  String _getClassDescription(CharacterClass characterClass, AppLocalizations l10n) {
+  String _getClassDescription(
+      CharacterClass characterClass, AppLocalizations l10n) {
     if (l10n.isTurkish) {
       switch (characterClass) {
         case CharacterClass.mage:

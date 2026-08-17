@@ -49,7 +49,8 @@ class AttributeService {
       case AttributeType.endurance:
         final nextLevel = user.enduranceLevel + 1;
         final nextMaxStam = user.maxStamina + 10;
-        final nextCurrentStam = (user.currentStamina + 10).clamp(0, nextMaxStam);
+        final nextCurrentStam =
+            (user.currentStamina + 10).clamp(0, nextMaxStam);
         return user.copyWith(
           essence: nextEssence,
           enduranceLevel: nextLevel,

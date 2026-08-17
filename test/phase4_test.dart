@@ -32,8 +32,10 @@ void main() {
       expect(user.essence, 50);
     });
 
-    test('Reflection questions can have any question removed or custom added', () {
-      final List<String> activeQuestions = List.from(Reflection.defaultQuestions);
+    test('Reflection questions can have any question removed or custom added',
+        () {
+      final List<String> activeQuestions =
+          List.from(Reflection.defaultQuestions);
       expect(activeQuestions.length, 3);
 
       // Remove a default question
@@ -69,13 +71,15 @@ void main() {
       );
 
       expect(listWithOne.length, 1);
-      expect(listWithOne.first.message, 'Yolculuk karanlık ama ateş parlıyor...');
+      expect(
+          listWithOne.first.message, 'Yolculuk karanlık ama ateş parlıyor...');
       expect(listWithOne.first.isEdited, isFalse);
 
       // Once posted, cannot post another message today
       expect(SoapstoneService.canPostToday(listWithOne, now: today), isFalse);
       expect(
-        () => SoapstoneService.postMessage(listWithOne, 'İkinci mesaj!', now: today),
+        () => SoapstoneService.postMessage(listWithOne, 'İkinci mesaj!',
+            now: today),
         throwsA(isA<SoapstoneAlreadyPostedTodayException>()),
       );
     });

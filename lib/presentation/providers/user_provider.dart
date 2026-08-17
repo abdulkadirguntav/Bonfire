@@ -100,7 +100,8 @@ class UserController extends Notifier<User?> {
     if (user == null) return;
 
     final streak = user.currentStreak;
-    final updatedMilestones = Set<int>.from(user.claimedMilestones)..add(streak);
+    final updatedMilestones = Set<int>.from(user.claimedMilestones)
+      ..add(streak);
 
     if (upgradeHp) {
       final newMaxHp = user.maxHp + 20;

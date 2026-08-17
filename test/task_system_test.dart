@@ -8,20 +8,34 @@ import 'package:bonfire/domain/services/task_economy_service.dart';
 void main() {
   group('TaskEconomyService', () {
     test('rewards essence based on category and class multiplier', () {
-      final warrior = User.create(id: 'u1', selectedClass: CharacterClass.warrior);
-      final prisoner = User.create(id: 'u2', selectedClass: CharacterClass.prisoner);
+      final warrior =
+          User.create(id: 'u1', selectedClass: CharacterClass.warrior);
+      final prisoner =
+          User.create(id: 'u2', selectedClass: CharacterClass.prisoner);
 
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: warrior), 8); // 8 * 1.0
-      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: prisoner), 12); // 8 * 1.5 = 12
-      expect(TaskEconomyService.rewardFor(TaskCategory.mental, user: prisoner), 12); // 8 * 1.5 = 12
-      expect(TaskEconomyService.rewardFor(TaskCategory.spiritual, user: prisoner), 8); // 5 * 1.5 = 7.5 -> 8
-      expect(TaskEconomyService.rewardFor(TaskCategory.routine, user: prisoner), 5); // 3 * 1.5 = 4.5 -> 5
+      expect(TaskEconomyService.rewardFor(TaskCategory.physical, user: warrior),
+          8); // 8 * 1.0
+      expect(
+          TaskEconomyService.rewardFor(TaskCategory.physical, user: prisoner),
+          12); // 8 * 1.5 = 12
+      expect(TaskEconomyService.rewardFor(TaskCategory.mental, user: prisoner),
+          12); // 8 * 1.5 = 12
+      expect(
+          TaskEconomyService.rewardFor(TaskCategory.spiritual, user: prisoner),
+          8); // 5 * 1.5 = 7.5 -> 8
+      expect(TaskEconomyService.rewardFor(TaskCategory.routine, user: prisoner),
+          5); // 3 * 1.5 = 4.5 -> 5
     });
 
-    test('penalties calculate 1.5x damage when accepted while exhausted with class multiplier', () {
-      final warrior = User.create(id: 'u1', selectedClass: CharacterClass.warrior); // 1.0x damage
-      final mage = User.create(id: 'u2', selectedClass: CharacterClass.mage); // 0.75x damage
-      final prisoner = User.create(id: 'u3', selectedClass: CharacterClass.prisoner); // 1.25x damage
+    test(
+        'penalties calculate 1.5x damage when accepted while exhausted with class multiplier',
+        () {
+      final warrior = User.create(
+          id: 'u1', selectedClass: CharacterClass.warrior); // 1.0x damage
+      final mage = User.create(
+          id: 'u2', selectedClass: CharacterClass.mage); // 0.75x damage
+      final prisoner = User.create(
+          id: 'u3', selectedClass: CharacterClass.prisoner); // 1.25x damage
 
       final normalTask = Task(
         id: 'task-1',
@@ -84,16 +98,20 @@ void main() {
       expect(task.matchesDate(today.add(const Duration(days: 1))), isFalse);
     });
 
-    test('spending and refunding stamina works correctly with maxStamina cap', () {
-      final user = User.create(id: 'u1', selectedClass: CharacterClass.warrior); // maxStamina = 100
+    test('spending and refunding stamina works correctly with maxStamina cap',
+        () {
+      final user = User.create(
+          id: 'u1', selectedClass: CharacterClass.warrior); // maxStamina = 100
       final spent = StaminaService.consumeForTask(user, TaskCategory.physical);
       expect(spent.currentStamina, 65); // 100 - 35 = 65
 
-      final refunded = StaminaService.refundCompletion(spent, TaskCategory.physical);
+      final refunded =
+          StaminaService.refundCompletion(spent, TaskCategory.physical);
       expect(refunded.currentStamina, 100);
 
       // Never exceeds maxStamina
-      final overRefund = StaminaService.refundCompletion(user, TaskCategory.physical);
+      final overRefund =
+          StaminaService.refundCompletion(user, TaskCategory.physical);
       expect(overRefund.currentStamina, 100);
     });
   });

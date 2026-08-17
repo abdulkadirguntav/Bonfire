@@ -1,4 +1,4 @@
-name: Bonfire CI
+name: Bonfire CI Pipeline
 
 on:
   push:
@@ -14,31 +14,78 @@ on:
       - dev
 
 jobs:
-  flutter-test:
-    name: Flutter Analyze and Test
+  code-quality-and-tests:
+    name: Lint, Static Analysis & Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout source
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
 
-      - name: Setup Flutter
+      - name: Set up Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
           cache: true
 
-      - name: Install dependencies
+      - name: Print Environment Info
+        run: |
+          flutter doctor -v
+          flutter --version
+
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Analyze
+      - name: Run Dart Format Check
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Flutter Static Analysis
         run: flutter analyze
 
-      - name: Run tests
-        run: flutter test
+      - name: Execute Automated Test Suite
+        run: flutter test --coverage
+
+      - name: Upload Test Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-coverage-report
+          path: coverage/lcov.info
+          retention-days: 14
+
+  build-web-artifact:
+    name: Build Flutter Web Bundle
+    needs: code-quality-and-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Production Web
+        run: flutter build web --release
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonfire-web-dist
+          path: build/web
+          retention-days: 7

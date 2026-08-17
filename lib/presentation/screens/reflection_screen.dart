@@ -82,9 +82,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           side: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
         ),
         title: Text(
-          l10n.isTurkish
-              ? 'Özel Muhasebe Sorusu Ekle'
-              : 'Add Custom Question',
+          l10n.isTurkish ? 'Özel Muhasebe Sorusu Ekle' : 'Add Custom Question',
           style: GoogleFonts.cinzel(
             color: AppPalette.primaryGold,
             fontSize: 16,
@@ -252,7 +250,8 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
               ),
               const SizedBox(height: 10),
 
-              SectionTitle(l10n.isTurkish ? 'Günün Soruları' : 'Daily Inquiries'),
+              SectionTitle(
+                  l10n.isTurkish ? 'Günün Soruları' : 'Daily Inquiries'),
               const SizedBox(height: 6),
 
               // Questions List
@@ -280,7 +279,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                                     color: AppPalette.primaryGold, width: 0.8),
                               ),
                               icon: const Icon(Icons.add, size: 16),
-                              label: Text(l10n.isTurkish ? 'SORU EKLE' : 'ADD QUESTION'),
+                              label: Text(l10n.isTurkish
+                                  ? 'SORU EKLE'
+                                  : 'ADD QUESTION'),
                             ),
                           ],
                         ),

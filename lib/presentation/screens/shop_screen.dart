@@ -86,7 +86,9 @@ class ShopScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          l10n.isTurkish ? 'KADİM EŞYALAR VE SEYYAR TÜCCAR' : 'ANCIENT RELICS & TRAVELLING MERCHANT',
+                          l10n.isTurkish
+                              ? 'KADİM EŞYALAR VE SEYYAR TÜCCAR'
+                              : 'ANCIENT RELICS & TRAVELLING MERCHANT',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -346,7 +348,8 @@ class ShopScreen extends ConsumerWidget {
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                                 border: Border.all(
-                                                  color: AppPalette.borderSubtle,
+                                                  color:
+                                                      AppPalette.borderSubtle,
                                                   width: 0.6,
                                                 ),
                                               ),
@@ -399,8 +402,8 @@ class ShopScreen extends ConsumerWidget {
                                     onPressed: () async {
                                       try {
                                         await ref
-                                            .read(userControllerProvider
-                                                .notifier)
+                                            .read(
+                                                userControllerProvider.notifier)
                                             .useItem(item.type);
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context)
@@ -488,8 +491,7 @@ class ShopScreen extends ConsumerWidget {
                                         },
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppPalette.primaryGold,
-                                    disabledForegroundColor:
-                                        AppPalette.textDim,
+                                    disabledForegroundColor: AppPalette.textDim,
                                     side: BorderSide(
                                       color: canAfford
                                           ? AppPalette.primaryGold

@@ -365,7 +365,8 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                     // Tab 1: Roadmap & Milestone Grid
                     _JourneyGridView(
                       currentStreak: currentStreak,
-                      claimedMilestones: (user?.claimedMilestones ?? const <int>[]).toList(),
+                      claimedMilestones:
+                          (user?.claimedMilestones ?? const <int>[]).toList(),
                       ashMark: ashMark,
                     ),
 
@@ -414,8 +415,9 @@ class _JourneyGridView extends StatelessWidget {
         final isCurrent = day == currentStreak;
         final isBonfire = bonfireMilestones.contains(day);
         final isMarket = ShopItem.isMarketOpenOnStreak(day);
-        final isAshMark =
-            ashMark != null && ashMark.lostEssence > 0 && ashMark.targetStreak == day;
+        final isAshMark = ashMark != null &&
+            ashMark.lostEssence > 0 &&
+            ashMark.targetStreak == day;
         final isClaimed = claimedMilestones.contains(day);
 
         Color bgColor;

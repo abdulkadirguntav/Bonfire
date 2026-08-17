@@ -28,8 +28,12 @@ class SoapstoneRuneCard extends ConsumerWidget {
         ),
         title: Text(
           isEditing
-              ? (l10n.isTurkish ? 'Zemin Yazısını Düzenle' : 'Edit Soapstone Message')
-              : (l10n.isTurkish ? 'Zemine Kadim Not Bırak' : 'Carve Soapstone Message'),
+              ? (l10n.isTurkish
+                  ? 'Zemin Yazısını Düzenle'
+                  : 'Edit Soapstone Message')
+              : (l10n.isTurkish
+                  ? 'Zemine Kadim Not Bırak'
+                  : 'Carve Soapstone Message'),
           style: GoogleFonts.cinzel(
             color: AppPalette.primaryGold,
             fontWeight: FontWeight.w700,

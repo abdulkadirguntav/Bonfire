@@ -55,7 +55,8 @@ void main() {
       expect(upgraded.totalEssenceMultiplier, closeTo(1.05, 0.001));
 
       // Physical task base reward = 8 Essence -> 8 * 1.05 = 8.4 -> 8 Essence
-      final reward = TaskEconomyService.rewardFor(TaskCategory.physical, user: upgraded);
+      final reward =
+          TaskEconomyService.rewardFor(TaskCategory.physical, user: upgraded);
       expect(reward, 8);
     });
 
@@ -68,9 +69,11 @@ void main() {
         essence: 200,
       );
 
-      final upgraded = AttributeService.levelUp(user, AttributeType.adaptability);
+      final upgraded =
+          AttributeService.levelUp(user, AttributeType.adaptability);
       expect(upgraded.adaptabilityLevel, 1);
-      expect(upgraded.totalDamageMultiplier, closeTo(0.71, 0.001)); // 0.75 - 0.04 = 0.71
+      expect(upgraded.totalDamageMultiplier,
+          closeTo(0.71, 0.001)); // 0.75 - 0.04 = 0.71
 
       // Missed physical task (30 damage) -> 30 * 0.71 = 21.3 -> 21 damage
       final task = Task(
@@ -86,7 +89,8 @@ void main() {
   });
 
   group('2. Bonfire Kilit Mantığı (Zorunlu Kural)', () {
-    test('Level up is BLOCKED on non-Bonfire days (streak 1, 2, 4, 5, 8...)', () {
+    test('Level up is BLOCKED on non-Bonfire days (streak 1, 2, 4, 5, 8...)',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -127,7 +131,8 @@ void main() {
       expect(AttributeType.costForLevel(3), 305);
     });
 
-    test('throws InsufficientEssenceException when user cannot afford upgrade', () {
+    test('throws InsufficientEssenceException when user cannot afford upgrade',
+        () {
       final user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,
@@ -144,7 +149,8 @@ void main() {
   });
 
   group('4. Genel İstatistikler (Lifetime Statistics)', () {
-    test('tracking enemies defeated, boss phases, deaths, and highest streak', () {
+    test('tracking enemies defeated, boss phases, deaths, and highest streak',
+        () {
       var user = User.create(
         id: 'u1',
         selectedClass: CharacterClass.warrior,

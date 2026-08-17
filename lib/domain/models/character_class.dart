@@ -5,7 +5,8 @@ enum CharacterClass {
     maxStamina: 50,
     damageMultiplier: 0.75,
     essenceMultiplier: 1.0,
-    description: 'Yeni başlayanlar ve alışkanlık bilinci arayanlar için. Yüksek can (150) ve düşük ceza hasarı (%75).',
+    description:
+        'Yeni başlayanlar ve alışkanlık bilinci arayanlar için. Yüksek can (150) ve düşük ceza hasarı (%75).',
   ),
   warrior(
     className: 'Warrior',
@@ -13,7 +14,8 @@ enum CharacterClass {
     maxStamina: 100,
     damageMultiplier: 1.0,
     essenceMultiplier: 1.0,
-    description: 'Dengeli deneyim arayanlar için. 100 Can, 100 Stamina ve standart risk oranı.',
+    description:
+        'Dengeli deneyim arayanlar için. 100 Can, 100 Stamina ve standart risk oranı.',
   ),
   prisoner(
     className: 'Prisoner',
@@ -21,7 +23,8 @@ enum CharacterClass {
     maxStamina: 150,
     damageMultiplier: 1.25,
     essenceMultiplier: 1.5,
-    description: 'Sadece cesareti olanlar için. 50 Can, 150 Stamina, 1.25x ceza hasarı ve 1.5x devasa Öz ödülü.',
+    description:
+        'Sadece cesareti olanlar için. 50 Can, 150 Stamina, 1.25x ceza hasarı ve 1.5x devasa Öz ödülü.',
   );
 
   const CharacterClass({
@@ -42,7 +45,9 @@ enum CharacterClass {
 
   static CharacterClass fromString(String? value) =>
       CharacterClass.values.firstWhere(
-        (c) => c.name == value || c.className.toLowerCase() == value?.toLowerCase(),
+        (c) =>
+            c.name == value ||
+            c.className.toLowerCase() == value?.toLowerCase(),
         orElse: () => CharacterClass.warrior,
       );
 
