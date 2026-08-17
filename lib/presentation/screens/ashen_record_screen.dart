@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bonfire/core/localization/app_localizations.dart';
-import 'package:bonfire/core/services/notification_service.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/attributes.dart';
@@ -491,86 +490,6 @@ class AshenRecordScreen extends ConsumerWidget {
                                 : 'Highest Streak',
                             value: '${l10n.streakDay} ${user?.highestStreak ?? 1}',
                             isHighlighted: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Section: Notification & System Test
-                    SectionTitle(l10n.isTurkish ? 'Bildirim ve Hatırlatıcı Testi' : 'Notification & Alarm Test'),
-                    const SizedBox(height: 6),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppPalette.surface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppPalette.borderSubtle,
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.isTurkish
-                                ? 'Telefonunuzun bildirim çubuğunda ve kilit ekranında Bonfire uyarılarının çalıştığını doğrulamak için test bildirimi gönderin.'
-                                : 'Trigger an immediate test reminder to verify notifications work on your lock screen and notification shade.',
-                            style: GoogleFonts.inter(
-                              color: AppPalette.textAshGray,
-                              fontSize: 11,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                await NotificationService.instance.showImmediateTestNotification(
-                                  title: l10n.isTurkish
-                                      ? '🔥 BONFIRE: Kadim Ateş Canlı!'
-                                      : '🔥 BONFIRE: The Flame Burns!',
-                                  body: l10n.isTurkish
-                                      ? 'Bildirim altyapısı sorunsuz çalışıyor. Yeminlerin koruma altında!'
-                                      : 'Notification channel active. Your daily vows are protected!',
-                                );
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.testNotificationSent,
-                                        style: GoogleFonts.inter(fontSize: 12),
-                                      ),
-                                      backgroundColor: const Color(0xFF1F232C),
-                                      duration: const Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppPalette.primaryGold,
-                                side: const BorderSide(
-                                  color: AppPalette.primaryGold,
-                                  width: 0.9,
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              icon: const Icon(Icons.notifications_active_rounded, size: 16),
-                              label: Text(
-                                l10n.testNotification,
-                                style: GoogleFonts.cinzel(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),
