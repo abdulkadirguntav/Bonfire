@@ -45,6 +45,21 @@ enum AttributeType {
   final String description;
   final String iconName;
 
+  String get nameEn => name;
+  String get descriptionTr => description;
+  String get descriptionEn {
+    switch (this) {
+      case AttributeType.vitality:
+        return 'Fortitude of body. Each level grants +15 Max HP.';
+      case AttributeType.endurance:
+        return 'Energy of spirit. Each level grants +10 Max Stamina.';
+      case AttributeType.strength:
+        return 'Power of vows. Each level increases Essence multiplier by +5%.';
+      case AttributeType.adaptability:
+        return 'Resilience against failure. Each level reduces penalty damage by -4%.';
+    }
+  }
+
   /// RPG Exponential Level-up Cost Formula
   /// Level 0 -> 100 Essence
   /// Level 1 -> 145 Essence

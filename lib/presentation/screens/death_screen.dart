@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/presentation/providers/user_provider.dart';
 
@@ -17,6 +18,8 @@ class DeathScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFF140D0E),
       body: SafeArea(
@@ -28,7 +31,7 @@ class DeathScreen extends ConsumerWidget {
               children: [
                 const Spacer(),
                 Text(
-                  'YOU DIED',
+                  l10n.youDied,
                   style: GoogleFonts.cinzel(
                     color: AppPalette.bloodCrimson,
                     fontSize: 44,
@@ -53,7 +56,7 @@ class DeathScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Kaybedilen Öz (Essence):',
+                            l10n.lostEssence,
                             style: GoogleFonts.inter(
                               color: AppPalette.textAshGray,
                               fontSize: 13,
@@ -74,14 +77,14 @@ class DeathScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Hedef Gün Serisi:',
+                            l10n.targetStreak,
                             style: GoogleFonts.inter(
                               color: AppPalette.textAshGray,
                               fontSize: 13,
                             ),
                           ),
                           Text(
-                            'Gün $targetStreak',
+                            '${l10n.streakDay} $targetStreak',
                             style: GoogleFonts.cinzel(
                               color: AppPalette.textBoneWhite,
                               fontSize: 16,
@@ -95,7 +98,7 @@ class DeathScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Küllerinden yeniden doğ!\n1. günden başlayıp aynı gün serisine ulaştığında kaybettiğin tüm Öz\'ü geri kazanacaksın.\nAncak hedefe ulaşamadan tekrar ölürsen eski izin sonsuza dek silinir.',
+                  l10n.deathDesc,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     color: AppPalette.textAshGray,
@@ -122,7 +125,7 @@ class DeathScreen extends ConsumerWidget {
                       ),
                     ),
                     child: Text(
-                      'YENİDEN DOĞ',
+                      l10n.rebirth,
                       style: GoogleFonts.cinzel(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,

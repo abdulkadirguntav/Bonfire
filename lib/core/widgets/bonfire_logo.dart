@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 
 class BonfireLogo extends StatelessWidget {
   const BonfireLogo({
     super.key,
-    this.size = 32,
+    this.size = 38,
     this.showText = true,
     this.letterSpacing = 3.0,
     this.fontSize = 18,
@@ -21,31 +22,20 @@ class BonfireLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emblem = Container(
+    final l10n = AppLocalizations.of(context);
+
+    final emblem = SizedBox(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(size * 0.22),
-        boxShadow: [
-          BoxShadow(
-            color: AppPalette.primaryGold.withValues(alpha: 0.25),
-            blurRadius: 10,
-            spreadRadius: 0.5,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(size * 0.22),
-        child: Image.asset(
-          'assets/images/bonfire_logo.png',
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Icon(
-            Icons.local_fire_department_rounded,
-            color: AppPalette.primaryGold,
-            size: size,
-          ),
+      child: Image.asset(
+        'assets/images/bonfire_logo.png',
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Icon(
+          Icons.local_fire_department_rounded,
+          color: AppPalette.primaryGold,
+          size: size,
         ),
       ),
     );
@@ -69,7 +59,7 @@ class BonfireLogo extends StatelessWidget {
           ),
         ),
         Text(
-          'KÜL VE İRADE',
+          l10n.tagline,
           style: GoogleFonts.inter(
             color: AppPalette.textDim,
             fontSize: (fontSize * 0.42).clamp(7.0, 11.0),

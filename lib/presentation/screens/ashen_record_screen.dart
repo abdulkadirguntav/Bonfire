@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
+import 'package:bonfire/core/services/notification_service.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/domain/models/attributes.dart';
@@ -25,21 +27,34 @@ class AshenRecordScreen extends ConsumerWidget {
     }
   }
 
-  String _bonusTextFor(AttributeType type, int level) {
+  String _bonusTextFor(AttributeType type, int level, AppLocalizations l10n) {
+    if (l10n.isTurkish) {
+      switch (type) {
+        case AttributeType.vitality:
+          return '+${level * 15} Max Can';
+        case AttributeType.endurance:
+          return '+${level * 10} Max Stamina';
+        case AttributeType.strength:
+          return '+%${level * 5} Öz';
+        case AttributeType.adaptability:
+          return '-%${level * 4} Hasar';
+      }
+    }
     switch (type) {
       case AttributeType.vitality:
         return '+${level * 15} Max HP';
       case AttributeType.endurance:
         return '+${level * 10} Max Stamina';
       case AttributeType.strength:
-        return '+%${level * 5} Öz';
+        return '+${level * 5}% Essence';
       case AttributeType.adaptability:
-        return '-%${level * 4} Hasar';
+        return '-${level * 4}% Damage';
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(userControllerProvider);
     final isAtBonfire = user?.isAtBonfireDay ?? false;
     final essence = user?.essence ?? 0;
@@ -66,7 +81,7 @@ class AshenRecordScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'THE ASHEN RECORD',
+                          l10n.recordTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.cinzel(
@@ -77,7 +92,7 @@ class AshenRecordScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          'NİTELİKLER VE GEÇMİŞİN KÜLLERİ',
+                          l10n.isTurkish ? 'NİTELİKLER VE GEÇMİŞİN KÜLLERİ' : 'ATTRIBUTES & HISTORICAL ASHES',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -259,7 +274,7 @@ class AshenRecordScreen extends ConsumerWidget {
                 child: ListView(
                   children: [
                     // Section 1: Attributes & Level Up
-                    const SectionTitle('Kadim Nitelikler (Attributes)'),
+                    SectionTitle(l10n.attributesTitle),
                     const SizedBox(height: 6),
                     ...AttributeType.values.map((attribute) {
                       final currentLevel = user?.attributeLevel(attribute) ?? 0;
@@ -268,7 +283,7 @@ class AshenRecordScreen extends ConsumerWidget {
                           : AttributeService.getUpgradeCost(user, attribute);
                       final canAfford = isAtBonfire && essence >= cost;
                       final bonusText =
-                          _bonusTextFor(attribute, currentLevel);
+                          _bonusTextFor(attribute, currentLevel, l10n);
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
@@ -303,7 +318,10 @@ class AshenRecordScreen extends ConsumerWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          attribute.nameTr.toUpperCase(),
+                                          (l10n.isTurkish
+                                                  ? attribute.nameTr
+                                                  : attribute.nameEn)
+                                              .toUpperCase(),
                                           style: GoogleFonts.cinzel(
                                             color: AppPalette.textBoneWhite,
                                             fontSize: 12,
@@ -336,7 +354,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${attribute.description} ($bonusText)',
+                                      '${l10n.isTurkish ? attribute.descriptionTr : attribute.descriptionEn} ($bonusText)',
                                       style: GoogleFonts.inter(
                                         color: AppPalette.textAshGray,
                                         fontSize: 10.5,
@@ -360,7 +378,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                  '✨ ${attribute.nameTr} geliştirildi! ($bonusText)',
+                                                  '✨ ${(l10n.isTurkish ? attribute.nameTr : attribute.nameEn)} ${l10n.isTurkish ? 'geliştirildi!' : 'upgraded!'} ($bonusText)',
                                                 ),
                                               ),
                                             );
@@ -369,9 +387,9 @@ class AshenRecordScreen extends ConsumerWidget {
                                           if (context.mounted) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
                                                 content: Text(
-                                                  '🔒 Sadece Bonfire günlerinde stat yükseltebilirsin!',
+                                                  l10n.bonfireRequiredToLevel,
                                                 ),
                                               ),
                                             );
@@ -380,9 +398,11 @@ class AshenRecordScreen extends ConsumerWidget {
                                           if (context.mounted) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
                                                 content: Text(
-                                                  'Yetersiz Öz (Essence)!',
+                                                  l10n.isTurkish
+                                                      ? 'Yetersiz Öz (Essence)!'
+                                                      : 'Insufficient Essence!',
                                                 ),
                                               ),
                                             );
@@ -406,7 +426,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 child: Text(
-                                  '+$cost ÖZ',
+                                  '+$cost ${l10n.essence}',
                                   style: GoogleFonts.cinzel(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w700,
@@ -421,7 +441,7 @@ class AshenRecordScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
 
                     // Section 2: General Statistics (Chronicle/History)
-                    const SectionTitle('Geçmiş ve İstatistikler (Chronicle)'),
+                    SectionTitle(l10n.chronicleTitle),
                     const SizedBox(height: 6),
                     Container(
                       decoration: BoxDecoration(
@@ -436,32 +456,40 @@ class AshenRecordScreen extends ConsumerWidget {
                         children: [
                           _StatRow(
                             icon: Icons.shield_outlined,
-                            label: 'Yenilen Düşmanlar (Görevler)',
+                            label: l10n.isTurkish
+                                ? 'Yenilen Düşmanlar (Yeminler)'
+                                : 'Vows Completed (Enemies Slain)',
                             value: '${user?.enemiesDefeated ?? 0}',
                           ),
                           const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.dangerous_outlined,
-                            label: 'Katledilen Boss Fazları',
+                            label: l10n.isTurkish
+                                ? 'Katledilen Boss Fazları'
+                                : 'Boss Phases Defeated',
                             value: '${user?.bossPhasesDefeated ?? 0}',
                           ),
                           const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.heart_broken_outlined,
-                            label: 'Ölüm Sayısı',
+                            label: l10n.isTurkish ? 'Ölüm Sayısı' : 'Death Count',
                             value: '${user?.deathCount ?? 0}',
                           ),
                           const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.replay_outlined,
-                            label: 'Geri Alınan Kül İzleri',
+                            label: l10n.isTurkish
+                                ? 'Geri Alınan Kül İzleri'
+                                : 'Ash Marks Reclaimed',
                             value: '${user?.ashMarksReclaimed ?? 0}',
                           ),
                           const Divider(height: 1, color: AppPalette.dividerLine),
                           _StatRow(
                             icon: Icons.whatshot_outlined,
-                            label: 'En Yüksek Gün Serisi',
-                            value: 'Gün ${user?.highestStreak ?? 1}',
+                            label: l10n.isTurkish
+                                ? 'En Yüksek Gün Serisi'
+                                : 'Highest Streak',
+                            value: '${l10n.streakDay} ${user?.highestStreak ?? 1}',
                             isHighlighted: true,
                           ),
                         ],
@@ -469,8 +497,88 @@ class AshenRecordScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
 
+                    // Section: Notification & System Test
+                    SectionTitle(l10n.isTurkish ? 'Bildirim ve Hatırlatıcı Testi' : 'Notification & Alarm Test'),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppPalette.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppPalette.borderSubtle,
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.isTurkish
+                                ? 'Telefonunuzun bildirim çubuğunda ve kilit ekranında Bonfire uyarılarının çalıştığını doğrulamak için test bildirimi gönderin.'
+                                : 'Trigger an immediate test reminder to verify notifications work on your lock screen and notification shade.',
+                            style: GoogleFonts.inter(
+                              color: AppPalette.textAshGray,
+                              fontSize: 11,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                await NotificationService.instance.showImmediateTestNotification(
+                                  title: l10n.isTurkish
+                                      ? '🔥 BONFIRE: Kadim Ateş Canlı!'
+                                      : '🔥 BONFIRE: The Flame Burns!',
+                                  body: l10n.isTurkish
+                                      ? 'Bildirim altyapısı sorunsuz çalışıyor. Yeminlerin koruma altında!'
+                                      : 'Notification channel active. Your daily vows are protected!',
+                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        l10n.testNotificationSent,
+                                        style: GoogleFonts.inter(fontSize: 12),
+                                      ),
+                                      backgroundColor: const Color(0xFF1F232C),
+                                      duration: const Duration(seconds: 3),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppPalette.primaryGold,
+                                side: const BorderSide(
+                                  color: AppPalette.primaryGold,
+                                  width: 0.9,
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              icon: const Icon(Icons.notifications_active_rounded, size: 16),
+                              label: Text(
+                                l10n.testNotification,
+                                style: GoogleFonts.cinzel(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     // Section 3: Danger Zone / Reset Character
-                    const SectionTitle('Küllerin Sonu (Tehlikeli Bölge)'),
+                    SectionTitle(l10n.dangerZone),
                     const SizedBox(height: 6),
                     Container(
                       width: double.infinity,
@@ -487,7 +595,9 @@ class AshenRecordScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Karakterini silip sıfırdan yeni bir sınıfla başlamak istiyorsan aşağıdaki mührü kullanabilirsin. Tüm ilerlemen ve verilerin silinir.',
+                            l10n.isTurkish
+                                ? 'Karakterini silip sıfırdan yeni bir sınıfla başlamak istiyorsan aşağıdaki mührü kullanabilirsin. Tüm ilerlemen ve verilerin silinir.'
+                                : 'Use the seal below to erase your character and start fresh. All progress, vows, and essence will be cleared.',
                             style: GoogleFonts.inter(
                               color: AppPalette.textAshGray,
                               fontSize: 11,
@@ -511,15 +621,15 @@ class AshenRecordScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     title: Text(
-                                      'KÜLLERE DÖNÜŞ (KARAKTERİ SİL)',
+                                      l10n.wipeConfirmTitle,
                                       style: GoogleFonts.cinzel(
                                         color: AppPalette.bloodBright,
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 15,
+                                        fontSize: 14,
                                       ),
                                     ),
                                     content: Text(
-                                      '⚠️ Bu işlem GERİ ALINAMAZ!\n\nSeçtiğin sınıf, biriktirdiğin tüm Öz, tamamladığın yeminler, Boss ilerlemen ve kadim notların tamamen silinecektir.\n\nGerçekten tüm küllerini savurmak ve sıfırdan yeni bir karakter yaratmak istiyor musun?',
+                                      l10n.wipeConfirmDesc,
                                       style: GoogleFonts.inter(
                                         color: AppPalette.textBoneWhite,
                                         fontSize: 12,
@@ -530,7 +640,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                       TextButton(
                                         onPressed: () => Navigator.pop(ctx, false),
                                         child: Text(
-                                          'VAZGEÇ',
+                                          l10n.cancel,
                                           style: GoogleFonts.inter(
                                             color: AppPalette.textAshGray,
                                           ),
@@ -546,7 +656,7 @@ class AshenRecordScreen extends ConsumerWidget {
                                           ),
                                         ),
                                         child: Text(
-                                          'TÜM VERİLERİ SİL',
+                                          l10n.confirmWipe,
                                           style: GoogleFonts.cinzel(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 11.5,
@@ -576,7 +686,7 @@ class AshenRecordScreen extends ConsumerWidget {
                               ),
                               icon: const Icon(Icons.delete_forever_rounded, size: 16),
                               label: Text(
-                                'KARAKTERİ VE TÜM VERİLERİ SİL',
+                                l10n.wipeCharacter,
                                 style: GoogleFonts.cinzel(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,

@@ -61,6 +61,23 @@ enum ItemType {
   final String description;
   final String iconName;
 
+  String get nameEn => name;
+  String get descriptionTr => description;
+  String get descriptionEn {
+    switch (this) {
+      case ItemType.estusFlask:
+        return 'Holds the heat of the hearth. Instantly restores +40 HP on use.';
+      case ItemType.ashenEstus:
+        return 'Channels the spirit of extinguished ashes. Fully restores daily Stamina.';
+      case ItemType.purgingStone:
+        return 'Cleanses curses and neglect. Negates end-of-day HP penalty for 1 failed vow.';
+      case ItemType.ringOfSacrifice:
+        return 'Shatters upon death. Preserves all Essence without leaving an Ash Mark.';
+      case ItemType.scrollOfStasis:
+        return 'Freezes time. Prevents streak reset and penalty damage for the day.';
+    }
+  }
+
   static ItemType fromString(String? value) {
     return ItemType.values.firstWhere(
       (type) => type.name == value || type.id == value,
@@ -86,6 +103,10 @@ class ShopItem {
   final String nameTr;
   final String description;
   final String iconName;
+
+  String get nameEn => name;
+  String get descriptionTr => description;
+  String get descriptionEn => type.descriptionEn;
 
   String get id => type.id;
 

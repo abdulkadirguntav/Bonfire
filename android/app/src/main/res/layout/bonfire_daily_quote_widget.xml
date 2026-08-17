@@ -31,12 +31,13 @@
             android:textSize="9sp" />
     </LinearLayout>
 
-    <View
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="8dp"
-        android:background="#2E323D" />
+        android:background="#2E323D"
+        android:contentDescription="@null" />
 
     <TextView
         android:id="@+id/quote_text"

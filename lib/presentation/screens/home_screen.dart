@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/bonfire_logo.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
@@ -56,6 +57,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppPalette.scaffoldBackground,
       body: PageView(
@@ -81,26 +84,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: _onDestinationSelected,
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.local_fire_department_outlined),
-              selectedIcon: Icon(Icons.local_fire_department_rounded),
-              label: 'BONFIRE',
+              icon: const Icon(Icons.local_fire_department_outlined),
+              selectedIcon: const Icon(Icons.local_fire_department_rounded),
+              label: l10n.tabBonfire,
             ),
             NavigationDestination(
-              icon: Icon(Icons.token_outlined),
-              selectedIcon: Icon(Icons.token_rounded),
-              label: 'THE KILN',
+              icon: const Icon(Icons.token_outlined),
+              selectedIcon: const Icon(Icons.token_rounded),
+              label: l10n.tabShop,
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories_rounded),
-              label: 'MUHASEBE',
+              icon: const Icon(Icons.auto_stories_outlined),
+              selectedIcon: const Icon(Icons.auto_stories_rounded),
+              label: l10n.tabReflection,
             ),
             NavigationDestination(
-              icon: Icon(Icons.shield_outlined),
-              selectedIcon: Icon(Icons.shield_rounded),
-              label: 'KAYIT',
+              icon: const Icon(Icons.shield_outlined),
+              selectedIcon: const Icon(Icons.shield_rounded),
+              label: l10n.tabRecord,
             ),
           ],
         ),
@@ -114,6 +117,7 @@ class _DashboardView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
     final boss = ref.watch(bossControllerProvider);
@@ -137,12 +141,12 @@ class _DashboardView extends ConsumerWidget {
             // Top App Bar
             Row(
               children: [
-                const BonfireLogo(size: 26, fontSize: 18),
+                const BonfireLogo(size: 32, fontSize: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: user != null
                       ? Text(
-                          user.selectedClass.className.toUpperCase(),
+                          l10n.className(user.selectedClass.name).toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
@@ -186,7 +190,7 @@ class _DashboardView extends ConsumerWidget {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          'GÜN ${user?.currentStreak ?? 1}',
+                          '${l10n.streakDay} ${user?.currentStreak ?? 1}',
                           style: GoogleFonts.inter(
                             color: AppPalette.textBoneWhite,
                             fontSize: 11.5,
@@ -226,14 +230,14 @@ class _DashboardView extends ConsumerWidget {
                         DetailedHpBar(
                           value: hpRatio,
                           label:
-                              'CAN  ${user?.currentHp ?? 0} / ${user?.maxHp ?? 0}',
+                              '${l10n.health}  ${user?.currentHp ?? 0} / ${user?.maxHp ?? 0}',
                           activeColor: AppPalette.bloodCrimson,
                         ),
                         const SizedBox(height: 12),
                         DetailedHpBar(
                           value: staminaRatio,
                           label:
-                              'STAMINA  ${user?.currentStamina ?? 0} / $maxStamina',
+                              '${l10n.stamina}  ${user?.currentStamina ?? 0} / $maxStamina',
                           activeColor: AppPalette.staminaBlue,
                         ),
                       ],
@@ -247,7 +251,7 @@ class _DashboardView extends ConsumerWidget {
                   ),
                   const SizedBox(width: 16),
                   MinimalStatBadge(
-                    label: 'ÖZ',
+                    label: l10n.essence,
                     value: user == null ? '0' : '${user.essence}',
                     isGold: true,
                   ),
@@ -280,7 +284,9 @@ class _DashboardView extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'KÜL İZİ: ${ashMark.lostEssence} Kayıp Öz • Hedef: Gün ${ashMark.targetStreak}',
+                        l10n.isTurkish
+                            ? 'KÜL İZİ: ${ashMark.lostEssence} Kayıp Öz • Hedef: Gün ${ashMark.targetStreak}'
+                            : 'ASH MARK: ${ashMark.lostEssence} Lost Essence • Target: Day ${ashMark.targetStreak}',
                         style: GoogleFonts.inter(
                           color: AppPalette.textBoneWhite,
                           fontSize: 11.5,
@@ -311,7 +317,7 @@ class _DashboardView extends ConsumerWidget {
             const SizedBox(height: 12),
 
             // Vows (Habits) Header
-            const SectionTitle('Bugünün Yeminleri'),
+            SectionTitle(l10n.vowsTitle),
             const SizedBox(height: 6),
 
             // Frameless, Breathable Task List
@@ -322,7 +328,8 @@ class _DashboardView extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Bugün için henüz bir yemin edilmedi.',
+                            l10n.noVows,
+                            textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
                               color: AppPalette.textAshGray,
                               fontSize: 12.5,
@@ -372,6 +379,7 @@ class _DashboardView extends ConsumerWidget {
   }
 
   static void _showAddBossDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController();
     showDialog(
       context: context,
@@ -382,7 +390,7 @@ class _DashboardView extends ConsumerWidget {
           side: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
         ),
         title: Text(
-          'Uzun Vadeli Boss Ekle',
+          l10n.isTurkish ? 'Uzun Vadeli Boss Ekle' : 'Create Long-Term Boss',
           style: GoogleFonts.cinzel(
             color: AppPalette.primaryGold,
             fontWeight: FontWeight.w700,
@@ -394,7 +402,9 @@ class _DashboardView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes).\n\n• Faz 1: 30 Gün • Faz 2: 90 Gün\n• Faz 3: 180 Gün • Faz 4: 365 Gün\n\nGünde 1 kez iradeni test et. Faz bittiğinde devasa Öz kazanırsın.',
+              l10n.isTurkish
+                  ? 'Bağımlılık ya da irade mücadeleni bir Boss olarak tanımla (Örn: Sigarayı Bırak, Şekeri Kes).\n\n• Faz 1: 30 Gün • Faz 2: 90 Gün\n• Faz 3: 180 Gün • Faz 4: 365 Gün\n\nGünde 1 kez iradeni test et. Faz bittiğinde devasa Öz kazanırsın.'
+                  : 'Formulate an addiction or willpower battle as an Ancient Boss (e.g. Quit Smoking, Cut Sugar).\n\n• Phase 1: 30 Days • Phase 2: 90 Days\n• Phase 3: 180 Days • Phase 4: 365 Days\n\nStrike once per day. Massive Essence rewarded on phase defeat.',
               style: GoogleFonts.inter(
                 color: AppPalette.textBoneWhite,
                 fontSize: 12,
@@ -405,8 +415,8 @@ class _DashboardView extends ConsumerWidget {
             TextField(
               controller: titleController,
               style: GoogleFonts.inter(color: AppPalette.textBoneWhite),
-              decoration: const InputDecoration(
-                hintText: 'Boss / Bağımlılık Adı',
+              decoration: InputDecoration(
+                hintText: l10n.isTurkish ? 'Boss / Bağımlılık Adı' : 'Boss / Habit Name',
               ),
             ),
           ],
@@ -414,8 +424,10 @@ class _DashboardView extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('İptal',
-                style: GoogleFonts.inter(color: AppPalette.textAshGray)),
+            child: Text(
+              l10n.cancel,
+              style: GoogleFonts.inter(color: AppPalette.textAshGray),
+            ),
           ),
           OutlinedButton(
             onPressed: () async {
@@ -430,7 +442,7 @@ class _DashboardView extends ConsumerWidget {
               foregroundColor: AppPalette.primaryGold,
               side: const BorderSide(color: AppPalette.primaryGold, width: 0.8),
             ),
-            child: const Text('MEYDANA OKU'),
+            child: Text(l10n.isTurkish ? 'MEYDANA OKU' : 'CHALLENGE'),
           ),
         ],
       ),
@@ -445,6 +457,8 @@ class _AddBossMinimalButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(10),
@@ -465,7 +479,9 @@ class _AddBossMinimalButton extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'BOSS EKLE (Uzun Vadeli İrade Savaşı)',
+                l10n.isTurkish
+                    ? 'BOSS EKLE (Uzun Vadeli İrade Savaşı)'
+                    : 'ADD BOSS (Long-term Will Battle)',
                 style: GoogleFonts.cinzel(
                   color: AppPalette.primaryGold,
                   fontWeight: FontWeight.w700,
@@ -489,6 +505,7 @@ class _BossBattleMinimalCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final double hpRatio = boss.maxHp > 0 ? boss.currentHp / boss.maxHp : 0.0;
     final bool hasInteractedToday = boss.wasInteractedOn(DateTime.now());
 
@@ -532,7 +549,9 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                   ),
                 ),
                 child: Text(
-                  boss.phase > 1 ? 'FAZ ${boss.phase}' : 'FAZ 1',
+                  boss.phase > 1
+                      ? (l10n.isTurkish ? 'FAZ ${boss.phase}' : 'PHASE ${boss.phase}')
+                      : (l10n.isTurkish ? 'FAZ 1' : 'PHASE 1'),
                   style: GoogleFonts.inter(
                     color: AppPalette.bloodBright,
                     fontSize: 9,
@@ -551,22 +570,34 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       backgroundColor: AppPalette.surface,
-                      title: Text('Boss Mücadelesini Bırak?',
-                          style: GoogleFonts.cinzel(
-                              color: AppPalette.primaryGold)),
+                      title: Text(
+                        l10n.isTurkish ? 'Boss Mücadelesini Bırak?' : 'Abandon Boss Battle?',
+                        style: GoogleFonts.cinzel(
+                            color: AppPalette.primaryGold),
+                      ),
                       content: Text(
-                          'Bu boss mücadelesini terk etmek istediğine emin misin?',
-                          style: GoogleFonts.inter(
-                              color: AppPalette.textBoneWhite)),
+                        l10n.isTurkish
+                            ? 'Bu boss mücadelesini terk etmek istediğine emin misin?'
+                            : 'Are you sure you wish to abandon this battle?',
+                        style: GoogleFonts.inter(
+                            color: AppPalette.textBoneWhite),
+                      ),
                       actions: [
                         TextButton(
-                            onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('İptal')),
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(
+                            l10n.cancel,
+                            style: GoogleFonts.inter(color: AppPalette.textAshGray),
+                          ),
+                        ),
                         TextButton(
-                            onPressed: () => Navigator.pop(ctx, true),
-                            child: Text('Terk Et',
-                                style: GoogleFonts.inter(
-                                    color: AppPalette.bloodCrimson))),
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(
+                            l10n.isTurkish ? 'Terk Et' : 'Abandon',
+                            style: GoogleFonts.inter(
+                                color: AppPalette.bloodCrimson),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -582,7 +613,7 @@ class _BossBattleMinimalCard extends ConsumerWidget {
           const SizedBox(height: 8),
           DetailedHpBar(
             value: hpRatio,
-            label: 'BOSS CANI  ${boss.currentHp} / ${boss.maxHp} GÜN',
+            label: '${l10n.bossHp}  ${boss.currentHp} / ${boss.maxHp} ${l10n.streakDay}',
             activeColor: AppPalette.bloodCrimson,
           ),
           const SizedBox(height: 10),
@@ -603,7 +634,7 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      'Bugünün İrade Vuruşu Tamamlandı',
+                      l10n.bossStruckToday,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         color: AppPalette.textAshGray,
@@ -629,15 +660,19 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                '🏆 BOSS FAZ ${result.boss.phase}\'E GEÇTİ! +${result.essenceGained} Öz kazandın.',
+                                l10n.isTurkish
+                                    ? '🏆 BOSS FAZ ${result.boss.phase}\'E GEÇTİ! +${result.essenceGained} Öz kazandın.'
+                                    : '🏆 BOSS MUTATED TO PHASE ${result.boss.phase}! +${result.essenceGained} Essence reclaimed.',
                               ),
                             ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                '🛡️ İradeni korudun! Boss -1 Gün kaybetti.',
+                                l10n.isTurkish
+                                    ? '🛡️ İradeni korudun! Boss -1 Gün kaybetti.'
+                                    : '🛡️ Fortitude proven! Boss lost 1 HP.',
                               ),
                             ),
                           );
@@ -651,9 +686,11 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                     ),
                     icon: const Icon(Icons.shield_rounded, size: 14),
-                    label: Text('DİRENDİM',
-                        style: GoogleFonts.inter(
-                            fontSize: 11, fontWeight: FontWeight.w700)),
+                    label: Text(
+                      l10n.isTurkish ? 'DİRENDİM' : 'STAND FIRM',
+                      style: GoogleFonts.inter(
+                          fontSize: 11, fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -667,7 +704,9 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '💀 İraden kırıldı! -${result.damageTaken} HP hasar aldın ve Boss kendini iyileştirdi.',
+                              l10n.isTurkish
+                                  ? '💀 İraden kırıldı! -${result.damageTaken} HP hasar aldın ve Boss kendini iyileştirdi.'
+                                  : '💀 Will faltered! Suffered -${result.damageTaken} HP damage.',
                             ),
                           ),
                         );
@@ -680,9 +719,11 @@ class _BossBattleMinimalCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                     ),
                     icon: const Icon(Icons.heart_broken_rounded, size: 14),
-                    label: Text('YENİLDİM',
-                        style: GoogleFonts.inter(
-                            fontSize: 11, fontWeight: FontWeight.w700)),
+                    label: Text(
+                      l10n.isTurkish ? 'YENİLDİM' : 'FALTER',
+                      style: GoogleFonts.inter(
+                          fontSize: 11, fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
               ],
@@ -700,6 +741,8 @@ class _AddTaskMinimalButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -714,7 +757,7 @@ class _AddTaskMinimalButton extends StatelessWidget {
         ),
         icon: const Icon(Icons.add_rounded, size: 16),
         label: Text(
-          'YENİ YEMİN ET',
+          l10n.addVow.toUpperCase(),
           style: GoogleFonts.cinzel(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -733,6 +776,7 @@ class _MinimalTaskRow extends ConsumerWidget {
   final Task task;
 
   Future<bool> _confirmDelete(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -745,7 +789,7 @@ class _MinimalTaskRow extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Yemini Sil?',
+          l10n.deleteVowTitle,
           style: GoogleFonts.cinzel(
             color: AppPalette.bloodBright,
             fontWeight: FontWeight.w700,
@@ -753,7 +797,9 @@ class _MinimalTaskRow extends ConsumerWidget {
           ),
         ),
         content: Text(
-          '\'${task.title}\' yemini silinecektir. Harcanan ${task.category.staminaCost} Stamina iade edilecektir.\n\nEmin misin?',
+          l10n.isTurkish
+              ? '\'${task.title}\' yemini silinecektir. Harcanan ${task.category.staminaCost} Stamina iade edilecektir.\n\nEmin misin?'
+              : 'Vow \'${task.title}\' will be forsaken. Consumed ${task.category.staminaCost} Stamina will be refunded.\n\nAre you sure?',
           style: GoogleFonts.inter(
             color: AppPalette.textBoneWhite,
             fontSize: 12,
@@ -764,7 +810,7 @@ class _MinimalTaskRow extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              'İptal',
+              l10n.cancel,
               style: GoogleFonts.inter(color: AppPalette.textAshGray),
             ),
           ),
@@ -778,7 +824,7 @@ class _MinimalTaskRow extends ConsumerWidget {
               ),
             ),
             child: Text(
-              'YEMİNİ SİL',
+              l10n.delete,
               style: GoogleFonts.cinzel(
                 fontWeight: FontWeight.w700,
                 fontSize: 11,
@@ -793,6 +839,7 @@ class _MinimalTaskRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(userControllerProvider);
     final isCompleted = task.isCompletedOn(DateTime.now());
 
@@ -814,7 +861,7 @@ class _MinimalTaskRow extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'SİL',
+              l10n.delete,
               style: GoogleFonts.cinzel(
                 color: AppPalette.bloodBright,
                 fontSize: 11,
@@ -915,7 +962,7 @@ class _MinimalTaskRow extends ConsumerWidget {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              'Saat: ${task.habitTime}',
+                              '${l10n.habitTime}: ${task.habitTime}',
                               style: GoogleFonts.inter(
                                 color: AppPalette.textAshGray,
                                 fontSize: 10,
@@ -925,7 +972,9 @@ class _MinimalTaskRow extends ConsumerWidget {
                           ],
                           if (task.acceptedWhileExhausted)
                             Text(
-                              '⚠️ Tükenmiş (1.5x Hasar)',
+                              l10n.isTurkish
+                                  ? '⚠️ Tükenmiş (1.5x Hasar)'
+                                  : '⚠️ Exhausted (1.5x Damage)',
                               style: GoogleFonts.inter(
                                 color: AppPalette.bloodCrimson,
                                 fontSize: 9.5,
@@ -957,3 +1006,4 @@ class _MinimalTaskRow extends ConsumerWidget {
     );
   }
 }
+

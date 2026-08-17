@@ -149,4 +149,38 @@ class NotificationService {
       await _notificationsPlugin.cancel(id: id);
     } catch (_) {}
   }
+
+  /// Sends an immediate test notification to verify delivery on device
+  Future<void> showImmediateTestNotification({
+    String? title,
+    String? body,
+  }) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
+    const androidDetails = AndroidNotificationDetails(
+      'bonfire_habits_channel',
+      'Bonfire Yemin Bildirimleri',
+      channelDescription: 'Günlük yemin ve alışkanlık hatırlatıcıları',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(sound: 'default'),
+    );
+
+    try {
+      await _notificationsPlugin.show(
+        id: 999999,
+        title: title ?? '🔥 BONFIRE: Kadim Ateş Yanıyor',
+        body: body ?? 'Bildirim sistemi başarıyla bağlandı. Yeminlerin koruma altında!',
+        notificationDetails: notificationDetails,
+      );
+    } catch (_) {}
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/bonfire_logo.dart';
 import 'package:bonfire/domain/models/character_class.dart';
@@ -19,6 +20,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppPalette.scaffoldBackground,
       body: SafeArea(
@@ -30,14 +33,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: 8),
               const Center(
                 child: BonfireLogo(
-                  size: 64,
+                  size: 72,
                   fontSize: 22,
                   vertical: true,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                'Sınıfını Seç (Choose Your Path)',
+                l10n.choosePath,
                 style: GoogleFonts.cinzel(
                   color: AppPalette.textBoneWhite,
                   fontSize: 15,
@@ -47,7 +50,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Bonfire yolculuğuna hangi karakterin güç ve zayıflıklarıyla başlayacaksın?',
+                l10n.choosePathSubtitle,
                 style: GoogleFonts.inter(
                   color: AppPalette.textAshGray,
                   fontSize: 12,
@@ -101,15 +104,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                       ),
                                     ),
                                     child: Center(
-                                      child: Text(
-                                        characterClass.className.substring(0, 1),
-                                        style: GoogleFonts.cinzel(
-                                          color: isSelected
-                                              ? const Color(0xFF0E1013)
-                                              : AppPalette.textBoneWhite,
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 16,
-                                        ),
+                                      child: Icon(
+                                        _getClassIcon(characterClass),
+                                        color: isSelected
+                                            ? const Color(0xFF0E1013)
+                                            : AppPalette.primaryGold,
+                                        size: 18,
                                       ),
                                     ),
                                   ),
@@ -120,20 +120,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          characterClass.className.toUpperCase(),
+                                          l10n.className(characterClass.name),
                                           style: GoogleFonts.cinzel(
-                                            color: isSelected
-                                                ? AppPalette.primaryGold
-                                                : AppPalette.textBoneWhite,
-                                            fontWeight: FontWeight.w700,
+                                            color: AppPalette.textBoneWhite,
                                             fontSize: 14,
-                                            letterSpacing: 1.0,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: 0.8,
                                           ),
                                         ),
+                                        const SizedBox(height: 2),
                                         Text(
-                                          'HP: ${characterClass.baseHp}  •  Stamina: ${characterClass.maxStamina}',
+                                          _getClassDifficulty(characterClass, l10n),
                                           style: GoogleFonts.inter(
-                                            color: AppPalette.textAshGray,
+                                            color: isSelected
+                                                ? AppPalette.primaryGold
+                                                : AppPalette.textAshGray,
                                             fontSize: 11,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -141,56 +142,50 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                       ],
                                     ),
                                   ),
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppPalette.primaryGold
-                                            : AppPalette.textDim,
-                                        width: 1.5,
-                                      ),
-                                      color: isSelected
-                                          ? AppPalette.primaryGold
-                                          : Colors.transparent,
-                                    ),
-                                    child: isSelected
-                                        ? const Center(
-                                            child: Icon(
-                                              Icons.check,
-                                              size: 12,
-                                              color: Color(0xFF0E1013),
-                                            ),
-                                          )
-                                        : null,
+                                  Icon(
+                                    isSelected
+                                        ? Icons.radio_button_checked_rounded
+                                        : Icons.radio_button_off_rounded,
+                                    color: isSelected
+                                        ? AppPalette.primaryGold
+                                        : AppPalette.textDim,
+                                    size: 18,
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                characterClass.description,
+                                _getClassDescription(characterClass, l10n),
                                 style: GoogleFonts.inter(
-                                  color: AppPalette.textAshGray,
+                                  color: AppPalette.textDim,
                                   fontSize: 11.5,
                                   height: 1.35,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
                               Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
+                                spacing: 6,
+                                runSpacing: 6,
                                 children: [
                                   _TraitChip(
-                                    label:
-                                        'Hasar: ${(characterClass.damageMultiplier * 100).round()}%',
+                                    label: '${l10n.health}: ${characterClass.baseHp}',
+                                    isBuff: characterClass.baseHp >= 100,
+                                  ),
+                                  _TraitChip(
+                                    label: '${l10n.stamina}: ${characterClass.maxStamina}',
+                                    isBuff: characterClass.maxStamina >= 100,
+                                  ),
+                                  _TraitChip(
+                                    label: l10n.isTurkish
+                                        ? 'Hasar: ${(characterClass.damageMultiplier * 100).round()}%'
+                                        : 'Damage Taken: ${(characterClass.damageMultiplier * 100).round()}%',
                                     isBuff:
                                         characterClass.damageMultiplier <= 1.0,
                                   ),
                                   _TraitChip(
-                                    label:
-                                        'Öz Kazancı: ${(characterClass.essenceMultiplier * 100).round()}%',
+                                    label: l10n.isTurkish
+                                        ? 'Öz Kazancı: ${(characterClass.essenceMultiplier * 100).round()}%'
+                                        : 'Essence: ${(characterClass.essenceMultiplier * 100).round()}%',
                                     isBuff:
                                         characterClass.essenceMultiplier >= 1.0,
                                   ),
@@ -223,7 +218,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                   ),
                   child: Text(
-                    'YOLCULUĞA BAŞLA',
+                    l10n.beginJourney,
                     style: GoogleFonts.cinzel(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -237,6 +232,59 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
       ),
     );
+  }
+
+  IconData _getClassIcon(CharacterClass characterClass) {
+    switch (characterClass) {
+      case CharacterClass.mage:
+        return Icons.auto_awesome_rounded;
+      case CharacterClass.warrior:
+        return Icons.shield_rounded;
+      case CharacterClass.prisoner:
+        return Icons.lock_open_rounded;
+    }
+  }
+
+  String _getClassDifficulty(CharacterClass characterClass, AppLocalizations l10n) {
+    if (l10n.isTurkish) {
+      switch (characterClass) {
+        case CharacterClass.mage:
+          return 'Başlangıç Seviyesi (Yüksek Can, Düşük Ceza)';
+        case CharacterClass.warrior:
+          return 'Dengeli Seviye (Standart İrade)';
+        case CharacterClass.prisoner:
+          return 'Zor Seviye (Yüksek Risk / Yüksek Ödül)';
+      }
+    }
+    switch (characterClass) {
+      case CharacterClass.mage:
+        return 'Beginner Path (High HP, Low Penalty)';
+      case CharacterClass.warrior:
+        return 'Balanced Path (Standard Will)';
+      case CharacterClass.prisoner:
+        return 'Hard Path (High Risk / High Reward)';
+    }
+  }
+
+  String _getClassDescription(CharacterClass characterClass, AppLocalizations l10n) {
+    if (l10n.isTurkish) {
+      switch (characterClass) {
+        case CharacterClass.mage:
+          return 'Alışkanlık bilinci yeni gelişen kullanıcılar için uygundur. Yüksek can havuzu ve az hasar alma avantajı sunar.';
+        case CharacterClass.warrior:
+          return 'Disiplin ve dayanıklılığı eşit dengede tutmak isteyen kullanıcılar için idealdir.';
+        case CharacterClass.prisoner:
+          return 'Sadece cesareti olanlar için. Düşük can ile başlar, kaçırılan görevlerde ağır ceza alır ancak %50 daha fazla Öz kazanır.';
+      }
+    }
+    switch (characterClass) {
+      case CharacterClass.mage:
+        return 'Ideal for novices. Features high survivability with 150 HP and reduced penalty damage.';
+      case CharacterClass.warrior:
+        return 'Balanced for seekers of discipline. 100 HP and 100 Stamina for steady progress.';
+      case CharacterClass.prisoner:
+        return 'Only for the brave. 50 HP with heavy damage penalties, but yields 50% more Essence.';
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/domain/models/reflection.dart';
 import 'package:bonfire/domain/models/shop_item.dart';
@@ -38,6 +39,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(userControllerProvider);
     final ashMark = ref.watch(ashMarkControllerProvider);
     final reflections = ref.watch(reflectionControllerProvider);
@@ -87,7 +89,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'THE CHRONICLE',
+                          l10n.chronicleTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.cinzel(
@@ -98,7 +100,9 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                           ),
                         ),
                         Text(
-                          'YOLCULUK HARİTASI VE ARŞİVLER',
+                          l10n.isTurkish
+                              ? 'YOLCULUK HARİTASI VE ARŞİVLER'
+                              : 'JOURNEY MAP & ARCHIVES',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -131,7 +135,7 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          'GÜN $currentStreak',
+                          '${l10n.streakDay} $currentStreak',
                           style: GoogleFonts.inter(
                             color: AppPalette.textBoneWhite,
                             fontSize: 11.5,
@@ -171,7 +175,9 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'BONFIRE BULUNDU! (GÜN $eligibleMilestone)',
+                              l10n.isTurkish
+                                  ? 'BONFIRE BULUNDU! (GÜN $eligibleMilestone)'
+                                  : 'BONFIRE REACHED! (DAY $eligibleMilestone)',
                               style: GoogleFonts.cinzel(
                                 color: AppPalette.primaryGold,
                                 fontSize: 12.5,
@@ -184,7 +190,9 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Ateşin başında dinlendin. Canın tamamen yenilendi! Kalıcı bir stat artışı seçerek ateşi körükle:',
+                        l10n.isTurkish
+                            ? 'Ateşin başında dinlendin. Canın tamamen yenilendi! Kalıcı bir stat artışı seçerek ateşi körükle:'
+                            : 'You rested beside the flame. HP restored! Kindle the fire with a permanent stat enhancement:',
                         style: GoogleFonts.inter(
                           color: AppPalette.textBoneWhite,
                           fontSize: 11.5,
@@ -202,9 +210,11 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                                     .kindleMilestone(upgradeHp: true);
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        '🔥 Kudret seçildi: +20 Max HP kazanıldı!',
+                                        l10n.isTurkish
+                                            ? '🔥 Kudret seçildi: +20 Max HP kazanıldı!'
+                                            : '🔥 Vigor chosen: +20 Max HP gained!',
                                       ),
                                     ),
                                   );
@@ -238,9 +248,11 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                                     .kindleMilestone(upgradeHp: false);
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        '⚡ Dayanıklılık seçildi: +15 Max Stamina kazanıldı!',
+                                        l10n.isTurkish
+                                            ? '⚡ Dayanıklılık seçildi: +15 Max Stamina kazanıldı!'
+                                            : '⚡ Endurance chosen: +15 Max Stamina gained!',
                                       ),
                                     ),
                                   );
@@ -294,7 +306,9 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'KÜL İZİ HEDEFİ: Gün ${ashMark.targetStreak} (${ashMark.lostEssence} Kayıp Öz)',
+                          l10n.isTurkish
+                              ? 'KÜL İZİ HEDEFİ: Gün ${ashMark.targetStreak} (${ashMark.lostEssence} Kayıp Öz)'
+                              : 'ASH MARK RECOVERY: Day ${ashMark.targetStreak} (${ashMark.lostEssence} Lost Essence)',
                           style: GoogleFonts.inter(
                             color: AppPalette.textBoneWhite,
                             fontSize: 11,
@@ -334,10 +348,10 @@ class _JourneyScreenState extends ConsumerState<JourneyScreen>
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
-                  tabs: const [
-                    Tab(text: 'YOL HARİTASI'),
-                    Tab(text: 'KADİM İZLER'),
-                    Tab(text: 'MUHASEBE'),
+                  tabs: [
+                    Tab(text: l10n.tabRoadmap),
+                    Tab(text: l10n.tabSoapstone),
+                    Tab(text: l10n.tabReflection),
                   ],
                 ),
               ),
@@ -496,10 +510,14 @@ class _PastSoapstonesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     if (soapstones.isEmpty) {
       return Center(
         child: Text(
-          'Henüz zemine kazınmış bir not bulunmuyor.',
+          l10n.isTurkish
+              ? 'Henüz zemine kazınmış bir not bulunmuyor.'
+              : 'No soapstone messages carved yet.',
           style: GoogleFonts.inter(
             color: AppPalette.textAshGray,
             fontSize: 12,
@@ -542,7 +560,7 @@ class _PastSoapstonesView extends StatelessWidget {
                   ),
                   if (item.isEdited)
                     Text(
-                      'DÜZENLENDİ',
+                      l10n.isTurkish ? 'DÜZENLENDİ' : 'EDITED',
                       style: GoogleFonts.inter(
                         color: AppPalette.textDim,
                         fontSize: 9,
@@ -575,10 +593,14 @@ class _PastReflectionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     if (reflections.isEmpty) {
       return Center(
         child: Text(
-          'Henüz mühürlenmiş bir gün sonu muhasebesi yok.',
+          l10n.isTurkish
+              ? 'Henüz mühürlenmiş bir gün sonu muhasebesi yok.'
+              : 'No reflections sealed in the archives yet.',
           style: GoogleFonts.inter(
             color: AppPalette.textAshGray,
             fontSize: 12,

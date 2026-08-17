@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/domain/models/shop_item.dart';
 import 'package:bonfire/domain/services/shop_service.dart';
@@ -44,6 +45,7 @@ class ShopScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(userControllerProvider);
     final currentStreak = user?.currentStreak ?? 1;
     final isMarketOpen = ShopItem.isMarketOpenOnStreak(currentStreak);
@@ -73,18 +75,18 @@ class ShopScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'THE KILN',
+                          l10n.shopTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.cinzel(
                             color: AppPalette.primaryGold,
-                            fontSize: 19,
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 2.2,
+                            letterSpacing: 2.0,
                           ),
                         ),
                         Text(
-                          'KADİM EŞYALAR VE PAZAR',
+                          l10n.isTurkish ? 'KADİM EŞYALAR VE SEYYAR TÜCCAR' : 'ANCIENT RELICS & TRAVELLING MERCHANT',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -117,7 +119,7 @@ class ShopScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          '${user?.essence ?? 0} ÖZ',
+                          '${user?.essence ?? 0} ${l10n.essence}',
                           style: GoogleFonts.cinzel(
                             color: AppPalette.primaryGold,
                             fontSize: 11.5,
@@ -152,7 +154,9 @@ class ShopScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '🔥 PAZAR AÇIK (GÜN $currentStreak): Seyyar tüccar kamp kurdu.',
+                          l10n.isTurkish
+                              ? '🔥 PAZAR AÇIK (${l10n.streakDay} $currentStreak): Seyyar tüccar kamp kurdu.'
+                              : '🔥 MARKET OPEN (${l10n.streakDay} $currentStreak): Travelling merchant has arrived.',
                           style: GoogleFonts.inter(
                             color: AppPalette.primaryGold,
                             fontSize: 11,
@@ -183,7 +187,9 @@ class ShopScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Mühürlü: Pazar her 5 günde bir açılır. Sonraki pazar: Gün $nextMarketDay ($daysLeft gün kaldı).',
+                          l10n.isTurkish
+                              ? 'Mühürlü: Pazar her 5 günde bir açılır. Sonraki pazar: Gün $nextMarketDay ($daysLeft gün kaldı).'
+                              : 'Sealed: Market opens every 5 days. Next market: Day $nextMarketDay ($daysLeft days left).',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 11,
@@ -216,7 +222,9 @@ class ShopScreen extends ConsumerWidget {
                             ),
                           ),
                           child: Text(
-                            '🛡️ Arınma: ${user.activePurgingStones} Görev',
+                            l10n.isTurkish
+                                ? '🛡️ Arınma Taşı: ${user.activePurgingStones} Görev'
+                                : '🛡️ Purging Stone: ${user.activePurgingStones} Vow',
                             style: GoogleFonts.inter(
                               color: const Color(0xFF81C784),
                               fontSize: 10.5,
@@ -243,7 +251,9 @@ class ShopScreen extends ConsumerWidget {
                             ),
                           ),
                           child: Text(
-                            '⏳ Zaman Donduruldu',
+                            l10n.isTurkish
+                                ? '⏳ Zaman Donduruldu'
+                                : '⏳ Stasis Active',
                             style: GoogleFonts.inter(
                               color: const Color(0xFFBA68C8),
                               fontSize: 10.5,
@@ -314,7 +324,10 @@ class ShopScreen extends ConsumerWidget {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            item.name.toUpperCase(),
+                                            (l10n.isTurkish
+                                                    ? item.nameTr
+                                                    : item.nameEn)
+                                                .toUpperCase(),
                                             style: GoogleFonts.cinzel(
                                               color: AppPalette.textBoneWhite,
                                               fontSize: 12.5,
@@ -338,7 +351,9 @@ class ShopScreen extends ConsumerWidget {
                                                 ),
                                               ),
                                               child: Text(
-                                                '$ownedCount Adet',
+                                                l10n.isTurkish
+                                                    ? '$ownedCount Adet'
+                                                    : '$ownedCount ${l10n.owned}',
                                                 style: GoogleFonts.inter(
                                                   color: AppPalette.primaryGold,
                                                   fontSize: 9.5,
@@ -348,15 +363,6 @@ class ShopScreen extends ConsumerWidget {
                                             ),
                                         ],
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        item.nameTr,
-                                        style: GoogleFonts.inter(
-                                          color: AppPalette.textAshGray,
-                                          fontSize: 10.5,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -364,7 +370,9 @@ class ShopScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              item.description,
+                              l10n.isTurkish
+                                  ? item.descriptionTr
+                                  : item.descriptionEn,
                               style: GoogleFonts.inter(
                                 color: AppPalette.textAshGray,
                                 fontSize: 11.5,
@@ -375,7 +383,7 @@ class ShopScreen extends ConsumerWidget {
                             Row(
                               children: [
                                 Text(
-                                  '${item.cost} ÖZ',
+                                  '${item.cost} ${l10n.essence}',
                                   style: GoogleFonts.cinzel(
                                     color: canAfford
                                         ? AppPalette.primaryGold
@@ -399,7 +407,7 @@ class ShopScreen extends ConsumerWidget {
                                               .showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                '✨ ${item.name} kullanıldı!',
+                                                '✨ ${(l10n.isTurkish ? item.nameTr : item.nameEn)} ${l10n.isTurkish ? 'kullanıldı!' : 'used!'}',
                                               ),
                                             ),
                                           );
@@ -426,7 +434,7 @@ class ShopScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     child: Text(
-                                      'KULLAN',
+                                      l10n.use,
                                       style: GoogleFonts.inter(
                                         fontSize: 10.5,
                                         fontWeight: FontWeight.w700,
@@ -449,7 +457,7 @@ class ShopScreen extends ConsumerWidget {
                                                   .showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    '🛡️ ${item.name} satın alındı!',
+                                                    '🛡️ ${(l10n.isTurkish ? item.nameTr : item.nameEn)} ${l10n.isTurkish ? 'satın alındı!' : 'purchased!'}',
                                                   ),
                                                 ),
                                               );
@@ -467,9 +475,12 @@ class ShopScreen extends ConsumerWidget {
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
                                                   content: Text(
-                                                      'Yetersiz Öz (Essence)!'),
+                                                    l10n.isTurkish
+                                                        ? 'Yetersiz Öz (Essence)!'
+                                                        : 'Insufficient Essence!',
+                                                  ),
                                                 ),
                                               );
                                             }
@@ -492,7 +503,9 @@ class ShopScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    !isMarketOpen ? 'KAPALI' : 'SATIN AL',
+                                    !isMarketOpen
+                                        ? (l10n.isTurkish ? 'KAPALI' : 'CLOSED')
+                                        : l10n.buy,
                                     style: GoogleFonts.inter(
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,

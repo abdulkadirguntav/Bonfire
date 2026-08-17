@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bonfire/core/localization/app_localizations.dart';
 import 'package:bonfire/core/theme/app_theme.dart';
 import 'package:bonfire/core/widgets/ornate_widgets.dart';
 import 'package:bonfire/presentation/providers/reflection_provider.dart';
@@ -34,6 +35,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 
   Future<void> _saveAnswersAndOpenChronicle(List<String> questions) async {
+    final l10n = AppLocalizations.of(context);
     final Map<String, String> answers = {};
     for (final q in questions) {
       final text = _controllers[q]?.text.trim() ?? '';
@@ -51,7 +53,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
         SnackBar(
           backgroundColor: AppPalette.surfaceElevated,
           content: Text(
-            '🔥 Düşüncelerin mühürlendi ve takvime kaydedildi.',
+            l10n.isTurkish
+                ? '🔥 Düşüncelerin mühürlendi ve takvime kaydedildi.'
+                : '🔥 Reflections sealed and saved to chronicle.',
             style: GoogleFonts.inter(color: AppPalette.primaryGold),
           ),
         ),
@@ -67,6 +71,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 
   void _showAddQuestionDialog() {
+    final l10n = AppLocalizations.of(context);
     final textController = TextEditingController();
     showDialog(
       context: context,
@@ -77,7 +82,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           side: const BorderSide(color: AppPalette.borderSubtle, width: 0.8),
         ),
         title: Text(
-          'Özel Muhasebe Sorusu Ekle',
+          l10n.isTurkish
+              ? 'Özel Muhasebe Sorusu Ekle'
+              : 'Add Custom Question',
           style: GoogleFonts.cinzel(
             color: AppPalette.primaryGold,
             fontSize: 16,
@@ -88,7 +95,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Kendine sormak istediğin stoacı bir soru ekle.',
+              l10n.isTurkish
+                  ? 'Kendine sormak istediğin stoacı bir soru ekle.'
+                  : 'Enter a stoic question for evening reflection.',
               style: GoogleFonts.inter(
                 color: AppPalette.textBoneWhite,
                 fontSize: 12,
@@ -102,8 +111,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                 color: AppPalette.textBoneWhite,
                 fontSize: 13,
               ),
-              decoration: const InputDecoration(
-                hintText: 'Örn: Bugün hangi engeli bir basamağa çevirdim?',
+              decoration: InputDecoration(
+                hintText: l10n.isTurkish
+                    ? 'Örn: Bugün hangi engeli bir basamağa çevirdim?'
+                    : 'e.g. How did I turn an obstacle into an advantage today?',
               ),
             ),
           ],
@@ -111,8 +122,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('İptal',
-                style: GoogleFonts.inter(color: AppPalette.textAshGray)),
+            child: Text(
+              l10n.cancel,
+              style: GoogleFonts.inter(color: AppPalette.textAshGray),
+            ),
           ),
           OutlinedButton(
             onPressed: () async {
@@ -128,7 +141,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
               foregroundColor: AppPalette.primaryGold,
               side: const BorderSide(color: AppPalette.primaryGold, width: 0.8),
             ),
-            child: const Text('EKLE'),
+            child: Text(l10n.isTurkish ? 'EKLE' : 'ADD'),
           ),
         ],
       ),
@@ -137,6 +150,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final customQuestions = ref.watch(activeQuestionsProvider);
     final todayReflection = ref
         .watch(reflectionControllerProvider.notifier)
@@ -164,7 +178,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'STOIC REFLECTION',
+                          l10n.reflectionTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.cinzel(
@@ -175,7 +189,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                           ),
                         ),
                         Text(
-                          'GÜN SONU İÇSEL MUHASEBE',
+                          l10n.isTurkish
+                              ? 'GÜN SONU İÇSEL MUHASEBE'
+                              : 'EVENING STOIC INQUIRY',
                           style: GoogleFonts.inter(
                             color: AppPalette.textAshGray,
                             fontSize: 9.5,
@@ -220,7 +236,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '❝ Gözlerini kapatmadan önce günün her anını sorgula: Ne yaptın? Neyi yapmadın? ❞\n— Seneca',
+                        l10n.isTurkish
+                            ? '❝ Gözlerini kapatmadan önce günün her anını sorgula: Ne yaptın? Neyi yapmadın? ❞\n— Seneca'
+                            : '❝ Before sleep closes your eyes, review the deeds of the day: What was done? What was left undone? ❞\n— Seneca',
                         style: GoogleFonts.cinzel(
                           color: AppPalette.textBoneWhite,
                           fontSize: 11,
@@ -234,7 +252,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
               ),
               const SizedBox(height: 10),
 
-              const SectionTitle('Günün Soruları'),
+              SectionTitle(l10n.isTurkish ? 'Günün Soruları' : 'Daily Inquiries'),
               const SizedBox(height: 6),
 
               // Questions List
@@ -245,7 +263,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Tüm sorular kaldırıldı. Kendi sorularını ekleyebilirsin.',
+                              l10n.isTurkish
+                                  ? 'Tüm sorular kaldırıldı. Kendi sorularını ekleyebilirsin.'
+                                  : 'All questions cleared. Add your own.',
                               style: GoogleFonts.inter(
                                 color: AppPalette.textAshGray,
                                 fontSize: 12,
@@ -260,7 +280,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                                     color: AppPalette.primaryGold, width: 0.8),
                               ),
                               icon: const Icon(Icons.add, size: 16),
-                              label: const Text('SORU EKLE'),
+                              label: Text(l10n.isTurkish ? 'SORU EKLE' : 'ADD QUESTION'),
                             ),
                           ],
                         ),
@@ -324,8 +344,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                                       color: AppPalette.textBoneWhite,
                                       fontSize: 12.5,
                                     ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Cevabını buraya yaz...',
+                                    decoration: InputDecoration(
+                                      hintText: l10n.isTurkish
+                                          ? 'Cevabını buraya yaz...'
+                                          : 'Write your reflection here...',
                                     ),
                                   ),
                                 ],
@@ -353,7 +375,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     ),
                   ),
                   child: Text(
-                    'MÜHÜRLE VE DİNLEN',
+                    l10n.sealAndRest,
                     style: GoogleFonts.cinzel(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
